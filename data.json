@@ -1,0 +1,161 @@
+{
+  "students": {
+    "klasdkf": {
+      "id": "klasdkf",
+      "lastSeen": "2026-01-14T15:47:42.084Z",
+      "sessions": [
+        {
+          "score": 10,
+          "total": 10,
+          "gameType": "practice",
+          "id": "ef8q7h2",
+          "timestamp": "2026-01-14T15:47:42.084Z"
+        }
+      ]
+    },
+    "borsethcTEST001": {
+      "id": "borsethcTEST001",
+      "lastSeen": "2026-01-14T16:05:21.106Z",
+      "sessions": []
+    },
+    "TEST001": {
+      "id": "TEST001",
+      "lastSeen": "2026-01-14T16:07:55.676Z",
+      "sessions": [
+        {
+          "score": 0,
+          "total": 0,
+          "gameType": "practice",
+          "id": "w7iyhs1",
+          "timestamp": "2026-01-14T16:07:55.633Z"
+        },
+        {
+          "score": 0,
+          "total": 0,
+          "gameType": "practice",
+          "id": "ibw8ny0",
+          "timestamp": "2026-01-14T16:07:55.676Z"
+        }
+      ]
+    },
+    "chad": {
+      "id": "chad",
+      "lastSeen": "2026-01-14T16:20:33.226Z",
+      "sessions": [
+        {
+          "score": 0,
+          "total": 0,
+          "gameType": "practice",
+          "id": "942slac",
+          "timestamp": "2026-01-14T16:20:33.193Z"
+        },
+        {
+          "score": 0,
+          "total": 0,
+          "gameType": "practice",
+          "id": "mgvuucg",
+          "timestamp": "2026-01-14T16:20:33.226Z"
+        }
+      ]
+    },
+    "asdf": {
+      "id": "asdf",
+      "lastSeen": "2026-01-14T16:41:05.774Z",
+      "sessions": [
+        {
+          "score": 0,
+          "total": 0,
+          "gameType": "practice",
+          "id": "qlh9g9d",
+          "timestamp": "2026-01-14T16:41:05.708Z"
+        },
+        {
+          "score": 0,
+          "total": 0,
+          "gameType": "practice",
+          "id": "7s4xwgf",
+          "timestamp": "2026-01-14T16:41:05.774Z"
+        }
+      ]
+    },
+    "jjj": {
+      "id": "jjj",
+      "lastSeen": "2026-01-14T18:41:53.078Z",
+      "sessions": [
+        {
+          "score": 0,
+          "total": 0,
+          "gameType": "practice",
+          "id": "gk5pf6d",
+          "timestamp": "2026-01-14T16:42:24.185Z"
+        },
+        {
+          "score": 0,
+          "total": 0,
+          "gameType": "practice",
+          "id": "hsk3rp6",
+          "timestamp": "2026-01-14T16:42:24.223Z"
+        },
+        {
+          "score": 0,
+          "total": 0,
+          "gameType": "practice",
+          "id": "nr0zv2v",
+          "timestamp": "2026-01-14T18:41:53.028Z"
+        },
+        {
+          "score": 0,
+          "total": 0,
+          "gameType": "practice",
+          "id": "179d8i9",
+          "timestamp": "2026-01-14T18:41:53.078Z"
+        }
+      ]
+    },
+    "taz": {
+      "id": "taz",
+      "lastSeen": "2026-01-14T18:39:42.451Z",
+      "sessions": [
+        {
+          "score": 0,
+          "total": 0,
+          "gameType": "practice",
+          "id": "7745ftn",
+          "timestamp": "2026-01-14T18:39:42.318Z"
+        },
+        {
+          "score": 0,
+          "total": 0,
+          "gameType": "practice",
+          "id": "muhx4ja",
+          "timestamp": "2026-01-14T18:39:42.451Z"
+        }
+      ]
+    },
+    "hjujjh": {
+      "id": "hjujjh",
+      "lastSeen": "2026-01-14T19:15:16.066Z",
+      "sessions": [
+        {
+          "score": 0,
+          "total": 0,
+          "gameType": "practice",
+          "id": "0l8byo3",
+          "timestamp": "2026-01-14T19:15:16.036Z"
+        },
+        {
+          "score": 0,
+          "total": 0,
+          "gameType": "practice",
+          "id": "rtp5d9q",
+          "timestamp": "2026-01-14T19:15:16.066Z"
+        }
+      ]
+    },
+    "hhh": {
+      "id": "hhh",
+      "lastSeen": "2026-01-14T19:17:42.268Z",
+      "sessions": []
+    }
+  }
+}
