@@ -91,7 +91,7 @@ export function useGameLogic(isRunning: boolean) {
         }
 
         return {
-            id: crypto.randomUUID(),
+            id: Math.random().toString(36).substring(2, 9),
             factor1: f1,
             factor2: f2,
             answer: answer,

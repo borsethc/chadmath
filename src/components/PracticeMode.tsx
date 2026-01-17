@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useGameLogic } from "@/hooks/useGameLogic";
 import { useSoundEffects } from "@/hooks/useSoundEffects";
 import { cn } from "@/lib/utils";
-import { Play, Loader2, ToggleLeft, ToggleRight } from "lucide-react";
+import { Play, Loader2, ToggleLeft, ToggleRight, Delete } from "lucide-react";
 
 interface PracticeModeProps {
     isRunning: boolean;
@@ -304,15 +304,49 @@ export function PracticeMode({ isRunning, studentId, setIsRunning }: PracticeMod
                                 ))}
                             </div>
                         ) : (
-                            <input
-                                ref={inputRef}
-                                type="number"
-                                value={userInput}
-                                onChange={(e) => setInput(e.target.value)}
-                                className="w-full max-w-[200px] border-b-4 border-white/20 bg-transparent text-center text-6xl font-bold text-white outline-none placeholder:text-white/10 focus:border-indigo-500 transition-all caret-indigo-500"
-                                placeholder="?"
-                                autoFocus={!isMultipleChoice}
-                            />
+                            <div className="flex flex-col items-center gap-6 w-full">
+                                <input
+                                    ref={inputRef}
+                                    type="text"
+                                    value={userInput}
+                                    readOnly
+                                    className="w-full max-w-[200px] border-b-4 border-white/20 bg-transparent text-center text-6xl font-bold text-white outline-none placeholder:text-white/10 focus:border-indigo-500 transition-all caret-transparent cursor-default"
+                                    placeholder="?"
+                                />
+
+                                <div className="grid grid-cols-3 gap-3 w-full max-w-[280px]">
+                                    {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((num) => (
+                                        <motion.button
+                                            key={num}
+                                            whileHover={{ scale: 1.05, backgroundColor: "rgba(255,255,255,0.15)" }}
+                                            whileTap={{ scale: 0.95 }}
+                                            onClick={() => setInput(userInput + num)}
+                                            className="h-16 rounded-full bg-white/10 border border-white/5 text-2xl font-bold text-white flex items-center justify-center transition-colors"
+                                        >
+                                            {num}
+                                        </motion.button>
+                                    ))}
+
+                                    {/* Bottom row: Empty, 0, Backspace */}
+                                    <div />
+                                    <motion.button
+                                        whileHover={{ scale: 1.05, backgroundColor: "rgba(255,255,255,0.15)" }}
+                                        whileTap={{ scale: 0.95 }}
+                                        onClick={() => setInput(userInput + "0")}
+                                        className="h-16 rounded-full bg-white/10 border border-white/5 text-2xl font-bold text-white flex items-center justify-center transition-colors"
+                                    >
+                                        0
+                                    </motion.button>
+                                    <motion.button
+                                        whileHover={{ scale: 1.05, backgroundColor: "rgba(255,50,50,0.2)" }}
+                                        whileTap={{ scale: 0.95 }}
+                                        onClick={() => setInput(userInput.slice(0, -1))}
+                                        className="h-16 rounded-full bg-white/5 border border-white/5 text-white flex items-center justify-center transition-colors hover:bg-red-500/20 group"
+                                    >
+                                        <Delete className="w-6 h-6 text-muted-foreground group-hover:text-red-400" />
+                                    </motion.button>
+                                </div>
+                            </div>
                         )
                     ) : (
                         <motion.div

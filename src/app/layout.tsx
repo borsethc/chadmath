@@ -8,6 +8,19 @@ const inter = Inter({ subsets: ["latin"] });
 export const metadata: Metadata = {
   title: "Math Mastery",
   description: "Advanced multiplication practice",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "ChadMath",
+  },
+};
+
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false, // Prevents zooming which feels more "app-like"
+  themeColor: "#000000",
 };
 
 export default function RootLayout({

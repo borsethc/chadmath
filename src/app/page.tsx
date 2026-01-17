@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import { PracticeMode } from "@/components/PracticeMode";
+import { loginAction } from "./actions";
 
 export default function Home() {
   const [isRunning, setIsRunning] = useState(false);
@@ -19,17 +20,16 @@ export default function Home() {
 
     setIsLoading(true);
     try {
-      // Dynamic import to avoid build issues if actions are not fully set up yet
-      const { loginAction } = await import("./actions");
       const result = await loginAction(studentId);
+
       if (result.success) {
         setIsLoggedIn(true);
       } else {
-        alert("Login failed");
+        alert("Login failed: " + (result.message || "Unknown error"));
       }
     } catch (error) {
       console.error("Login error:", error);
-      alert("An error occurred during login");
+      alert("System error. Check console / network.");
     } finally {
       setIsLoading(false);
     }
@@ -62,7 +62,7 @@ export default function Home() {
         </header>
 
         {!isLoggedIn ? (
-          <form onSubmit={handleLogin} className="flex flex-col items-center gap-4 w-full max-w-xs p-8 rounded-3xl border border-white/5 bg-white/5 backdrop-blur-3xl shadow-2xl">
+          <form onSubmit={handleLogin} className="flex flex-col items-center gap-4 w-full max-w-xs p-8 rounded-3xl border border-white/5 bg-white/5 backdrop-blur-3xl shadow-2xl isolate transform-gpu">
             <div className="flex flex-col gap-2 w-full">
               <label htmlFor="studentId" className="text-xs font-medium uppercase tracking-widest text-muted-foreground text-center">
                 Student ID
@@ -74,13 +74,13 @@ export default function Home() {
                 onChange={(e) => setStudentId(e.target.value)}
                 className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-center text-xl font-bold text-white placeholder:text-white/20 focus:outline-none focus:border-indigo-500 transition-all"
                 placeholder="Enter ID"
-                autoFocus
+              // autoFocus removed for better mobile stability
               />
             </div>
             <button
               type="submit"
               disabled={isLoading || !studentId.trim()}
-              className="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 px-6 rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 px-6 rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer active:scale-95 touch-manipulation"
             >
               {isLoading ? "Loading..." : "Enter Class"}
             </button>

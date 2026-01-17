@@ -8,15 +8,21 @@ export function useSoundEffects() {
 
     // Initialize Audio Context on user interaction (first click/interaction usually required)
     const initAudio = useCallback(() => {
-        if (!audioContextRef.current) {
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
-            audioContextRef.current = new AudioContext();
-            masterGainRef.current = audioContextRef.current.createGain();
-            masterGainRef.current.gain.value = 0.3; // Low volume default
-            masterGainRef.current.connect(audioContextRef.current.destination);
-        } else if (audioContextRef.current.state === "suspended") {
-            audioContextRef.current.resume();
+        try {
+            if (!audioContextRef.current) {
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
+                if (!AudioContext) return; // Browser doesn't support Web Audio
+
+                audioContextRef.current = new AudioContext();
+                masterGainRef.current = audioContextRef.current.createGain();
+                masterGainRef.current.gain.value = 0.3; // Low volume default
+                masterGainRef.current.connect(audioContextRef.current.destination);
+            } else if (audioContextRef.current.state === "suspended") {
+                audioContextRef.current.resume().catch(e => console.warn("Audio resume failed", e));
+            }
+        } catch (e) {
+            console.warn("Audio Context init failed (likely Safari restriction)", e);
         }
     }, []);
 
