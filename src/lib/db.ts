@@ -107,6 +107,18 @@ export const createOrUpdateStudent = async (studentId: string): Promise<Student>
     }
 };
 
+export const getAllStudents = async (): Promise<Student[]> => {
+    await initDb();
+
+    if (pool) {
+        const res = await pool.query('SELECT data FROM students');
+        return res.rows.map(row => row.data);
+    } else {
+        const db = await readDbFile();
+        return Object.values(db.students);
+    }
+};
+
 export const addSession = async (studentId: string, session: Omit<Session, "id" | "timestamp">) => {
     await initDb();
     const now = new Date().toISOString();

@@ -1,6 +1,6 @@
 'use server';
 
-import { createOrUpdateStudent, addSession, readDb } from "@/lib/db";
+import { createOrUpdateStudent, addSession, getStudent, getAllStudents } from "@/lib/db";
 import { revalidatePath } from "next/cache";
 
 export async function loginAction(studentId: string) {
@@ -13,8 +13,7 @@ export async function loginAction(studentId: string) {
 
 export async function checkDailyStats(studentId: string) {
     if (!studentId) return { count: 0, allowed: true };
-    const db = await readDb();
-    const student = db.students[studentId];
+    const student = await getStudent(studentId);
     if (!student) return { count: 0, allowed: true };
 
     const today = new Date().toDateString();
@@ -39,10 +38,9 @@ export async function logSessionAction(studentId: string, score: number, total: 
 }
 
 export async function getDashboardData() {
-    const db = await readDb();
+    const students = await getAllStudents();
     // Convert to array and sort by last seen (descending)
-    const students = Object.values(db.students).sort((a, b) =>
+    return students.sort((a, b) =>
         new Date(b.lastSeen).getTime() - new Date(a.lastSeen).getTime()
     );
-    return students;
 }
