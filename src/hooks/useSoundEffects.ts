@@ -101,5 +101,28 @@ export function useSoundEffects() {
 
     }, [initAudio]);
 
-    return { playCorrect, playHover, playComplete, initAudio };
+    const playIncorrect = useCallback(() => {
+        initAudio();
+        const ctx = audioContextRef.current;
+        if (!ctx || !masterGainRef.current) return;
+
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+
+        osc.connect(gain);
+        gain.connect(masterGainRef.current);
+
+        // Buzz / Error sound: Sawtooth wave, low pitch, descending
+        osc.type = "sawtooth";
+        osc.frequency.setValueAtTime(150, ctx.currentTime);
+        osc.frequency.linearRampToValueAtTime(100, ctx.currentTime + 0.3);
+
+        gain.gain.setValueAtTime(0.2, ctx.currentTime);
+        gain.gain.linearRampToValueAtTime(0, ctx.currentTime + 0.3);
+
+        osc.start(ctx.currentTime);
+        osc.stop(ctx.currentTime + 0.3);
+    }, [initAudio]);
+
+    return { playCorrect, playHover, playComplete, playIncorrect, initAudio };
 }

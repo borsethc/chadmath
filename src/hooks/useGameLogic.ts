@@ -29,6 +29,7 @@ export function useGameLogic(isRunning: boolean) {
     const [userInput, setUserInput] = useState("");
     const [gameState, setGameState] = useState<GameState>("waiting");
     const [streak, setStreak] = useState(0);
+    const [isWrong, setIsWrong] = useState(false);
     const [stats, setStats] = useState<SessionStats>(() => ({ correct: 0, total: 0, startTime: Date.now() }));
 
     // Timer for auto-reveal
@@ -128,11 +129,9 @@ export function useGameLogic(isRunning: boolean) {
             // Move to next question after delay
             setTimeout(nextQuestion, 500);
         } else {
-            // Wrong answer logic (shake effect handled in UI)
-            // For now, just clear input if wrong? Or keep it?
-            // Design choice: Clear input for retry? 
-            // User requirement: "Focus on memorization". If they guess wrong, maybe reveal?
-            // Let's keep it simple: Wrong answer -> Clear input -> User tries again until timer hits.
+            // Wrong answer logic
+            setIsWrong(true);
+            setTimeout(() => setIsWrong(false), 500);
             setUserInput("");
         }
     }, [currentQuestion, gameState, nextQuestion]);
@@ -144,8 +143,14 @@ export function useGameLogic(isRunning: boolean) {
 
         if (currentQuestion) {
             const parsed = parseInt(val);
-            if (!isNaN(parsed) && parsed === currentQuestion.answer) {
-                handleAnswer(val);
+            const answerStr = currentQuestion.answer.toString();
+
+            if (!isNaN(parsed)) {
+                if (parsed === currentQuestion.answer) {
+                    handleAnswer(val);
+                } else if (val.length >= answerStr.length) {
+                    handleAnswer(val);
+                }
             }
         }
     };
@@ -183,6 +188,7 @@ export function useGameLogic(isRunning: boolean) {
         setInput,
         gameState,
         streak,
+        isWrong,
         stats,
         selectedGroups,
         toggleGroup
