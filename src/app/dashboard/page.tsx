@@ -23,6 +23,8 @@ export default async function Dashboard() {
                             <th className="p-4 font-semibold text-gray-300">Student ID</th>
                             <th className="p-4 font-semibold text-gray-300">Last Seen</th>
                             <th className="p-4 font-semibold text-gray-300">Total Sessions</th>
+                            <th className="p-4 font-semibold text-gray-300">Total Logins</th>
+                            <th className="p-4 font-semibold text-gray-300">Total Practice Time</th>
                             <th className="p-4 font-semibold text-gray-300">Last Mode</th>
                             <th className="p-4 font-semibold text-gray-300">Last Factors</th>
                             <th className="p-4 font-semibold text-gray-300">Last Score</th>
@@ -32,7 +34,7 @@ export default async function Dashboard() {
                     <tbody className="divide-y divide-white/5">
                         {students.length === 0 ? (
                             <tr>
-                                <td colSpan={7} className="p-8 text-center text-muted-foreground">
+                                <td colSpan={9} className="p-8 text-center text-muted-foreground">
                                     No student data recorded yet.
                                 </td>
                             </tr>
@@ -42,6 +44,9 @@ export default async function Dashboard() {
                                 const averageScore = student.sessions.length > 0
                                     ? (student.sessions.reduce((acc, s) => acc + s.score, 0) / student.sessions.length).toFixed(1)
                                     : "N/A";
+
+                                // Calculate total time (each session is 1 min)
+                                const totalMinutes = student.sessions.length;
 
                                 return (
                                     <tr key={student.id} className="hover:bg-white/5 transition-colors">
@@ -53,6 +58,12 @@ export default async function Dashboard() {
                                         </td>
                                         <td className="p-4 text-gray-300">
                                             {student.sessions.length} <span className="text-gray-500 text-xs ml-1">(Avg: {averageScore})</span>
+                                        </td>
+                                        <td className="p-4 text-gray-300">
+                                            {student.loginCount ?? (student.sessions.length > 0 ? "~" + student.sessions.length : 1)}
+                                        </td>
+                                        <td className="p-4 text-gray-300">
+                                            {totalMinutes} min
                                         </td>
                                         <td className="p-4 text-gray-300">
                                             {lastSession ? (

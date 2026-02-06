@@ -19,6 +19,7 @@ export type Session = {
 export type Student = {
     id: string;
     lastSeen: string;
+    loginCount: number;
     sessions: Session[];
 };
 
@@ -78,12 +79,21 @@ export const createOrUpdateStudent = async (studentId: string): Promise<Student>
         // Postgres: Upsert logic
         // Get existing or create new
         const existing = await getStudent(studentId);
-        const student: Student = existing || {
+
+        // If existing, increment loginCount. If new, set to 1.
+        // Fallback for existing records without loginCount: usage of sessions length or 1
+        const currentLogins = existing?.loginCount ?? (existing ? (existing.sessions?.length || 1) : 0);
+
+        const student: Student = existing ? {
+            ...existing,
+            lastSeen: now,
+            loginCount: currentLogins + 1
+        } : {
             id: studentId,
             lastSeen: now,
+            loginCount: 1,
             sessions: []
         };
-        student.lastSeen = now;
 
         await pool.query(`
             INSERT INTO students (id, data) 
@@ -100,10 +110,14 @@ export const createOrUpdateStudent = async (studentId: string): Promise<Student>
             db.students[studentId] = {
                 id: studentId,
                 lastSeen: now,
+                loginCount: 1,
                 sessions: []
             };
         } else {
             db.students[studentId].lastSeen = now;
+            // Increment logic for local file too
+            const currentLogins = db.students[studentId].loginCount ?? db.students[studentId].sessions.length ?? 0;
+            db.students[studentId].loginCount = currentLogins + 1;
         }
         await writeDbFile(db);
         return db.students[studentId];
@@ -144,6 +158,9 @@ export const addSession = async (studentId: string, session: Omit<Session, "id" 
             const newStudent: Student = {
                 id: studentId,
                 lastSeen: now,
+                loginCount: 1, // Default for implicit creation via session add? 
+                // Actually addSession is usually called AFTER login, so user should exist.
+                // But if strictly new here:
                 sessions: [newSession]
             };
             await pool.query(`
@@ -163,6 +180,7 @@ export const addSession = async (studentId: string, session: Omit<Session, "id" 
             db.students[studentId] = {
                 id: studentId,
                 lastSeen: now,
+                loginCount: 1,
                 sessions: []
             };
         }
