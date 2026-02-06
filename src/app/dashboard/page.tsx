@@ -21,13 +21,16 @@ export default async function Dashboard() {
                             <th className="p-4 font-semibold text-gray-300">Student ID</th>
                             <th className="p-4 font-semibold text-gray-300">Last Seen</th>
                             <th className="p-4 font-semibold text-gray-300">Total Sessions</th>
-                            <th className="p-4 font-semibold text-gray-300">Recent Activity</th>
+                            <th className="p-4 font-semibold text-gray-300">Last Mode</th>
+                            <th className="p-4 font-semibold text-gray-300">Last Factors</th>
+                            <th className="p-4 font-semibold text-gray-300">Last Score</th>
+                            <th className="p-4 font-semibold text-gray-300">Last Wrong</th>
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-white/5">
                         {students.length === 0 ? (
                             <tr>
-                                <td colSpan={4} className="p-8 text-center text-muted-foreground">
+                                <td colSpan={7} className="p-8 text-center text-muted-foreground">
                                     No student data recorded yet.
                                 </td>
                             </tr>
@@ -47,21 +50,35 @@ export default async function Dashboard() {
                                             {new Date(student.lastSeen).toLocaleString()}
                                         </td>
                                         <td className="p-4 text-gray-300">
-                                            {student.sessions.length} <span className="text-gray-500 text-xs ml-1">(Avg Score: {averageScore})</span>
+                                            {student.sessions.length} <span className="text-gray-500 text-xs ml-1">(Avg: {averageScore})</span>
                                         </td>
-                                        <td className="p-4">
+                                        <td className="p-4 text-gray-300">
                                             {lastSession ? (
-                                                <div className="flex items-center gap-2">
-                                                    <span className="text-xs text-gray-500">
-                                                        {new Date(lastSession.timestamp).toLocaleTimeString()}
-                                                    </span>
-                                                    <span className="px-2 py-1 rounded-md bg-white/10 text-xs font-mono">
-                                                        {lastSession.score}/{lastSession.total}
-                                                    </span>
-                                                </div>
-                                            ) : (
-                                                <span className="text-gray-600 italic">No sessions</span>
-                                            )}
+                                                <span className="px-2 py-1 rounded-md bg-white/10 text-xs text-white">
+                                                    {lastSession.isMultipleChoice ? "Choice" : "Typing"}
+                                                </span>
+                                            ) : "-"}
+                                        </td>
+                                        <td className="p-4 text-gray-300">
+                                            {lastSession?.selectedFactors ? (
+                                                <span className="text-xs font-mono text-gray-400">
+                                                    {lastSession.selectedFactors.join(", ")}
+                                                </span>
+                                            ) : "-"}
+                                        </td>
+                                        <td className="p-4 text-gray-300">
+                                            {lastSession ? (
+                                                <span className="font-bold text-emerald-400">
+                                                    {lastSession.score}/{lastSession.total}
+                                                </span>
+                                            ) : "-"}
+                                        </td>
+                                        <td className="p-4 text-gray-300">
+                                            {lastSession ? (
+                                                <span className="font-bold text-rose-400">
+                                                    {lastSession.wrong ?? (lastSession.total - lastSession.score)}
+                                                </span>
+                                            ) : "-"}
                                         </td>
                                     </tr>
                                 );
