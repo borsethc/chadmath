@@ -65,7 +65,7 @@ export function PracticeMode({ isRunning, studentId, setIsRunning }: PracticeMod
         // Log the session using the stats from useGameLogic
         const finalScore = stats.correct; // accessing stats from hook
         const totalAttempts = stats.total;
-        const wrong = totalAttempts - finalScore;
+        const wrong = stats.wrongAttempts;
 
         try {
             const { logSessionAction, checkDailyStats } = await import("../app/actions");

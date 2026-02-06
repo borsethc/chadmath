@@ -15,6 +15,7 @@ export type FactorGroup = "2-4" | "5-7" | "8-9";
 
 interface SessionStats {
     correct: number;
+    wrongAttempts: number;
     total: number;
     startTime: number;
     endTime?: number;
@@ -30,7 +31,7 @@ export function useGameLogic(isRunning: boolean) {
     const [gameState, setGameState] = useState<GameState>("waiting");
     const [streak, setStreak] = useState(0);
     const [isWrong, setIsWrong] = useState(false);
-    const [stats, setStats] = useState<SessionStats>(() => ({ correct: 0, total: 0, startTime: Date.now() }));
+    const [stats, setStats] = useState<SessionStats>(() => ({ correct: 0, wrongAttempts: 0, total: 0, startTime: Date.now() }));
 
     // Timer for auto-reveal
     const revealTimerRef = useRef<NodeJS.Timeout | null>(null);
@@ -131,6 +132,7 @@ export function useGameLogic(isRunning: boolean) {
         } else {
             // Wrong answer logic
             setIsWrong(true);
+            setStats((prev) => ({ ...prev, wrongAttempts: prev.wrongAttempts + 1 }));
             setTimeout(() => setIsWrong(false), 500);
             setUserInput("");
         }

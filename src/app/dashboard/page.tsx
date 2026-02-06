@@ -71,14 +71,14 @@ export default async function Dashboard() {
                                         <td className="p-4 text-gray-300">
                                             {lastSession ? (
                                                 <span className="font-bold text-emerald-400">
-                                                    {lastSession.score}/{lastSession.total}
+                                                    {lastSession.score ?? 0}/{lastSession.total ?? 0}
                                                 </span>
                                             ) : "-"}
                                         </td>
                                         <td className="p-4 text-gray-300">
                                             {lastSession ? (
                                                 <span className="font-bold text-rose-400">
-                                                    {lastSession.wrong ?? (lastSession.total - lastSession.score)}
+                                                    {lastSession.wrong ?? 0}
                                                 </span>
                                             ) : "-"}
                                         </td>
