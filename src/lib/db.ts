@@ -205,3 +205,20 @@ const readDbFile = async (): Promise<Database> => {
 const writeDbFile = async (data: Database) => {
     await fs.writeFile(DB_PATH, JSON.stringify(data, null, 2));
 };
+
+export const checkConnection = async (): Promise<{
+    status: 'connected' | 'error' | 'n/a';
+    mode: 'postgres' | 'filesystem';
+    message?: string;
+}> => {
+    if (pool) {
+        try {
+            await pool.query('SELECT 1');
+            return { status: 'connected', mode: 'postgres' };
+        } catch (e) {
+            return { status: 'error', mode: 'postgres', message: (e as Error).message };
+        }
+    } else {
+        return { status: 'n/a', mode: 'filesystem', message: 'Using local file system' };
+    }
+};

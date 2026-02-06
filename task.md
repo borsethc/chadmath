@@ -10,3 +10,8 @@
     - [x] Refactor `db.ts` to support Postgres <!-- id: 7 -->
     - [x] Add database initialization logic <!-- id: 8 -->
     - [x] Create `RAILWAY_GUIDE.md` <!-- id: 9 -->
+- [ ] Debug Railway Deployment <!-- id: 10 -->
+    - [x] Check local build status <!-- id: 11 -->
+    - [x] Create diagnostics page (`/admin/health`) <!-- id: 12 -->
+    - [ ] Review `db.ts` for file system dependencies <!-- id: 13 -->
+    - [ ] Verify environment variables <!-- id: 14 -->
