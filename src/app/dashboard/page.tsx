@@ -1,5 +1,7 @@
 import { getDashboardData } from "../actions";
 
+export const dynamic = 'force-dynamic';
+
 export default async function Dashboard() {
     const students = await getDashboardData();
 
@@ -23,14 +25,12 @@ export default async function Dashboard() {
                             <th className="p-4 font-semibold text-gray-300">Total Sessions</th>
                             <th className="p-4 font-semibold text-gray-300">Last Mode</th>
                             <th className="p-4 font-semibold text-gray-300">Last Factors</th>
-                            <th className="p-4 font-semibold text-gray-300">Last Score</th>
-                            <th className="p-4 font-semibold text-gray-300">Last Wrong</th>
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-white/5">
                         {students.length === 0 ? (
                             <tr>
-                                <td colSpan={7} className="p-8 text-center text-muted-foreground">
+                                <td colSpan={5} className="p-8 text-center text-muted-foreground">
                                     No student data recorded yet.
                                 </td>
                             </tr>
@@ -63,20 +63,6 @@ export default async function Dashboard() {
                                             {lastSession?.selectedFactors ? (
                                                 <span className="text-xs font-mono text-gray-400">
                                                     {lastSession.selectedFactors.join(", ")}
-                                                </span>
-                                            ) : "-"}
-                                        </td>
-                                        <td className="p-4 text-gray-300">
-                                            {lastSession ? (
-                                                <span className="font-bold text-emerald-400">
-                                                    {lastSession.score}/{lastSession.total}
-                                                </span>
-                                            ) : "-"}
-                                        </td>
-                                        <td className="p-4 text-gray-300">
-                                            {lastSession ? (
-                                                <span className="font-bold text-rose-400">
-                                                    {lastSession.wrong ?? (lastSession.total - lastSession.score)}
                                                 </span>
                                             ) : "-"}
                                         </td>
