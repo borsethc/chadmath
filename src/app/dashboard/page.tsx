@@ -54,7 +54,7 @@ export default async function Dashboard() {
                                             {student.id}
                                         </td>
                                         <td className="p-4 text-gray-400">
-                                            {new Date(student.lastSeen).toLocaleString()}
+                                            {new Date(student.lastSeen).toLocaleString("en-US", { timeZone: "America/Chicago" })}
                                         </td>
                                         <td className="p-4 text-gray-300">
                                             {student.sessions.length} <span className="text-gray-500 text-xs ml-1">(Avg: {averageScore})</span>

@@ -16,9 +16,11 @@ export async function checkDailyStats(studentId: string) {
     const student = await getStudent(studentId);
     if (!student) return { count: 0, allowed: true };
 
-    const today = new Date().toDateString();
+    const todayOptions: Intl.DateTimeFormatOptions = { timeZone: "America/Chicago" };
+    const today = new Date().toLocaleDateString("en-US", todayOptions);
+
     const todaySessions = student.sessions.filter(s =>
-        new Date(s.timestamp).toDateString() === today
+        new Date(s.timestamp).toLocaleDateString("en-US", todayOptions) === today
     );
 
     return {
