@@ -27,11 +27,22 @@ export async function checkDailyStats(studentId: string) {
     };
 }
 
-export async function logSessionAction(studentId: string, score: number, total: number, gameType: string) {
+export async function logSessionAction(
+    studentId: string,
+    score: number,
+    total: number,
+    gameType: string,
+    wrong: number,
+    isMultipleChoice: boolean,
+    selectedFactors: string[]
+) {
     await addSession(studentId, {
         score,
         total,
-        gameType
+        gameType,
+        wrong,
+        isMultipleChoice,
+        selectedFactors
     });
     revalidatePath('/dashboard');
     return { success: true };

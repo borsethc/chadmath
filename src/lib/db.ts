@@ -9,8 +9,11 @@ export type Session = {
     id: string;
     timestamp: string;
     score: number;
+    wrong: number;
     total: number;
     gameType: string;
+    isMultipleChoice: boolean;
+    selectedFactors: string[];
 };
 
 export type Student = {
