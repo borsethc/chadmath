@@ -49,7 +49,6 @@ export function PracticeMode({ isRunning, studentId, setIsRunning }: PracticeMod
             setTimeLeft((prev) => {
                 if (prev <= 1) {
                     clearInterval(timer);
-                    handleSessionComplete();
                     return 0;
                 }
                 return prev - 1;
@@ -58,6 +57,13 @@ export function PracticeMode({ isRunning, studentId, setIsRunning }: PracticeMod
 
         return () => clearInterval(timer);
     }, [isRunning, sessionComplete]);
+
+    // Trigger completion when time hits 0
+    useEffect(() => {
+        if (timeLeft === 0 && !sessionComplete && isRunning) {
+            handleSessionComplete();
+        }
+    }, [timeLeft, sessionComplete, isRunning]);
 
     const handleSessionComplete = async () => {
         setSessionComplete(true);
