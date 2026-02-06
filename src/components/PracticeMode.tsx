@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useGameLogic } from "@/hooks/useGameLogic";
+import { useGameLogic, GameMode } from "@/hooks/useGameLogic";
 import { useSoundEffects } from "@/hooks/useSoundEffects";
 import { cn } from "@/lib/utils";
 import { Play, Loader2, ToggleLeft, ToggleRight, Delete } from "lucide-react";
@@ -14,7 +14,8 @@ interface PracticeModeProps {
 }
 
 export function PracticeMode({ isRunning, studentId, setIsRunning }: PracticeModeProps) {
-    const { currentQuestion, userInput, setInput, gameState, streak, selectedGroups, toggleGroup, stats, isWrong } = useGameLogic(isRunning);
+    const [mode, setMode] = useState<GameMode>("multiplication");
+    const { currentQuestion, userInput, setInput, gameState, streak, selectedGroups, toggleGroup, stats, isWrong } = useGameLogic(isRunning, mode);
     const { playCorrect, playHover, initAudio, playIncorrect } = useSoundEffects();
     const inputRef = useRef<HTMLInputElement>(null);
 
@@ -79,7 +80,7 @@ export function PracticeMode({ isRunning, studentId, setIsRunning }: PracticeMod
                 studentId,
                 finalScore,
                 totalAttempts,
-                "practice",
+                mode,
                 wrong,
                 isMultipleChoice,
                 selectedGroups as string[]
@@ -133,21 +134,7 @@ export function PracticeMode({ isRunning, studentId, setIsRunning }: PracticeMod
         );
     }
 
-    if (!dailySessions.allowed && !isRunning) {
-        return (
-            <div className="flex flex-col h-[60vh] items-center justify-center text-center p-8 space-y-6 rounded-3xl border border-white/5 bg-white/5 backdrop-blur-3xl">
-                <div className="text-4xl">🛑</div>
-                <h2 className="text-3xl font-bold text-white">Daily Limit Reached</h2>
-                <p className="text-lg text-muted-foreground max-w-sm">
-                    You have completed all {dailySessions.count} sessions for today. Great work! Come back tomorrow to keep your streak.
-                </p>
-                <div className="p-4 bg-emerald-500/10 rounded-xl border border-emerald-500/20">
-                    <div className="text-2xl font-bold text-emerald-400">{dailySessions.count} / 5</div>
-                    <div className="text-xs uppercase tracking-widest text-emerald-500/80">Sessions Completed</div>
-                </div>
-            </div>
-        );
-    }
+
 
     if (sessionComplete) {
         return (
@@ -167,12 +154,24 @@ export function PracticeMode({ isRunning, studentId, setIsRunning }: PracticeMod
                 <div className="mt-8 text-sm text-gray-400">
                     Sessions today: <span className="text-white font-bold">{dailySessions.count} / 5</span>
                 </div>
-                <button
-                    onClick={() => window.location.reload()}
-                    className="mt-4 px-8 py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl transition-all"
-                >
-                    Return to Menu
-                </button>
+                <div className="flex gap-4">
+                    <button
+                        onClick={() => window.location.reload()}
+                        className="mt-4 px-8 py-3 bg-white/10 hover:bg-white/20 text-white font-bold rounded-xl transition-all"
+                    >
+                        Menu
+                    </button>
+                    <button
+                        onClick={() => {
+                            setSessionComplete(false);
+                            setTimeLeft(SESSION_DURATION);
+                            setIsRunning(true);
+                        }}
+                        className="mt-4 px-8 py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl transition-all"
+                    >
+                        Play Again
+                    </button>
+                </div>
             </div>
         );
     }
@@ -184,19 +183,35 @@ export function PracticeMode({ isRunning, studentId, setIsRunning }: PracticeMod
                 <div className="flex flex-col min-h-[50vh] w-full max-w-md items-center justify-center space-y-4 rounded-3xl border border-white/5 bg-white/5 p-8 shadow-2xl backdrop-blur-3xl">
                     <div className="flex flex-col items-center space-y-2">
                         <div className="px-4 py-2 rounded-full bg-white/5 border border-white/10 text-sm font-medium text-muted-foreground uppercase tracking-widest">
-                            Daily Sessions: <span className="text-white font-bold">{dailySessions.count} / 5</span>
+                            Daily Goal: <span className="text-white font-bold">{dailySessions.count} / 5</span>
                         </div>
                     </div>
 
-                    {/* Mode Toggle */}
+                    {/* Input Mode Toggle */}
                     <div className="flex flex-col items-center gap-2 w-full max-w-xs cursor-pointer hover:opacity-80 transition-opacity p-4 rounded-xl bg-white/5 border border-white/5" onClick={() => setIsMultipleChoice(!isMultipleChoice)}>
                         <span className="text-[10px] sm:text-xs font-medium uppercase tracking-widest text-muted-foreground">
-                            Practice Mode
+                            Input Method
                         </span>
                         <div className="flex items-center gap-2 text-white">
                             {isMultipleChoice ? <ToggleRight className="w-6 h-6 text-indigo-400" /> : <ToggleLeft className="w-6 h-6 text-gray-400" />}
-                            <span className="text-sm font-bold">{isMultipleChoice ? "Multiple Choice On" : "Multiple Choice Off"}</span>
+                            <span className="text-sm font-bold">{isMultipleChoice ? "Multiple Choice" : "Typing"}</span>
                         </div>
+                    </div>
+
+                    {/* Game Mode Toggle */}
+                    <div className="flex w-full max-w-xs bg-black/40 p-1 rounded-xl">
+                        {(["multiplication", "division"] as const).map((m) => (
+                            <button
+                                key={m}
+                                onClick={() => setMode(m)}
+                                className={cn(
+                                    "flex-1 py-2 rounded-lg text-sm font-bold capitalize transition-all",
+                                    mode === m ? "bg-indigo-600 text-white shadow-lg" : "text-gray-400 hover:text-white"
+                                )}
+                            >
+                                {m}
+                            </button>
+                        ))}
                     </div>
 
                     {/* Factor Group Selection */}
@@ -279,7 +294,7 @@ export function PracticeMode({ isRunning, studentId, setIsRunning }: PracticeMod
                             className="flex items-center text-7xl sm:text-9xl font-light tracking-tighter text-white"
                         >
                             <span>{currentQuestion.factor1}</span>
-                            <span className="mx-4 sm:mx-6 text-muted-foreground">×</span>
+                            <span className="mx-4 sm:mx-6 text-muted-foreground">{currentQuestion.operator}</span>
                             <span>{currentQuestion.factor2}</span>
                         </motion.div>
                     </AnimatePresence>
@@ -382,7 +397,7 @@ export function PracticeMode({ isRunning, studentId, setIsRunning }: PracticeMod
             </div>
 
             {/* Status Message (Centered) */}
-            <div className="absolute bottom-20 text-center h-6 left-0 right-0 pointer-events-none">
+            <div className="mt-8 text-center h-6 w-full pointer-events-none">
                 {gameState === "revealed" && (
                     <motion.span
                         initial={{ opacity: 0 }}

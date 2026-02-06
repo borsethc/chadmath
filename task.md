@@ -13,5 +13,7 @@
 - [ ] Debug Railway Deployment <!-- id: 10 -->
     - [x] Check local build status <!-- id: 11 -->
     - [x] Create diagnostics page (`/admin/health`) <!-- id: 12 -->
-    - [ ] Review `db.ts` for file system dependencies <!-- id: 13 -->
-    - [ ] Verify environment variables <!-- id: 14 -->
+    - [x] Analyze error: `ENOTFOUND Postgres.railway.internal` <!-- id: 13 -->
+    - [ ] Create Web Service (User Action) <!-- id: 14 -->
+    - [ ] Create Database Service (User Action) <!-- id: 15 -->
+    - [ ] Link Variables (User Action) <!-- id: 16 -->

@@ -316,6 +316,39 @@
       "id": "Chad2",
       "lastSeen": "2026-02-05T19:34:40.944Z",
       "sessions": []
+    },
+    "ddd": {
+      "id": "ddd",
+      "lastSeen": "2026-02-06T19:46:18.362Z",
+      "loginCount": 1,
+      "sessions": []
+    },
+    "debug-student": {
+      "id": "debug-student",
+      "lastSeen": "2026-02-06T21:53:39.707Z",
+      "loginCount": 1,
+      "sessions": []
+    },
+    "Chad": {
+      "id": "Chad",
+      "lastSeen": "2026-02-06T23:27:44.255Z",
+      "loginCount": 1,
+      "sessions": [
+        {
+          "score": 4,
+          "total": 12,
+          "gameType": "division",
+          "wrong": 4,
+          "isMultipleChoice": false,
+          "selectedFactors": [
+            "2-4",
+            "5-7",
+            "8-9"
+          ],
+          "id": "onol2ks",
+          "timestamp": "2026-02-06T23:27:44.255Z"
+        }
+      ]
     }
   }
 }

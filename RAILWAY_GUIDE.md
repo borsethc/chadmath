@@ -1,4 +1,4 @@
-# Railway Deployment Guide
+cre# Railway Deployment Guide
 
 This guide will help you deploy your Math Mastery app to **Railway.app** with a persistent database.
 
@@ -20,16 +20,19 @@ This guide will help you deploy your Math Mastery app to **Railway.app** with a 
 3.  Select **"PostgreSQL"**.
 4.  Wait for the database service to appear and initialize.
 
-### 3. Connect App to Database
-1.  Railway usually does this automatically, but let's verify.
+### 3. Connect App to Database (CRITICAL STEP)
+1.  Railway often does this automatically, but you MUST verify.
 2.  Click on your **Database** service card -> **"Variables"** tab.
-3.  Look for `DATABASE_URL`.
-4.  Now click on your **Web App** service card -> **"Variables"** tab.
-5.  If `DATABASE_URL` is missing, you need to add it:
+3.  Note that `DATABASE_URL` exists there.
+4.  Now click on your **Web App** service card (the one with your code) -> **"Variables"** tab.
+5.  **If `DATABASE_URL` is missing or looks like a hardcoded string**:
+    - Delete it if it exists.
     - Click **"New Variable"**.
-    - Type `DATABASE_URL`.
-    - For the value, type `${{` and select the Postgres variable (usually `Postgres.DATABASE_URL` or similarly named reference).
-    - Railway's "Reference Variable" feature makes this easy.
+    - Variable Name: `DATABASE_URL`
+    - Variable Value: Type `${{` and a dropdown will appear.
+    - Select `PostgreSQL.DATABASE_URL` (or whatever your database service is named).
+    - **Verify**: The value should look like a purple box/token, NOT plain text.
+    - Click **Add**.
 
 ### 4. Wait for Build
 1.  The app will rebuild automatically when variables change.

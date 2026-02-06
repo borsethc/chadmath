@@ -1,4 +1,5 @@
 import { getDashboardData } from "../actions";
+import Link from 'next/link';
 
 export const dynamic = 'force-dynamic';
 
@@ -51,7 +52,9 @@ export default async function Dashboard() {
                                 return (
                                     <tr key={student.id} className="hover:bg-white/5 transition-colors">
                                         <td className="p-4 font-mono font-medium text-indigo-300">
-                                            {student.id}
+                                            <Link href={`/dashboard/${student.id}`} className="hover:underline hover:text-indigo-400 decoration-indigo-400">
+                                                {student.id}
+                                            </Link>
                                         </td>
                                         <td className="p-4 text-gray-400">
                                             {new Date(student.lastSeen).toLocaleString("en-US", { timeZone: "America/Chicago" })}

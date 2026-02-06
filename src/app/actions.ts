@@ -25,7 +25,7 @@ export async function checkDailyStats(studentId: string) {
 
     return {
         count: todaySessions.length,
-        allowed: todaySessions.length < 5
+        allowed: true
     };
 }
 

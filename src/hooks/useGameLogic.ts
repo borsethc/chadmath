@@ -8,10 +8,12 @@ export type Question = {
     factor2: number;
     answer: number;
     options: number[];
+    operator: "×" | "÷";
 };
 
 export type GameState = "waiting" | "revealed" | "correct";
 export type FactorGroup = "2-4" | "5-7" | "8-9";
+export type GameMode = "multiplication" | "division";
 
 interface SessionStats {
     correct: number;
@@ -24,7 +26,7 @@ interface SessionStats {
 const REVEAL_DELAY_MS = 5000; // 5 seconds to answer before reveal
 const NEXT_QUESTION_DELAY_MS = 2000; // Time to show result before next
 
-export function useGameLogic(isRunning: boolean) {
+export function useGameLogic(isRunning: boolean, mode: GameMode = "multiplication") {
     const [selectedGroups, setSelectedGroups] = useState<FactorGroup[]>(["2-4", "5-7", "8-9"]);
     const [currentQuestion, setCurrentQuestion] = useState<Question | null>(null);
     const [userInput, setUserInput] = useState("");
@@ -48,58 +50,67 @@ export function useGameLogic(isRunning: boolean) {
 
         const f1 = f1Options[Math.floor(Math.random() * f1Options.length)];
         const f2 = Math.floor(Math.random() * 8) + 2; // 2 to 9 (exclude 1)
-        const answer = f1 * f2;
+
+        // Determine Question Values based on Mode
+        let qFactor1, qFactor2, qAnswer, qOperator: "×" | "÷";
+
+        if (mode === "division") {
+            // Division: Product / Factor = Answer
+            // Example: 21 / 7 = 3
+            // f1 is the "focused" number (e.g. 7)
+            // So we want the question to be: (f1 * f2) ÷ f1 = f2
+            qFactor1 = f1 * f2;
+            qFactor2 = f1;
+            qAnswer = f2;
+            qOperator = "÷";
+        } else {
+            // Multiplication: Factor * Factor = Product
+            qFactor1 = f1;
+            qFactor2 = f2;
+            qAnswer = f1 * f2;
+            qOperator = "×";
+        }
 
         // Randomize answer position while keeping sorted order
         const numOptions = 4;
+        const answer = qAnswer;
 
         // 1. Determine how many numbers should be smaller than the answer (0 to 3)
-        // Constraint: We can't have more smaller numbers than (answer - 1)
-        // e.g., if answer is 2, smaller can only be 1 (value 1).
         const maxPossibleSmaller = Math.max(0, answer - 1);
-        // We want at most 3 smaller (if answer is large enough)
         const maxAllowedSmaller = Math.min(numOptions - 1, maxPossibleSmaller);
 
-        // Pick a random number of smaller options [0..maxAllowedSmaller]
         const targetSmallerCount = Math.floor(Math.random() * (maxAllowedSmaller + 1));
-
-        // The rest must be larger options
-        // targetLargerCount = (numOptions - 1) - targetSmallerCount
 
         const optionsSet = new Set<number>();
         optionsSet.add(answer);
 
         // 2. Generate smaller numbers
-        // We need 'targetSmallerCount' unique numbers < answer
         while (optionsSet.size < 1 + targetSmallerCount) {
             const range = 10; // look within 10 numbers
             const minVal = Math.max(1, answer - range);
             const maxVal = answer - 1;
-
-            // If range is tight, we might loop a bit, but Set handles uniqueness.
             const val = Math.floor(Math.random() * (maxVal - minVal + 1)) + minVal;
             optionsSet.add(val);
         }
 
         // 3. Generate larger numbers
-        // We need to fill the rest of the slots
         while (optionsSet.size < numOptions) {
             const range = 10;
             const minVal = answer + 1;
-            const maxVal = answer + range; // e.g. answer + 10
-
+            const maxVal = answer + range;
             const val = Math.floor(Math.random() * (maxVal - minVal + 1)) + minVal;
             optionsSet.add(val);
         }
 
         return {
             id: Math.random().toString(36).substring(2, 9),
-            factor1: f1,
-            factor2: f2,
-            answer: answer,
-            options: Array.from(optionsSet).sort((a, b) => a - b)
+            factor1: qFactor1,
+            factor2: qFactor2,
+            answer: qAnswer,
+            options: Array.from(optionsSet).sort((a, b) => a - b),
+            operator: qOperator
         };
-    }, [selectedGroups]);
+    }, [selectedGroups, mode]);
 
     const toggleGroup = useCallback((group: FactorGroup) => {
         setSelectedGroups(prev => {
