@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import { PracticeMode } from "@/components/PracticeMode";
-import { QRCodeDisplay } from "@/components/QRCodeDisplay";
+
 import { loginAction } from "./actions";
 
 export default function Home() {
@@ -90,7 +90,7 @@ export default function Home() {
           <PracticeMode isRunning={isRunning} setIsRunning={setIsRunning} studentId={studentId} />
         )}
       </div>
-      <QRCodeDisplay />
+
     </main>
   );
 }
