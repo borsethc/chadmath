@@ -322,10 +322,10 @@ export function PracticeMode({ isRunning, studentId, setIsRunning }: PracticeMod
     }
 
     return (
-        <div className="relative flex min-h-[50vh] w-full max-w-md sm:max-w-2xl flex-col items-center justify-center rounded-3xl border border-white/5 bg-white/5 p-6 sm:p-8 shadow-2xl backdrop-blur-3xl mx-4 sm:mx-0 mb-8 overflow-hidden">
+        <div className="relative flex min-h-[50vh] w-full max-w-md sm:max-w-2xl flex-col items-center rounded-3xl border border-white/5 bg-white/5 p-6 sm:p-8 shadow-2xl backdrop-blur-3xl mx-4 sm:mx-0 mb-8 overflow-hidden">
 
             {/* Timer and Daily Count */}
-            <div className="absolute top-4 left-0 right-0 flex justify-center items-center gap-4 z-20">
+            <div className="w-full flex justify-center items-center gap-4 z-20 mb-4 sm:mb-8">
                 <div className={cn(
                     "px-4 py-1.5 rounded-full border text-sm font-mono font-bold transition-all",
                     timeLeft <= 10 ? "bg-red-500/20 border-red-500 text-red-400 animate-pulse" : "bg-white/5 border-white/10 text-white"
