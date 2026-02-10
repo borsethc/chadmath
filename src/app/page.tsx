@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import { PracticeMode } from "@/components/PracticeMode";
-
+import { cn } from "@/lib/utils";
 import { loginAction } from "./actions";
 
 export default function Home() {
@@ -37,14 +37,18 @@ export default function Home() {
   };
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center p-4 bg-gradient-to-b from-black to-red-950/20 overflow-hidden relative">
+    <main className="fixed inset-0 flex flex-col items-center justify-center p-4 bg-gradient-to-b from-black to-red-950/20 overflow-hidden touch-none">
       {/* Background Ambience */}
-      <div className="absolute inset-0 bg-[linear-gradient(to_right,#4f4f4f2e_1px,transparent_1px),linear-gradient(to_bottom,#4f4f4f2e_1px,transparent_1px)] bg-[size:14px_24px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]" />
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,#4f4f4f2e_1px,transparent_1px),linear-gradient(to_bottom,#4f4f4f2e_1px,transparent_1px)] bg-[size:14px_24px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] pointer-events-none" />
 
-      <div className="z-10 w-full flex flex-col items-center">
-        <header className="mb-8 text-center flex flex-col items-center">
-          <div className="flex items-center gap-4 mb-4">
-            <div className="relative w-24 h-24">
+      <div className="z-10 w-full flex flex-col items-center h-full justify-center">
+        {/* Header - Shrink or Hide on Mobile when Running */}
+        <header className={cn(
+          "text-center flex flex-col items-center transition-all duration-500 ease-in-out",
+          isRunning ? "absolute top-4 scale-75 opacity-50 hover:opacity-100 z-50 origin-top" : "mb-8 relative"
+        )}>
+          <div className="flex items-center gap-4 mb-2">
+            <div className={cn("relative transition-all", isRunning ? "w-12 h-12" : "w-16 h-16 sm:w-24 sm:h-24")}>
               <Image
                 src="/school-logo.jpg"
                 alt="St. Paul Central High School Logo"
@@ -53,13 +57,15 @@ export default function Home() {
                 priority
               />
             </div>
-            <h1 className="text-4xl font-black tracking-tighter text-transparent bg-clip-text bg-gradient-to-br from-white to-white/50 sm:text-6xl">
+            <h1 className={cn("font-black tracking-tighter text-transparent bg-clip-text bg-gradient-to-br from-white to-white/50 transition-all", isRunning ? "text-2xl" : "text-4xl sm:text-6xl")}>
               ChadMath
             </h1>
           </div>
-          <p className="mt-2 text-sm uppercase tracking-[0.2em] text-muted-foreground">
-            Less Thinking, More Neural Linking
-          </p>
+          {!isRunning && (
+            <p className="mt-2 text-[10px] sm:text-sm uppercase tracking-[0.2em] text-muted-foreground">
+              Less Thinking, More Neural Linking
+            </p>
+          )}
         </header>
 
         {!isLoggedIn ? (

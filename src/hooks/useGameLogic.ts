@@ -254,10 +254,13 @@ export function useGameLogic(isRunning: boolean, mode: GameMode = "multiplicatio
                 const answerStr = currentQuestion.answer.toString();
 
                 if (!isNaN(parsed)) {
-                    // Assessment mode: Submit if length matches answer length (or we could wait for Enter, but current UI is digit-based)
+                    // Assessment mode: Submit if length matches answer length (or we could wait for verified enter, but current UI is digit-based)
                     if (mode === "assessment") {
                         if (val.length >= answerStr.length) {
-                            handleAnswer(val);
+                            // Add a small delay so user sees the last digit
+                            setTimeout(() => {
+                                handleAnswer(val);
+                            }, 200);
                         }
                     } else {
                         // Normal modes
