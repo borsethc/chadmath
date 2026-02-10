@@ -14,6 +14,7 @@ export type Session = {
     gameType: string;
     isMultipleChoice: boolean;
     selectedFactors: string[];
+    assessmentTier?: string;
 };
 
 export type Student = {

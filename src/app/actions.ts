@@ -36,7 +36,8 @@ export async function logSessionAction(
     gameType: string,
     wrong: number,
     isMultipleChoice: boolean,
-    selectedFactors: string[]
+    selectedFactors: string[],
+    assessmentTier?: string
 ) {
     await addSession(studentId, {
         score,
@@ -44,7 +45,8 @@ export async function logSessionAction(
         gameType,
         wrong,
         isMultipleChoice,
-        selectedFactors
+        selectedFactors,
+        assessmentTier
     });
     revalidatePath('/dashboard');
     return { success: true };

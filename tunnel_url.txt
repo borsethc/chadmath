@@ -1,0 +1,4 @@
+npm error code FETCH_ERROR
+npm error errno FETCH_ERROR
+npm error invalid json response body at https://useast2-www.securly.com/blocked.php?gnp=1&reason=domainblockedforuser&url=registry.npmjs.org reason: Unexpected token '<', "<!DOCTYPE "... is not valid JSON
+npm error A complete log of this run can be found in: /Users/chadborseth/.npm/_logs/2026-02-10T13_25_53_167Z-debug-0.log

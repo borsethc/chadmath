@@ -4,16 +4,16 @@ import { useState, useEffect, useCallback, useRef } from "react";
 
 export type Question = {
     id: string; // Unique ID for key mapping
-    factor1: number;
-    factor2: number;
-    answer: number;
-    options: number[];
-    operator: "×" | "÷";
+    factor1: number | null; // For radicals, this might be null if we just show '√factor2'
+    factor2: number; // The main number to simplify (e.g. 72 in √72)
+    answer: number | string; // Can be string for radicals format (e.g. "6√2")
+    options: (number | string)[]; // Mixed types for options
+    operator: "×" | "÷" | "√";
 };
 
 export type GameState = "waiting" | "revealed" | "correct";
 export type FactorGroup = "2-4" | "5-7" | "8-9";
-export type GameMode = "multiplication" | "division";
+export type GameMode = "multiplication" | "division" | "radicals" | "assessment";
 
 interface SessionStats {
     correct: number;
@@ -21,9 +21,15 @@ interface SessionStats {
     total: number;
     startTime: number;
     endTime?: number;
+    history: {
+        question: string;
+        answer: number | string;
+        userAnswer: string;
+        isCorrect: boolean
+    }[];
 }
 
-const REVEAL_DELAY_MS = 5000; // 5 seconds to answer before reveal
+const REVEAL_DELAY_MS = 30000; // 30 seconds for radicals? Or keep 5s? Radicals take longer.
 const NEXT_QUESTION_DELAY_MS = 2000; // Time to show result before next
 
 export function useGameLogic(isRunning: boolean, mode: GameMode = "multiplication") {
@@ -33,26 +39,63 @@ export function useGameLogic(isRunning: boolean, mode: GameMode = "multiplicatio
     const [gameState, setGameState] = useState<GameState>("waiting");
     const [streak, setStreak] = useState(0);
     const [isWrong, setIsWrong] = useState(false);
-    const [stats, setStats] = useState<SessionStats>(() => ({ correct: 0, wrongAttempts: 0, total: 0, startTime: Date.now() }));
+    const [stats, setStats] = useState<SessionStats>(() => ({ correct: 0, wrongAttempts: 0, total: 0, startTime: Date.now(), history: [] }));
 
     // Timer for auto-reveal
     const revealTimerRef = useRef<NodeJS.Timeout | null>(null);
 
     const generateQuestion = useCallback(() => {
-        // Collect valid factors for f1 based on selected groups
-        const validF1s = new Set<number>();
-        if (selectedGroups.includes("2-4")) [2, 3, 4].forEach(n => validF1s.add(n));
-        if (selectedGroups.includes("5-7")) [5, 6, 7].forEach(n => validF1s.add(n));
-        if (selectedGroups.includes("8-9")) [8, 9].forEach(n => validF1s.add(n));
+        if (mode === "radicals") {
+            // Pick a perfect square (4, 9, 16, 25, 36, 49, 64, 81, 100)
+            const perfectSquares = [4, 9, 16, 25, 36, 49, 64, 81, 100];
+            const square = perfectSquares[Math.floor(Math.random() * perfectSquares.length)];
 
-        // Default to all if somehow empty
-        const f1Options = validF1s.size > 0 ? Array.from(validF1s) : [2, 3, 4, 5, 6, 7, 8, 9];
+            // Pick a non-square multiplier (2, 3, 5, 6, 7, 8, 10...)
+            // Let's keep it simple: 2, 3, 5, 6, 7, 10
+            const remainders = [2, 3, 5, 6, 7];
+            const remainder = remainders[Math.floor(Math.random() * remainders.length)];
 
-        const f1 = f1Options[Math.floor(Math.random() * f1Options.length)];
-        const f2 = Math.floor(Math.random() * 8) + 2; // 2 to 9 (exclude 1)
+            const number = square * remainder;
+            const root = Math.sqrt(square); // integer
+            const answer = `${root}√${remainder}`;
+
+            // Generate options? Even if we use factor tree, we might fall back to MC or just need an Answer property.
+            // Distractors:
+            // 1. Wrong root (e.g. if answer 6√2, maybe 3√8 - which is technically correct but not simplified)
+            // 2. Swapped (e.g. 2√6)
+            // 3. Just random like 4√3
+
+            return {
+                id: Math.random().toString(36).substring(2, 9),
+                factor1: null,
+                factor2: number,
+                answer: answer,
+                options: [answer], // Placeholder if not used in tree mode
+                operator: "√" as const
+            };
+        }
+
+        let f1, f2;
+
+        if (mode === "assessment") {
+            f1 = Math.floor(Math.random() * 8) + 2; // 2-9
+            f2 = Math.floor(Math.random() * 8) + 2; // 2-9
+        } else {
+            // Collect valid factors for f1 based on selected groups
+            const validF1s = new Set<number>();
+            if (selectedGroups.includes("2-4")) [2, 3, 4].forEach(n => validF1s.add(n));
+            if (selectedGroups.includes("5-7")) [5, 6, 7].forEach(n => validF1s.add(n));
+            if (selectedGroups.includes("8-9")) [8, 9].forEach(n => validF1s.add(n));
+
+            // Default to all if somehow empty
+            const f1Options = validF1s.size > 0 ? Array.from(validF1s) : [2, 3, 4, 5, 6, 7, 8, 9];
+
+            f1 = f1Options[Math.floor(Math.random() * f1Options.length)];
+            f2 = Math.floor(Math.random() * 8) + 2; // 2 to 9 (exclude 1)
+        }
 
         // Determine Question Values based on Mode
-        let qFactor1, qFactor2, qAnswer, qOperator: "×" | "÷";
+        let qFactor1, qFactor2, qAnswer: number | string, qOperator: "×" | "÷";
 
         if (mode === "division") {
             // Division: Product / Factor = Answer
@@ -76,19 +119,21 @@ export function useGameLogic(isRunning: boolean, mode: GameMode = "multiplicatio
         const answer = qAnswer;
 
         // 1. Determine how many numbers should be smaller than the answer (0 to 3)
-        const maxPossibleSmaller = Math.max(0, answer - 1);
+        // Note: For radicals we might not use this option generation, but safe to leave or refactor
+        const ansVal = typeof answer === 'number' ? answer : 0;
+        const maxPossibleSmaller = Math.max(0, ansVal - 1);
         const maxAllowedSmaller = Math.min(numOptions - 1, maxPossibleSmaller);
 
         const targetSmallerCount = Math.floor(Math.random() * (maxAllowedSmaller + 1));
 
         const optionsSet = new Set<number>();
-        optionsSet.add(answer);
+        if (typeof answer === 'number') optionsSet.add(answer);
 
         // 2. Generate smaller numbers
         while (optionsSet.size < 1 + targetSmallerCount) {
             const range = 10; // look within 10 numbers
-            const minVal = Math.max(1, answer - range);
-            const maxVal = answer - 1;
+            const minVal = Math.max(1, ansVal - range);
+            const maxVal = ansVal - 1;
             const val = Math.floor(Math.random() * (maxVal - minVal + 1)) + minVal;
             optionsSet.add(val);
         }
@@ -96,8 +141,8 @@ export function useGameLogic(isRunning: boolean, mode: GameMode = "multiplicatio
         // 3. Generate larger numbers
         while (optionsSet.size < numOptions) {
             const range = 10;
-            const minVal = answer + 1;
-            const maxVal = answer + range;
+            const minVal = ansVal + 1;
+            const maxVal = ansVal + range;
             const val = Math.floor(Math.random() * (maxVal - minVal + 1)) + minVal;
             optionsSet.add(val);
         }
@@ -130,24 +175,68 @@ export function useGameLogic(isRunning: boolean, mode: GameMode = "multiplicatio
     const handleAnswer = useCallback((input: string) => {
         if (!currentQuestion || gameState !== "waiting") return;
 
-        const val = parseInt(input);
-        if (isNaN(val)) return;
+        let isCorrect = false;
 
-        if (val === currentQuestion.answer) {
+        if (mode === "radicals") {
+            // String comparison for radicals
+            if (input === currentQuestion.answer) {
+                isCorrect = true;
+            }
+        } else {
+            const val = parseInt(input);
+            if (isNaN(val)) return;
+            // Number comparison
+            if (val === currentQuestion.answer) {
+                isCorrect = true;
+            }
+        }
+
+        if (isCorrect) {
             setGameState("correct");
             setStreak((s) => s + 1);
-            setStats((prev) => ({ ...prev, correct: prev.correct + 1, total: prev.total + 1 }));
+            setStats((prev) => ({
+                ...prev,
+                correct: prev.correct + 1,
+                total: prev.total + 1,
+                history: [...prev.history, {
+                    question: `${currentQuestion.factor1} ${currentQuestion.operator} ${currentQuestion.factor2}`,
+                    answer: currentQuestion.answer,
+                    userAnswer: input,
+                    isCorrect: true
+                }]
+            }));
 
             // Move to next question after delay
-            setTimeout(nextQuestion, 500);
+            const delay = mode === "assessment" ? 0 : 500;
+            if (mode === "assessment") {
+                nextQuestion();
+            } else {
+                setTimeout(nextQuestion, delay);
+            }
         } else {
             // Wrong answer logic
-            setIsWrong(true);
-            setStats((prev) => ({ ...prev, wrongAttempts: prev.wrongAttempts + 1 }));
-            setTimeout(() => setIsWrong(false), 500);
-            setUserInput("");
+            if (mode === "assessment") {
+                // Assessment mode: Count as wrong but move on immediately without feedback
+                setStats((prev) => ({
+                    ...prev,
+                    wrongAttempts: prev.wrongAttempts + 1,
+                    total: prev.total + 1,
+                    history: [...prev.history, {
+                        question: `${currentQuestion.factor1} ${currentQuestion.operator} ${currentQuestion.factor2}`,
+                        answer: currentQuestion.answer,
+                        userAnswer: input,
+                        isCorrect: false
+                    }]
+                }));
+                nextQuestion();
+            } else {
+                setIsWrong(true);
+                setStats((prev) => ({ ...prev, wrongAttempts: prev.wrongAttempts + 1 }));
+                setTimeout(() => setIsWrong(false), 500);
+                setUserInput("");
+            }
         }
-    }, [currentQuestion, gameState, nextQuestion]);
+    }, [currentQuestion, gameState, nextQuestion, mode]);
 
     // Formatting input
     const setInput = (val: string) => {
@@ -155,14 +244,29 @@ export function useGameLogic(isRunning: boolean, mode: GameMode = "multiplicatio
         setUserInput(val);
 
         if (currentQuestion) {
-            const parsed = parseInt(val);
-            const answerStr = currentQuestion.answer.toString();
+            if (mode === "radicals") {
+                // Check if it matches exactly
+                if (val === currentQuestion.answer) {
+                    handleAnswer(val);
+                }
+            } else {
+                const parsed = parseInt(val);
+                const answerStr = currentQuestion.answer.toString();
 
-            if (!isNaN(parsed)) {
-                if (parsed === currentQuestion.answer) {
-                    handleAnswer(val);
-                } else if (val.length >= answerStr.length) {
-                    handleAnswer(val);
+                if (!isNaN(parsed)) {
+                    // Assessment mode: Submit if length matches answer length (or we could wait for Enter, but current UI is digit-based)
+                    if (mode === "assessment") {
+                        if (val.length >= answerStr.length) {
+                            handleAnswer(val);
+                        }
+                    } else {
+                        // Normal modes
+                        if (parsed === currentQuestion.answer) {
+                            handleAnswer(val);
+                        } else if (val.length >= answerStr.length) {
+                            handleAnswer(val);
+                        }
+                    }
                 }
             }
         }
@@ -174,6 +278,8 @@ export function useGameLogic(isRunning: boolean, mode: GameMode = "multiplicatio
     // Timer Effect
     useEffect(() => {
         if (!isRunning) return;
+        if (mode === "assessment") return; // Disable reveal timer for assessment
+
         if (gameState === "waiting") {
             revealTimerRef.current = setTimeout(() => {
                 setGameState("revealed");
@@ -187,7 +293,7 @@ export function useGameLogic(isRunning: boolean, mode: GameMode = "multiplicatio
         return () => {
             if (revealTimerRef.current) clearTimeout(revealTimerRef.current);
         };
-    }, [gameState, nextQuestion, isRunning]);
+    }, [gameState, nextQuestion, isRunning, mode, currentQuestion]);
 
     // Initial load
     useEffect(() => {

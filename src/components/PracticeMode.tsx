@@ -7,6 +7,9 @@ import { useSoundEffects } from "@/hooks/useSoundEffects";
 import { cn } from "@/lib/utils";
 import { Play, Loader2, ToggleLeft, ToggleRight, Delete } from "lucide-react";
 
+import { FactorTree } from "./FactorTree";
+import { getFeedback } from "@/lib/assessment";
+
 interface PracticeModeProps {
     isRunning: boolean;
     studentId: string;
@@ -59,12 +62,17 @@ export function PracticeMode({ isRunning, studentId, setIsRunning }: PracticeMod
         return () => clearInterval(timer);
     }, [isRunning, sessionComplete]);
 
-    // Trigger completion when time hits 0
+
+    // Trigger completion when time hits 0 or question limit reached in assessment
     useEffect(() => {
-        if (timeLeft === 0 && !sessionComplete && isRunning) {
+        if (!isRunning || sessionComplete) return;
+
+        if (timeLeft === 0) {
+            handleSessionComplete();
+        } else if (mode === "assessment" && stats.total >= 60) {
             handleSessionComplete();
         }
-    }, [timeLeft, sessionComplete, isRunning]);
+    }, [timeLeft, sessionComplete, isRunning, mode, stats.total]);
 
     const handleSessionComplete = async () => {
         setSessionComplete(true);
@@ -73,6 +81,9 @@ export function PracticeMode({ isRunning, studentId, setIsRunning }: PracticeMod
         const finalScore = stats.correct; // accessing stats from hook
         const totalAttempts = stats.total;
         const wrong = stats.wrongAttempts;
+
+        // Calculate assessment tier if mode is assessment
+        const assessmentTier = mode === "assessment" ? getFeedback(finalScore).tier : undefined;
 
         try {
             const { logSessionAction, checkDailyStats } = await import("../app/actions");
@@ -83,7 +94,8 @@ export function PracticeMode({ isRunning, studentId, setIsRunning }: PracticeMod
                 mode,
                 wrong,
                 isMultipleChoice,
-                selectedGroups as string[]
+                selectedGroups as string[],
+                assessmentTier
             );
 
             // Re-check stats to update count immediately
@@ -110,18 +122,18 @@ export function PracticeMode({ isRunning, studentId, setIsRunning }: PracticeMod
     // Keep focus
     useEffect(() => {
         if (!isRunning || sessionComplete) return;
-        if (!isMultipleChoice) {
+        if (mode !== "radicals" && !isMultipleChoice) {
             inputRef.current?.focus();
         }
         const handleBlur = () => {
-            if (!isMultipleChoice && !sessionComplete) inputRef.current?.focus();
+            if (mode !== "radicals" && !isMultipleChoice && !sessionComplete) inputRef.current?.focus();
         };
         // Use a slight delay or check activeElement to improve UX, but simple is fine for now
         // actually clicking buttons (like mode toggle) might steal focus. 
         // Let's rely on autoFocus and effect dependency.
-    }, [isMultipleChoice, isRunning, sessionComplete, gameState]);
+    }, [isMultipleChoice, isRunning, sessionComplete, gameState, mode]);
 
-    const handleOptionClick = (val: number) => {
+    const handleOptionClick = (val: number | string) => {
         if (gameState !== "waiting" || sessionComplete) return;
         setInput(val.toString());
     };
@@ -136,11 +148,16 @@ export function PracticeMode({ isRunning, studentId, setIsRunning }: PracticeMod
 
 
 
+
+
     if (sessionComplete) {
+        const feedback = mode === "assessment" ? getFeedback(stats.correct) : null;
+
         return (
-            <div className="flex flex-col h-[60vh] items-center justify-center text-center p-8 space-y-6 rounded-3xl border border-white/5 bg-white/5 backdrop-blur-3xl">
+            <div className="flex flex-col h-[80vh] items-center justify-center text-center p-8 space-y-6 rounded-3xl border border-white/5 bg-white/5 backdrop-blur-3xl overflow-y-auto">
                 <div className="text-4xl">🎉</div>
                 <h2 className="text-3xl font-bold text-white">Session Complete!</h2>
+
                 <div className="grid grid-cols-2 gap-4 w-full max-w-xs">
                     <div className="p-4 bg-white/5 rounded-xl border border-white/10">
                         <div className="text-3xl font-bold text-white">{stats.correct}</div>
@@ -151,9 +168,53 @@ export function PracticeMode({ isRunning, studentId, setIsRunning }: PracticeMod
                         <div className="text-xs uppercase tracking-widest text-muted-foreground">Total</div>
                     </div>
                 </div>
-                <div className="mt-8 text-sm text-gray-400">
-                    Sessions today: <span className="text-white font-bold">{dailySessions.count} / 5</span>
-                </div>
+
+                {feedback && (
+                    <div className="w-full max-w-md bg-white/5 rounded-xl border border-white/10 p-6 text-left space-y-4">
+                        <div>
+                            <div className="text-xs uppercase tracking-widest text-indigo-400 mb-1">{feedback.range}</div>
+                            <h3 className="text-xl font-bold text-white">{feedback.tier}</h3>
+                        </div>
+                        <div className="space-y-2 text-sm text-gray-300">
+                            {feedback.description.split('\n').map((line, i) => (
+                                <p key={i}>{line}</p>
+                            ))}
+                        </div>
+                        <div className="pt-2 border-t border-white/10">
+                            <span className="text-xs font-bold text-emerald-400 uppercase tracking-widest">Instructional Focus:</span>
+                            <p className="text-sm text-white mt-1">{feedback.focus}</p>
+                        </div>
+                    </div>
+                )}
+
+                {/* Session History List */}
+                {mode === "assessment" && stats.history && stats.history.length > 0 && (
+                    <div className="w-full max-w-md bg-white/5 rounded-xl border border-white/10 p-4 mt-6 max-h-[60vh] overflow-y-auto">
+                        <h4 className="text-white font-bold mb-3 border-b border-white/10 pb-2">Session History</h4>
+                        <div className="space-y-2">
+                            {stats.history.map((item, idx) => (
+                                <div key={idx} className="flex justify-between items-center text-sm">
+                                    <span className="text-gray-300 w-1/3">{item.question}</span>
+                                    <span className={cn("w-1/3 text-center font-mono", item.isCorrect ? "text-emerald-400" : "text-red-400")}>
+                                        {item.userAnswer}
+                                    </span>
+                                    <span className="w-1/3 text-right text-gray-500">
+                                        {!item.isCorrect && (
+                                            <span className="text-xs text-emerald-500/70">Ans: {item.answer}</span>
+                                        )}
+                                    </span>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
+
+                {!feedback && (
+                    <div className="mt-8 text-sm text-gray-400">
+                        Sessions today: <span className="text-white font-bold">{dailySessions.count} / 5</span>
+                    </div>
+                )}
+
                 <div className="flex gap-4">
                     <button
                         onClick={() => window.location.reload()}
@@ -187,25 +248,27 @@ export function PracticeMode({ isRunning, studentId, setIsRunning }: PracticeMod
                         </div>
                     </div>
 
-                    {/* Input Mode Toggle */}
-                    <div className="flex flex-col items-center gap-2 w-full max-w-xs cursor-pointer hover:opacity-80 transition-opacity p-4 rounded-xl bg-white/5 border border-white/5" onClick={() => setIsMultipleChoice(!isMultipleChoice)}>
-                        <span className="text-[10px] sm:text-xs font-medium uppercase tracking-widest text-muted-foreground">
-                            Input Method
-                        </span>
-                        <div className="flex items-center gap-2 text-white">
-                            {isMultipleChoice ? <ToggleRight className="w-6 h-6 text-indigo-400" /> : <ToggleLeft className="w-6 h-6 text-gray-400" />}
-                            <span className="text-sm font-bold">{isMultipleChoice ? "Multiple Choice" : "Typing"}</span>
+                    {/* Input Mode Toggle - Hidden for Radicals only */}
+                    {mode !== "radicals" && (
+                        <div className="flex flex-col items-center gap-2 w-full max-w-xs cursor-pointer hover:opacity-80 transition-opacity p-4 rounded-xl bg-white/5 border border-white/5" onClick={() => setIsMultipleChoice(!isMultipleChoice)}>
+                            <span className="text-[10px] sm:text-xs font-medium uppercase tracking-widest text-muted-foreground">
+                                Input Method
+                            </span>
+                            <div className="flex items-center gap-2 text-white">
+                                {isMultipleChoice ? <ToggleRight className="w-6 h-6 text-indigo-400" /> : <ToggleLeft className="w-6 h-6 text-gray-400" />}
+                                <span className="text-sm font-bold">{isMultipleChoice ? "Multiple Choice" : "Typing"}</span>
+                            </div>
                         </div>
-                    </div>
+                    )}
 
                     {/* Game Mode Toggle */}
-                    <div className="flex w-full max-w-xs bg-black/40 p-1 rounded-xl">
-                        {(["multiplication", "division"] as const).map((m) => (
+                    <div className="flex w-full max-w-xs bg-black/40 p-1 rounded-xl overflow-x-auto">
+                        {(["multiplication", "division", "assessment"] as const).map((m) => (
                             <button
                                 key={m}
                                 onClick={() => setMode(m)}
                                 className={cn(
-                                    "flex-1 py-2 rounded-lg text-sm font-bold capitalize transition-all",
+                                    "flex-1 py-2 rounded-lg text-[10px] sm:text-xs font-bold capitalize transition-all",
                                     mode === m ? "bg-indigo-600 text-white shadow-lg" : "text-gray-400 hover:text-white"
                                 )}
                             >
@@ -214,28 +277,30 @@ export function PracticeMode({ isRunning, studentId, setIsRunning }: PracticeMod
                         ))}
                     </div>
 
-                    {/* Factor Group Selection */}
-                    <div className="flex flex-col items-center gap-3 w-full max-w-xs">
-                        <span className="text-[10px] sm:text-xs font-medium uppercase tracking-widest text-muted-foreground">
-                            Factor Focus
-                        </span>
-                        <div className="flex flex-wrap justify-center gap-2 w-full">
-                            {(["2-4", "5-7", "8-9"] as const).map(group => (
-                                <button
-                                    key={group}
-                                    onClick={() => toggleGroup(group)}
-                                    className={cn(
-                                        "px-4 py-2 rounded-lg text-sm font-bold transition-all border flex-1 min-w-[30%]",
-                                        selectedGroups.includes(group)
-                                            ? "bg-indigo-500/20 border-indigo-500 text-indigo-300"
-                                            : "bg-white/5 border-white/10 text-muted-foreground hover:bg-white/10"
-                                    )}
-                                >
-                                    {group}
-                                </button>
-                            ))}
+                    {/* Factor Group Selection - Hidden for Assessment */}
+                    {mode !== "assessment" && (
+                        <div className="flex flex-col items-center gap-3 w-full max-w-xs">
+                            <span className="text-[10px] sm:text-xs font-medium uppercase tracking-widest text-muted-foreground">
+                                Factor Focus
+                            </span>
+                            <div className="flex flex-wrap justify-center gap-2 w-full">
+                                {(["2-4", "5-7", "8-9"] as const).map(group => (
+                                    <button
+                                        key={group}
+                                        onClick={() => toggleGroup(group)}
+                                        className={cn(
+                                            "px-4 py-2 rounded-lg text-sm font-bold transition-all border flex-1 min-w-[30%]",
+                                            selectedGroups.includes(group)
+                                                ? "bg-indigo-500/20 border-indigo-500 text-indigo-300"
+                                                : "bg-white/5 border-white/10 text-muted-foreground hover:bg-white/10"
+                                        )}
+                                    >
+                                        {group}
+                                    </button>
+                                ))}
+                            </div>
                         </div>
-                    </div>
+                    )}
 
                     <button
                         onClick={() => setIsRunning(true)}
@@ -257,10 +322,10 @@ export function PracticeMode({ isRunning, studentId, setIsRunning }: PracticeMod
     }
 
     return (
-        <div className="relative flex min-h-[50vh] w-full max-w-md sm:max-w-2xl flex-col items-center justify-center rounded-3xl border border-white/5 bg-white/5 p-6 sm:p-8 shadow-2xl backdrop-blur-3xl mx-4 sm:mx-0 mb-8">
+        <div className="relative flex min-h-[50vh] w-full max-w-md sm:max-w-2xl flex-col items-center justify-center rounded-3xl border border-white/5 bg-white/5 p-6 sm:p-8 shadow-2xl backdrop-blur-3xl mx-4 sm:mx-0 mb-8 overflow-hidden">
 
             {/* Timer and Daily Count */}
-            <div className="absolute top-4 left-0 right-0 flex justify-center items-center gap-4">
+            <div className="absolute top-4 left-0 right-0 flex justify-center items-center gap-4 z-20">
                 <div className={cn(
                     "px-4 py-1.5 rounded-full border text-sm font-mono font-bold transition-all",
                     timeLeft <= 10 ? "bg-red-500/20 border-red-500 text-red-400 animate-pulse" : "bg-white/5 border-white/10 text-white"
@@ -270,7 +335,7 @@ export function PracticeMode({ isRunning, studentId, setIsRunning }: PracticeMod
             </div>
 
             {/* Streak Counter */}
-            <div className="absolute top-4 right-4 sm:top-8 sm:right-8 flex flex-col items-end">
+            <div className="absolute top-4 right-4 sm:top-8 sm:right-8 flex flex-col items-end z-20">
                 <span className="text-[10px] sm:text-xs font-medium uppercase tracking-widest text-muted-foreground">
                     Streak
                 </span>
@@ -282,104 +347,103 @@ export function PracticeMode({ isRunning, studentId, setIsRunning }: PracticeMod
                 </span>
             </div>
 
-            {/* Question Display */}
-            <div className="mb-8 flex flex-col items-center space-y-2">
-                {isRunning && currentQuestion ? (
-                    <AnimatePresence mode="wait">
-                        <motion.div
-                            key={currentQuestion.id}
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: -20 }}
-                            className="flex items-center text-7xl sm:text-9xl font-light tracking-tighter text-white"
-                        >
-                            <span>{currentQuestion.factor1}</span>
-                            <span className="mx-4 sm:mx-6 text-muted-foreground">{currentQuestion.operator}</span>
-                            <span>{currentQuestion.factor2}</span>
-                        </motion.div>
-                    </AnimatePresence>
-                ) : (
-                    <div className="flex items-center justify-center h-32 text-xl text-muted-foreground tracking-widest uppercase animate-pulse">
-                        {/* 
-                         Previously "Press Start". 
-                         Now invalid state if isRunning is true but no question? 
-                         Handled by loading state above.
-                        */}
-                    </div>
-                )}
-            </div>
+            {/* Question Display - Only show if NOT Radicals mode (Radicals handles its own display in FactorTree) OR if state is Correct */}
+            {mode !== "radicals" && (
+                <div className="mb-8 flex flex-col items-center space-y-2">
+                    {isRunning && currentQuestion ? (
+                        <AnimatePresence mode="wait">
+                            <motion.div
+                                key={currentQuestion.id}
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: -20 }}
+                                className="flex items-center text-7xl sm:text-9xl font-light tracking-tighter text-white"
+                            >
+                                <span>{currentQuestion.factor1}</span>
+                                <span className="mx-4 sm:mx-6 text-muted-foreground">{currentQuestion.operator}</span>
+                                <span>{currentQuestion.factor2}</span>
+                            </motion.div>
+                        </AnimatePresence>
+                    ) : null}
+                </div>
+            )}
+
 
             {/* Answer Section */}
             <div className="relative w-full flex justify-center min-h-[128px]">
                 {isRunning && currentQuestion && (
                     gameState === "waiting" ? (
-                        isMultipleChoice ? (
-                            <div className="grid grid-cols-2 gap-4 w-full max-w-sm">
-                                {currentQuestion.options.map((opt) => (
-                                    <motion.button
-                                        key={opt}
-                                        initial={{ opacity: 0, scale: 0.9 }}
-                                        animate={isWrong ? { x: [0, -10, 10, -10, 10, 0], backgroundColor: "rgba(239, 68, 68, 0.2)", borderColor: "rgba(239, 68, 68, 0.5)" } : { opacity: 1, scale: 1, backgroundColor: "rgba(255,255,255,0.05)", borderColor: "rgba(255,255,255,0.1)" }}
-                                        whileHover={{ scale: 1.05, backgroundColor: "rgba(255,255,255,0.1)" }}
-                                        whileTap={{ scale: 0.95 }}
-                                        onClick={() => handleOptionClick(opt)}
-                                        onMouseEnter={() => playHover()}
-                                        className={cn(
-                                            "h-16 rounded-xl border text-2xl font-bold text-white transition-colors hover:border-indigo-500/50",
-                                            isWrong ? "border-red-500/50 text-red-200" : "border-white/10 bg-white/5"
-                                        )}
-                                    >
-                                        {opt}
-                                    </motion.button>
-                                ))}
-                            </div>
+                        mode === "radicals" ? (
+                            <FactorTree key={currentQuestion.id} initialNumber={currentQuestion.factor2} onComplete={(res) => setInput(res)} />
                         ) : (
-                            <div className="flex flex-col items-center gap-4 w-full">
-                                <input
-                                    ref={inputRef}
-                                    type="text"
-                                    value={userInput}
-                                    readOnly
-                                    className={cn(
-                                        "w-full max-w-[200px] border-b-4 bg-transparent text-center text-6xl font-bold outline-none placeholder:text-white/10 focus:border-indigo-500 transition-all caret-transparent cursor-default",
-                                        isWrong ? "border-red-500 text-red-500 animate-pulse" : "border-white/20 text-white"
-                                    )}
-                                    placeholder="?"
-                                />
-
-                                <div className="grid grid-cols-3 gap-2 w-full max-w-[280px]">
-                                    {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((num) => (
+                            isMultipleChoice ? (
+                                <div className="grid grid-cols-2 gap-4 w-full max-w-sm">
+                                    {currentQuestion.options.map((opt) => (
                                         <motion.button
-                                            key={num}
-                                            whileHover={{ scale: 1.05, backgroundColor: "rgba(255,255,255,0.15)" }}
+                                            key={opt}
+                                            initial={{ opacity: 0, scale: 0.9 }}
+                                            animate={isWrong ? { x: [0, -10, 10, -10, 10, 0], backgroundColor: "rgba(239, 68, 68, 0.2)", borderColor: "rgba(239, 68, 68, 0.5)" } : { opacity: 1, scale: 1, backgroundColor: "rgba(255,255,255,0.05)", borderColor: "rgba(255,255,255,0.1)" }}
+                                            whileHover={{ scale: 1.05, backgroundColor: "rgba(255,255,255,0.1)" }}
                                             whileTap={{ scale: 0.95 }}
-                                            onClick={() => setInput(userInput + num)}
-                                            className="h-14 rounded-full bg-white/10 border border-white/5 text-xl font-bold text-white flex items-center justify-center transition-colors"
+                                            onClick={() => handleOptionClick(opt)}
+                                            onMouseEnter={() => playHover()}
+                                            className={cn(
+                                                "h-16 rounded-xl border text-xl sm:text-2xl font-bold text-white transition-colors hover:border-indigo-500/50",
+                                                isWrong ? "border-red-500/50 text-red-200" : "border-white/10 bg-white/5"
+                                            )}
                                         >
-                                            {num}
+                                            {opt}
                                         </motion.button>
                                     ))}
-
-                                    {/* Bottom row: Empty, 0, Backspace */}
-                                    <div />
-                                    <motion.button
-                                        whileHover={{ scale: 1.05, backgroundColor: "rgba(255,255,255,0.15)" }}
-                                        whileTap={{ scale: 0.95 }}
-                                        onClick={() => setInput(userInput + "0")}
-                                        className="h-14 rounded-full bg-white/10 border border-white/5 text-xl font-bold text-white flex items-center justify-center transition-colors"
-                                    >
-                                        0
-                                    </motion.button>
-                                    <motion.button
-                                        whileHover={{ scale: 1.05, backgroundColor: "rgba(255,50,50,0.2)" }}
-                                        whileTap={{ scale: 0.95 }}
-                                        onClick={() => setInput(userInput.slice(0, -1))}
-                                        className="h-14 rounded-full bg-white/5 border border-white/5 text-white flex items-center justify-center transition-colors hover:bg-red-500/20 group"
-                                    >
-                                        <Delete className="w-5 h-5 text-muted-foreground group-hover:text-red-400" />
-                                    </motion.button>
                                 </div>
-                            </div>
+                            ) : (
+                                <div className="flex flex-col items-center gap-4 w-full">
+                                    <input
+                                        ref={inputRef}
+                                        type="text"
+                                        value={userInput}
+                                        readOnly
+                                        className={cn(
+                                            "w-full max-w-[200px] border-b-4 bg-transparent text-center text-6xl font-bold outline-none placeholder:text-white/10 focus:border-indigo-500 transition-all caret-transparent cursor-default",
+                                            isWrong ? "border-red-500 text-red-500 animate-pulse" : "border-white/20 text-white"
+                                        )}
+                                        placeholder="?"
+                                    />
+
+                                    <div className="grid grid-cols-3 gap-2 w-full max-w-[280px]">
+                                        {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((num) => (
+                                            <motion.button
+                                                key={num}
+                                                whileHover={{ scale: 1.05, backgroundColor: "rgba(255,255,255,0.15)" }}
+                                                whileTap={{ scale: 0.95 }}
+                                                onClick={() => setInput(userInput + num)}
+                                                className="h-14 rounded-full bg-white/10 border border-white/5 text-xl font-bold text-white flex items-center justify-center transition-colors"
+                                            >
+                                                {num}
+                                            </motion.button>
+                                        ))}
+
+                                        {/* Bottom row: Empty, 0, Backspace */}
+                                        <div />
+                                        <motion.button
+                                            whileHover={{ scale: 1.05, backgroundColor: "rgba(255,255,255,0.15)" }}
+                                            whileTap={{ scale: 0.95 }}
+                                            onClick={() => setInput(userInput + "0")}
+                                            className="h-14 rounded-full bg-white/10 border border-white/5 text-xl font-bold text-white flex items-center justify-center transition-colors"
+                                        >
+                                            0
+                                        </motion.button>
+                                        <motion.button
+                                            whileHover={{ scale: 1.05, backgroundColor: "rgba(255,50,50,0.2)" }}
+                                            whileTap={{ scale: 0.95 }}
+                                            onClick={() => setInput(userInput.slice(0, -1))}
+                                            className="h-14 rounded-full bg-white/5 border border-white/5 text-white flex items-center justify-center transition-colors hover:bg-red-500/20 group"
+                                        >
+                                            <Delete className="w-5 h-5 text-muted-foreground group-hover:text-red-400" />
+                                        </motion.button>
+                                    </div>
+                                </div>
+                            )
                         )
                     ) : (
                         <motion.div

@@ -50,7 +50,7 @@
     },
     "chad": {
       "id": "chad",
-      "lastSeen": "2026-01-14T16:20:33.226Z",
+      "lastSeen": "2026-02-10T13:34:42.755Z",
       "sessions": [
         {
           "score": 0,
@@ -65,8 +65,81 @@
           "gameType": "practice",
           "id": "mgvuucg",
           "timestamp": "2026-01-14T16:20:33.226Z"
+        },
+        {
+          "score": 0,
+          "total": 1,
+          "gameType": "radicals",
+          "wrong": 0,
+          "isMultipleChoice": false,
+          "selectedFactors": [
+            "2-4",
+            "5-7",
+            "8-9"
+          ],
+          "id": "2czmflb",
+          "timestamp": "2026-02-07T17:44:34.281Z"
+        },
+        {
+          "score": 0,
+          "total": 2,
+          "gameType": "radicals",
+          "wrong": 0,
+          "isMultipleChoice": false,
+          "selectedFactors": [
+            "2-4",
+            "5-7",
+            "8-9"
+          ],
+          "id": "lonivk2",
+          "timestamp": "2026-02-07T17:45:37.033Z"
+        },
+        {
+          "score": 0,
+          "total": 0,
+          "gameType": "radicals",
+          "wrong": 0,
+          "isMultipleChoice": false,
+          "selectedFactors": [
+            "2-4",
+            "5-7",
+            "8-9"
+          ],
+          "id": "6zu8kxq",
+          "timestamp": "2026-02-10T13:06:03.972Z"
+        },
+        {
+          "score": 3,
+          "total": 3,
+          "gameType": "assessment",
+          "wrong": 0,
+          "isMultipleChoice": false,
+          "selectedFactors": [
+            "2-4",
+            "5-7",
+            "8-9"
+          ],
+          "assessmentTier": "Developing foundational fluency",
+          "id": "643gqqc",
+          "timestamp": "2026-02-10T13:06:50.086Z"
+        },
+        {
+          "score": 24,
+          "total": 25,
+          "gameType": "assessment",
+          "wrong": 1,
+          "isMultipleChoice": false,
+          "selectedFactors": [
+            "2-4",
+            "5-7",
+            "8-9"
+          ],
+          "assessmentTier": "Developing foundational fluency",
+          "id": "3s8404b",
+          "timestamp": "2026-02-10T13:34:42.755Z"
         }
-      ]
+      ],
+      "loginCount": 6
     },
     "asdf": {
       "id": "asdf",
@@ -347,6 +420,162 @@
           ],
           "id": "onol2ks",
           "timestamp": "2026-02-06T23:27:44.255Z"
+        }
+      ]
+    },
+    "test-user": {
+      "id": "test-user",
+      "lastSeen": "2026-02-10T13:13:43.503Z",
+      "loginCount": 3,
+      "sessions": [
+        {
+          "score": 0,
+          "total": 0,
+          "gameType": "assessment",
+          "wrong": 0,
+          "isMultipleChoice": false,
+          "selectedFactors": [
+            "2-4",
+            "5-7",
+            "8-9"
+          ],
+          "assessmentTier": "Developing foundational fluency",
+          "id": "spuqgvf",
+          "timestamp": "2026-02-10T13:05:27.403Z"
+        },
+        {
+          "score": 0,
+          "total": 0,
+          "gameType": "assessment",
+          "wrong": 0,
+          "isMultipleChoice": false,
+          "selectedFactors": [
+            "2-4",
+            "5-7",
+            "8-9"
+          ],
+          "assessmentTier": "Developing foundational fluency",
+          "id": "077dsum",
+          "timestamp": "2026-02-10T13:06:09.697Z"
+        },
+        {
+          "score": 0,
+          "total": 0,
+          "gameType": "assessment",
+          "wrong": 0,
+          "isMultipleChoice": false,
+          "selectedFactors": [
+            "2-4",
+            "5-7",
+            "8-9"
+          ],
+          "assessmentTier": "Developing foundational fluency",
+          "id": "fv7mfdt",
+          "timestamp": "2026-02-10T13:13:43.503Z"
+        }
+      ]
+    },
+    "test-fix": {
+      "id": "test-fix",
+      "lastSeen": "2026-02-10T13:21:10.588Z",
+      "loginCount": 3,
+      "sessions": [
+        {
+          "score": 1,
+          "total": 1,
+          "gameType": "assessment",
+          "wrong": 0,
+          "isMultipleChoice": false,
+          "selectedFactors": [
+            "2-4",
+            "5-7",
+            "8-9"
+          ],
+          "assessmentTier": "Developing foundational fluency",
+          "id": "zfnddlt",
+          "timestamp": "2026-02-10T13:19:42.575Z"
+        },
+        {
+          "score": 1,
+          "total": 1,
+          "gameType": "assessment",
+          "wrong": 0,
+          "isMultipleChoice": false,
+          "selectedFactors": [
+            "2-4",
+            "5-7",
+            "8-9"
+          ],
+          "assessmentTier": "Developing foundational fluency",
+          "id": "tpvoccg",
+          "timestamp": "2026-02-10T13:20:21.956Z"
+        },
+        {
+          "score": 1,
+          "total": 1,
+          "gameType": "assessment",
+          "wrong": 0,
+          "isMultipleChoice": false,
+          "selectedFactors": [
+            "2-4",
+            "5-7",
+            "8-9"
+          ],
+          "assessmentTier": "Developing foundational fluency",
+          "id": "qxinw2e",
+          "timestamp": "2026-02-10T13:21:10.588Z"
+        }
+      ]
+    },
+    "c": {
+      "id": "c",
+      "lastSeen": "2026-02-10T13:49:14.823Z",
+      "loginCount": 5,
+      "sessions": [
+        {
+          "score": 22,
+          "total": 26,
+          "gameType": "assessment",
+          "wrong": 3,
+          "isMultipleChoice": false,
+          "selectedFactors": [
+            "2-4",
+            "5-7",
+            "8-9"
+          ],
+          "assessmentTier": "Developing foundational fluency",
+          "id": "r238l8i",
+          "timestamp": "2026-02-10T13:28:03.798Z"
+        },
+        {
+          "score": 32,
+          "total": 33,
+          "gameType": "assessment",
+          "wrong": 1,
+          "isMultipleChoice": true,
+          "selectedFactors": [
+            "2-4",
+            "5-7",
+            "8-9"
+          ],
+          "assessmentTier": "Emerging fluency",
+          "id": "xn12u75",
+          "timestamp": "2026-02-10T13:42:58.669Z"
+        },
+        {
+          "score": 15,
+          "total": 16,
+          "gameType": "assessment",
+          "wrong": 1,
+          "isMultipleChoice": false,
+          "selectedFactors": [
+            "2-4",
+            "5-7",
+            "8-9"
+          ],
+          "assessmentTier": "Developing foundational fluency",
+          "id": "diclff9",
+          "timestamp": "2026-02-10T13:48:27.001Z"
         }
       ]
     }
