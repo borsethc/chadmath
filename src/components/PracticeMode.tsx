@@ -26,18 +26,26 @@ export function PracticeMode({ isRunning, studentId, setIsRunning }: PracticeMod
     const SESSION_DURATION = 60; // 60 seconds
     const [timeLeft, setTimeLeft] = useState(SESSION_DURATION);
     const [dailySessions, setDailySessions] = useState({ count: 0, allowed: true });
+    const [allTimeHigh, setAllTimeHigh] = useState<number | undefined>(undefined);
     const [isCheckingLimit, setIsCheckingLimit] = useState(true);
     const [sessionComplete, setSessionComplete] = useState(false);
 
-    // Check daily limit on mount
+    // Check daily limit and all time high on mount
     useEffect(() => {
         const check = async () => {
             try {
-                const { checkDailyStats } = await import("../app/actions");
+                const { checkDailyStats, loginAction } = await import("../app/actions");
                 const stats = await checkDailyStats(studentId);
                 setDailySessions(stats);
+
+                // Fetch all time high via login action (or could make a dedicated action)
+                // Re-using loginAction as it returns the student data we need
+                const loginData = await loginAction(studentId);
+                if (loginData.success) {
+                    setAllTimeHigh(loginData.allTimeHigh);
+                }
             } catch (e) {
-                console.error("Failed to check daily stats", e);
+                console.error("Failed to check stats", e);
             } finally {
                 setIsCheckingLimit(false);
             }
@@ -87,7 +95,7 @@ export function PracticeMode({ isRunning, studentId, setIsRunning }: PracticeMod
 
         try {
             const { logSessionAction, checkDailyStats } = await import("../app/actions");
-            await logSessionAction(
+            const result = await logSessionAction(
                 studentId,
                 finalScore,
                 totalAttempts,
@@ -97,6 +105,10 @@ export function PracticeMode({ isRunning, studentId, setIsRunning }: PracticeMod
                 selectedGroups as string[],
                 assessmentTier
             );
+
+            if (result.allTimeHigh !== undefined) {
+                setAllTimeHigh(result.allTimeHigh);
+            }
 
             // Re-check stats to update count immediately
             const newStats = await checkDailyStats(studentId);
@@ -347,6 +359,18 @@ export function PracticeMode({ isRunning, studentId, setIsRunning }: PracticeMod
                 </span>
             </div>
 
+            {/* All Time High Display (Assessment only) */}
+            {mode === "assessment" && allTimeHigh !== undefined && (
+                <div className="absolute top-4 left-4 sm:top-8 sm:left-8 flex flex-col items-start z-20">
+                    <span className="text-[10px] sm:text-xs font-medium uppercase tracking-widest text-muted-foreground">
+                        High Score
+                    </span>
+                    <span className="text-xl sm:text-2xl font-bold text-yellow-400 drop-shadow-[0_0_10px_rgba(250,204,21,0.5)]">
+                        {allTimeHigh}
+                    </span>
+                </div>
+            )}
+
             {/* Question Display - Only show if NOT Radicals mode (Radicals handles its own display in FactorTree) OR if state is Correct */}
             {mode !== "radicals" && (
                 <div className="mb-8 flex flex-col items-center space-y-2">
@@ -389,7 +413,8 @@ export function PracticeMode({ isRunning, studentId, setIsRunning }: PracticeMod
                                             onMouseEnter={() => playHover()}
                                             className={cn(
                                                 "h-16 rounded-xl border text-xl sm:text-2xl font-bold text-white transition-colors hover:border-indigo-500/50",
-                                                isWrong ? "border-red-500/50 text-red-200" : "border-white/10 bg-white/5"
+                                                /* Hide red/wrong styling in Assessment mode */
+                                                mode !== "assessment" && isWrong ? "border-red-500/50 text-red-200" : "border-white/10 bg-white/5"
                                             )}
                                         >
                                             {opt}
@@ -405,7 +430,8 @@ export function PracticeMode({ isRunning, studentId, setIsRunning }: PracticeMod
                                         readOnly
                                         className={cn(
                                             "w-full max-w-[200px] border-b-4 bg-transparent text-center text-6xl font-bold outline-none placeholder:text-white/10 focus:border-indigo-500 transition-all caret-transparent cursor-default",
-                                            isWrong ? "border-red-500 text-red-500 animate-pulse" : "border-white/20 text-white"
+                                            /* Hide red/wrong styling in Assessment mode */
+                                            mode !== "assessment" && isWrong ? "border-red-500 text-red-500 animate-pulse" : "border-white/20 text-white"
                                         )}
                                         placeholder="?"
                                     />

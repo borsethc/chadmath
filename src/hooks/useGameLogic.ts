@@ -44,6 +44,16 @@ export function useGameLogic(isRunning: boolean, mode: GameMode = "multiplicatio
     // Timer for auto-reveal
     const revealTimerRef = useRef<NodeJS.Timeout | null>(null);
 
+    // Reset stats when game starts
+    useEffect(() => {
+        if (isRunning) {
+            setStats({ correct: 0, wrongAttempts: 0, total: 0, startTime: Date.now(), history: [] });
+            setStreak(0);
+            setIsWrong(false);
+            setGameState("waiting");
+        }
+    }, [isRunning]);
+
     const generateQuestion = useCallback(() => {
         if (mode === "radicals") {
             // Pick a perfect square (4, 9, 16, 25, 36, 49, 64, 81, 100)

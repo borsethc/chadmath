@@ -7,8 +7,8 @@ export async function loginAction(studentId: string) {
     if (!studentId || studentId.trim() === "") {
         return { success: false, message: "Invalid Student ID" };
     }
-    await createOrUpdateStudent(studentId);
-    return { success: true };
+    const student = await createOrUpdateStudent(studentId);
+    return { success: true, allTimeHigh: student.allTimeHigh };
 }
 
 export async function checkDailyStats(studentId: string) {
@@ -39,7 +39,7 @@ export async function logSessionAction(
     selectedFactors: string[],
     assessmentTier?: string
 ) {
-    await addSession(studentId, {
+    const session = await addSession(studentId, {
         score,
         total,
         gameType,
@@ -48,8 +48,15 @@ export async function logSessionAction(
         selectedFactors,
         assessmentTier
     });
+
+    // Check if new all time high was set (we'd need to re-fetch student or trust logic)
+    // For simplicity, let's just re-fetch student to get latest high score if needed, 
+    // or we can optimize later. But actually addSession returns the session, not the student.
+    // Let's modify addSession to return something useful or just fetch student.
+    const student = await getStudent(studentId);
+
     revalidatePath('/dashboard');
-    return { success: true };
+    return { success: true, allTimeHigh: student?.allTimeHigh };
 }
 
 export async function getDashboardData() {

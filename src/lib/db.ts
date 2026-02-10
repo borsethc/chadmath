@@ -22,6 +22,7 @@ export type Student = {
     lastSeen: string;
     loginCount: number;
     sessions: Session[];
+    allTimeHigh?: number;
 };
 
 export type Database = {
@@ -148,6 +149,8 @@ export const addSession = async (studentId: string, session: Omit<Session, "id" 
         timestamp: now,
     };
 
+    let newAllTimeHigh: number | undefined;
+
     if (pool) {
         // Postgres: Read -> Modify -> Write
         const student = await getStudent(studentId);
@@ -171,6 +174,16 @@ export const addSession = async (studentId: string, session: Omit<Session, "id" 
         }
 
         student.sessions.push(newSession);
+
+        // Update All Time High if Assessment
+        if (session.gameType === "assessment") {
+            const currentHigh = student.allTimeHigh || 0;
+            if (session.score > currentHigh) {
+                student.allTimeHigh = session.score;
+                newAllTimeHigh = session.score;
+            }
+        }
+
         student.lastSeen = now;
 
         await pool.query('UPDATE students SET data = $2 WHERE id = $1', [studentId, JSON.stringify(student)]);
@@ -186,6 +199,16 @@ export const addSession = async (studentId: string, session: Omit<Session, "id" 
             };
         }
         db.students[studentId].sessions.push(newSession);
+
+        // Update All Time High if Assessment
+        if (session.gameType === "assessment") {
+            const currentHigh = db.students[studentId].allTimeHigh || 0;
+            if (session.score > currentHigh) {
+                db.students[studentId].allTimeHigh = session.score;
+                newAllTimeHigh = session.score;
+            }
+        }
+
         db.students[studentId].lastSeen = now;
         await writeDbFile(db);
     }
