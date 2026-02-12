@@ -29,7 +29,7 @@ interface SessionStats {
     }[];
 }
 
-const REVEAL_DELAY_MS = 30000; // 30 seconds for radicals? Or keep 5s? Radicals take longer.
+// REVEAL_DELAY_MS removed in favor of dynamic delay
 const NEXT_QUESTION_DELAY_MS = 2000; // Time to show result before next
 
 export function useGameLogic(isRunning: boolean, mode: GameMode = "multiplication") {
@@ -294,13 +294,14 @@ export function useGameLogic(isRunning: boolean, mode: GameMode = "multiplicatio
         if (mode === "assessment") return; // Disable reveal timer for assessment
 
         if (gameState === "waiting") {
+            const delay = mode === "radicals" ? 30000 : 5000;
             revealTimerRef.current = setTimeout(() => {
                 setGameState("revealed");
                 setStreak(0); // Reset streak on timeout
                 setStats((prev) => ({ ...prev, total: prev.total + 1 }));
                 // Automatically go to next question after showing answer
                 setTimeout(nextQuestion, NEXT_QUESTION_DELAY_MS);
-            }, REVEAL_DELAY_MS);
+            }, delay);
         }
 
         return () => {
