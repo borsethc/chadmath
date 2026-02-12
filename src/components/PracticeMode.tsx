@@ -373,7 +373,7 @@ export function PracticeMode({ isRunning, studentId, setIsRunning }: PracticeMod
 
             {/* Question Display - Only show if NOT Radicals mode (Radicals handles its own display in FactorTree) OR if state is Correct */}
             {mode !== "radicals" && (
-                <div className="mb-8 flex flex-col items-center space-y-2">
+                <div className="mb-2 flex flex-col items-center space-y-2">
                     {isRunning && currentQuestion ? (
                         <AnimatePresence mode="wait">
                             <motion.div
@@ -422,7 +422,7 @@ export function PracticeMode({ isRunning, studentId, setIsRunning }: PracticeMod
                                     ))}
                                 </div>
                             ) : (
-                                <div className="flex flex-col items-center gap-4 w-full">
+                                <div className="flex flex-col items-center gap-2 w-full">
                                     <input
                                         ref={inputRef}
                                         type="text"
