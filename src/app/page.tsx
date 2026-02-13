@@ -107,6 +107,10 @@ export default function Home() {
         )}
       </div>
 
+      <div className="absolute bottom-4 text-center w-full pointer-events-none">
+        <p className="text-[10px] text-white/20 font-mono">v0.1.5 (Strict Grouping Fix)</p>
+      </div>
+
     </main>
   );
 }
