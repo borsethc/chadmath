@@ -464,9 +464,20 @@ export function PracticeMode({ isRunning, studentId, setIsRunning }: PracticeMod
                     {/* Table Selection - Only for Tables Mode */}
                     {mode === "tables" && (
                         <div className="flex flex-col items-center gap-3 w-full max-w-xs">
-                            <span className="text-[10px] sm:text-xs font-medium uppercase tracking-widest text-muted-foreground">
-                                Select Tables
-                            </span>
+                            <div className="flex justify-between items-center w-full">
+                                <span className="text-[10px] sm:text-xs font-medium uppercase tracking-widest text-muted-foreground">
+                                    Select Tables
+                                </span>
+                                <button
+                                    onClick={() => {
+                                        if (selectedTables.length === 8) setSelectedTables([]);
+                                        else setSelectedTables([2, 3, 4, 5, 6, 7, 8, 9]);
+                                    }}
+                                    className="text-[10px] text-indigo-400 hover:text-indigo-300"
+                                >
+                                    {selectedTables.length === 8 ? "Clear All" : "Select All"}
+                                </button>
+                            </div>
                             <div className="grid grid-cols-4 gap-2 w-full">
                                 {[2, 3, 4, 5, 6, 7, 8, 9].map((num) => (
                                     <button
