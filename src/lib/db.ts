@@ -306,7 +306,11 @@ const readDbFile = async (): Promise<Database> => {
 };
 
 const writeDbFile = async (data: Database) => {
-    await fs.writeFile(DB_PATH, JSON.stringify(data, null, 2));
+    try {
+        await fs.writeFile(DB_PATH, JSON.stringify(data, null, 2));
+    } catch (e) {
+        console.warn("Failed to write to DB file (likely read-only environment):", e);
+    }
 };
 
 export const checkConnection = async (): Promise<{
