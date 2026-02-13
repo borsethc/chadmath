@@ -722,7 +722,7 @@ export function PracticeMode({ isRunning, studentId, setIsRunning }: PracticeMod
 
             {/* DEBUG OVERLAY - REMOVE LATER */}
             <div className="absolute top-0 right-0 p-2 text-[10px] text-white/50 bg-black/50 pointer-events-none">
-                Debug: Wrong={isWrong.toString()} Input="{userInput}" Mode={mode} MC={isMultipleChoice.toString()}
+                Debug: Wrong={isWrong.toString()} Input="{userInput}" Mode={mode} MC={isMultipleChoice.toString()} State={gameState}
             </div>
         </div>
     );

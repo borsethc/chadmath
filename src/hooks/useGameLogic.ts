@@ -390,12 +390,14 @@ export function useGameLogic(
 
     // Formatting input (unchanged logic mostly)
     const setInput = (val: string) => {
+        console.log("setInput called with:", val, "MC:", isMultipleChoice, "State:", gameState);
         if (gameState !== "waiting") return;
         setUserInput(val);
         if (currentQuestion) {
 
             // Multiple Choice: Always submit immediately
             if (isMultipleChoice) {
+                console.log("MC Mode: Auto-submitting", val);
                 handleAnswer(val);
                 return;
             }
