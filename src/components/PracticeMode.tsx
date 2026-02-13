@@ -82,17 +82,27 @@ export function PracticeMode({ isRunning, studentId, setIsRunning }: PracticeMod
         const check = async () => {
             try {
                 const { checkDailyStats, loginAction } = await import("../app/actions");
-                const stats = await checkDailyStats(studentId);
-                setDailySessions(stats);
 
-                const loginData = await loginAction(studentId);
-                if (loginData.success) {
-                    setAllTimeHigh(loginData.allTimeHigh);
-                    if (loginData.xp !== undefined) setXp(loginData.xp);
-                    if (loginData.level !== undefined) setLevel(loginData.level);
-                    if (loginData.dailyStreak !== undefined) setDailyStreak(loginData.dailyStreak);
-                    if (loginData.factMastery !== undefined) setFactMastery(loginData.factMastery);
-                }
+                // Add a timeout to prevent infinite loading
+                const timeoutPromise = new Promise((_, reject) =>
+                    setTimeout(() => reject(new Error("Request timed out")), 10000)
+                );
+
+                const dataPromise = (async () => {
+                    const stats = await checkDailyStats(studentId);
+                    setDailySessions(stats);
+
+                    const loginData = await loginAction(studentId);
+                    if (loginData.success) {
+                        setAllTimeHigh(loginData.allTimeHigh);
+                        if (loginData.xp !== undefined) setXp(loginData.xp);
+                        if (loginData.level !== undefined) setLevel(loginData.level);
+                        if (loginData.dailyStreak !== undefined) setDailyStreak(loginData.dailyStreak);
+                        if (loginData.factMastery !== undefined) setFactMastery(loginData.factMastery);
+                    }
+                })();
+
+                await Promise.race([dataPromise, timeoutPromise]);
             } catch (e) {
                 console.error("Failed to check stats", e);
             } finally {
