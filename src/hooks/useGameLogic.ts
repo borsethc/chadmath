@@ -402,8 +402,10 @@ export function useGameLogic(
 
                 } else {
                     // Typing mode: Standard shake and retry immediately
-                    setTimeout(() => setIsWrong(false), 500);
-                    setUserInput("");
+                    setTimeout(() => {
+                        setIsWrong(false);
+                        setUserInput("");
+                    }, 500);
                 }
             }
         }
