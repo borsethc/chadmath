@@ -23,6 +23,8 @@ export type Student = {
     loginCount: number;
     sessions: Session[];
     allTimeHigh?: number;
+    xp: number;
+    level: number;
 };
 
 export type Database = {
@@ -94,7 +96,9 @@ export const createOrUpdateStudent = async (studentId: string): Promise<Student>
             id: studentId,
             lastSeen: now,
             loginCount: 1,
-            sessions: []
+            sessions: [],
+            xp: 0,
+            level: 1
         };
 
         await pool.query(`
@@ -113,7 +117,9 @@ export const createOrUpdateStudent = async (studentId: string): Promise<Student>
                 id: studentId,
                 lastSeen: now,
                 loginCount: 1,
-                sessions: []
+                sessions: [],
+                xp: 0,
+                level: 1
             };
         } else {
             db.students[studentId].lastSeen = now;
@@ -165,7 +171,9 @@ export const addSession = async (studentId: string, session: Omit<Session, "id" 
                 loginCount: 1, // Default for implicit creation via session add? 
                 // Actually addSession is usually called AFTER login, so user should exist.
                 // But if strictly new here:
-                sessions: [newSession]
+                sessions: [newSession],
+                xp: 0,
+                level: 1
             };
             await pool.query(`
                 INSERT INTO students (id, data) VALUES ($1, $2)
@@ -195,7 +203,9 @@ export const addSession = async (studentId: string, session: Omit<Session, "id" 
                 id: studentId,
                 lastSeen: now,
                 loginCount: 1,
-                sessions: []
+                sessions: [],
+                xp: 0,
+                level: 1
             };
         }
         db.students[studentId].sessions.push(newSession);
@@ -214,6 +224,26 @@ export const addSession = async (studentId: string, session: Omit<Session, "id" 
     }
 
     return newSession;
+};
+
+export const updateStudentProgress = async (studentId: string, xp: number, level: number) => {
+    await initDb();
+
+    if (pool) {
+        const student = await getStudent(studentId);
+        if (student) {
+            student.xp = xp;
+            student.level = level;
+            await pool.query('UPDATE students SET data = $2 WHERE id = $1', [studentId, JSON.stringify(student)]);
+        }
+    } else {
+        const db = await readDbFile();
+        if (db.students[studentId]) {
+            db.students[studentId].xp = xp;
+            db.students[studentId].level = level;
+            await writeDbFile(db);
+        }
+    }
 };
 
 // --- FILE SYSTEM HELPERS (Private) ---

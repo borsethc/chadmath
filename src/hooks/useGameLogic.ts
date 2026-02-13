@@ -32,7 +32,7 @@ interface SessionStats {
 // REVEAL_DELAY_MS removed in favor of dynamic delay
 const NEXT_QUESTION_DELAY_MS = 2000; // Time to show result before next
 
-export function useGameLogic(isRunning: boolean, mode: GameMode = "multiplication") {
+export function useGameLogic(isRunning: boolean, mode: GameMode = "multiplication", timerEnabled: boolean = true) {
     const [selectedGroups, setSelectedGroups] = useState<FactorGroup[]>(["2-4", "5-7", "8-9"]);
     const [currentQuestion, setCurrentQuestion] = useState<Question | null>(null);
     const [userInput, setUserInput] = useState("");
@@ -125,44 +125,50 @@ export function useGameLogic(isRunning: boolean, mode: GameMode = "multiplicatio
         }
 
         // Randomize answer position while keeping sorted order
-        const numOptions = 4;
-        const answer = qAnswer;
+        const sortedOptions = (() => {
+            const numOptions = 4;
+            const answer = qAnswer;
 
-        // 1. Determine how many numbers should be smaller than the answer (0 to 3)
-        // Note: For radicals we might not use this option generation, but safe to leave or refactor
-        const ansVal = typeof answer === 'number' ? answer : 0;
-        const maxPossibleSmaller = Math.max(0, ansVal - 1);
-        const maxAllowedSmaller = Math.min(numOptions - 1, maxPossibleSmaller);
+            // 1. Determine how many numbers should be smaller than the answer (0 to 3)
+            // Note: For radicals we might not use this option generation, but safe to leave or refactor
+            const ansVal = typeof answer === 'number' ? answer : 0;
+            const maxPossibleSmaller = Math.max(0, ansVal - 1);
+            const maxAllowedSmaller = Math.min(numOptions - 1, maxPossibleSmaller);
 
-        const targetSmallerCount = Math.floor(Math.random() * (maxAllowedSmaller + 1));
+            const targetSmallerCount = Math.floor(Math.random() * (maxAllowedSmaller + 1));
 
-        const optionsSet = new Set<number>();
-        if (typeof answer === 'number') optionsSet.add(answer);
+            const optionsSet = new Set<number>();
+            if (typeof answer === 'number') optionsSet.add(answer);
 
-        // 2. Generate smaller numbers
-        while (optionsSet.size < 1 + targetSmallerCount) {
-            const range = 10; // look within 10 numbers
-            const minVal = Math.max(1, ansVal - range);
-            const maxVal = ansVal - 1;
-            const val = Math.floor(Math.random() * (maxVal - minVal + 1)) + minVal;
-            optionsSet.add(val);
-        }
+            // 2. Generate smaller numbers
+            while (optionsSet.size < 1 + targetSmallerCount) {
+                const range = 10; // look within 10 numbers
+                const minVal = Math.max(1, ansVal - range);
+                const maxVal = ansVal - 1;
+                const val = Math.floor(Math.random() * (maxVal - minVal + 1)) + minVal;
+                optionsSet.add(val);
+            }
 
-        // 3. Generate larger numbers
-        while (optionsSet.size < numOptions) {
-            const range = 10;
-            const minVal = ansVal + 1;
-            const maxVal = ansVal + range;
-            const val = Math.floor(Math.random() * (maxVal - minVal + 1)) + minVal;
-            optionsSet.add(val);
-        }
+            // 3. Generate larger numbers
+            while (optionsSet.size < numOptions) {
+                const range = 10;
+                const minVal = ansVal + 1;
+                const maxVal = ansVal + range;
+                const val = Math.floor(Math.random() * (maxVal - minVal + 1)) + minVal;
+                optionsSet.add(val);
+            }
+
+            // Sort options numerically for all numeric modes (Multiplication, Division, Assessment)
+            return Array.from(optionsSet).sort((a, b) => a - b);
+        })();
+
 
         return {
             id: Math.random().toString(36).substring(2, 9),
             factor1: qFactor1,
             factor2: qFactor2,
             answer: qAnswer,
-            options: Array.from(optionsSet).sort((a, b) => a - b),
+            options: sortedOptions,
             operator: qOperator
         };
     }, [selectedGroups, mode]);
@@ -292,6 +298,7 @@ export function useGameLogic(isRunning: boolean, mode: GameMode = "multiplicatio
     useEffect(() => {
         if (!isRunning) return;
         if (mode === "assessment") return; // Disable reveal timer for assessment
+        if (!timerEnabled) return;
 
         if (gameState === "waiting") {
             const delay = mode === "radicals" ? 30000 : 5000;

@@ -26,7 +26,7 @@ export function useSoundEffects() {
         }
     }, []);
 
-    const playCorrect = useCallback(() => {
+    const playCorrect = useCallback((streak: number = 0) => {
         initAudio();
         const ctx = audioContextRef.current;
         if (!ctx || !masterGainRef.current) return;
@@ -38,9 +38,18 @@ export function useSoundEffects() {
         gain.connect(masterGainRef.current);
 
         // Tech chime: Sine wave, quick decay
+        // Pitch shift based on streak: +1 semitone per streak point
+        // Cap at 12 semitones (1 octave)
+        const semitones = Math.min(streak, 12);
+        const baseFreq = 880; // A5
+        const freqMultiplier = Math.pow(2, semitones / 12);
+
+        const startFreq = baseFreq * freqMultiplier;
+        const endFreq = (baseFreq * 2) * freqMultiplier; // Slide up an octave relative to start
+
         osc.type = "sine";
-        osc.frequency.setValueAtTime(880, ctx.currentTime); // A5
-        osc.frequency.exponentialRampToValueAtTime(1760, ctx.currentTime + 0.1); // Slide up an octave
+        osc.frequency.setValueAtTime(startFreq, ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(endFreq, ctx.currentTime + 0.1);
 
         gain.gain.setValueAtTime(0, ctx.currentTime);
         gain.gain.linearRampToValueAtTime(1, ctx.currentTime + 0.05);

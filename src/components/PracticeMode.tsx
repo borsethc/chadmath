@@ -9,6 +9,7 @@ import { Play, Loader2, ToggleLeft, ToggleRight, Delete } from "lucide-react";
 
 import { FactorTree } from "./FactorTree";
 import { getFeedback } from "@/lib/assessment";
+import { Confetti } from "./Confetti";
 
 interface PracticeModeProps {
     isRunning: boolean;
@@ -18,7 +19,8 @@ interface PracticeModeProps {
 
 export function PracticeMode({ isRunning, studentId, setIsRunning }: PracticeModeProps) {
     const [mode, setMode] = useState<GameMode>("multiplication");
-    const { currentQuestion, userInput, setInput, gameState, streak, selectedGroups, toggleGroup, stats, isWrong } = useGameLogic(isRunning, mode);
+    const [timerEnabled, setTimerEnabled] = useState(true);
+    const { currentQuestion, userInput, setInput, gameState, streak, selectedGroups, toggleGroup, stats, isWrong } = useGameLogic(isRunning, mode, timerEnabled);
     const { playCorrect, playHover, initAudio, playIncorrect } = useSoundEffects();
     const inputRef = useRef<HTMLInputElement>(null);
 
@@ -29,6 +31,15 @@ export function PracticeMode({ isRunning, studentId, setIsRunning }: PracticeMod
     const [allTimeHigh, setAllTimeHigh] = useState<number | undefined>(undefined);
     const [isCheckingLimit, setIsCheckingLimit] = useState(true);
     const [sessionComplete, setSessionComplete] = useState(false);
+
+    // Gamification State
+    const [xp, setXp] = useState(0);
+    const [level, setLevel] = useState(1);
+    const [earnedXp, setEarnedXp] = useState(0); // For session summary
+    const [showConfetti, setShowConfetti] = useState(false);
+    const [comboScale, setComboScale] = useState(1);
+    const [shake, setShake] = useState(0); // Shake intensity
+
 
     // Check daily limit and all time high on mount
     useEffect(() => {
@@ -43,6 +54,8 @@ export function PracticeMode({ isRunning, studentId, setIsRunning }: PracticeMod
                 const loginData = await loginAction(studentId);
                 if (loginData.success) {
                     setAllTimeHigh(loginData.allTimeHigh);
+                    setXp(loginData.xp || 0);
+                    setLevel(loginData.level || 1);
                 }
             } catch (e) {
                 console.error("Failed to check stats", e);
@@ -110,6 +123,17 @@ export function PracticeMode({ isRunning, studentId, setIsRunning }: PracticeMod
                 setAllTimeHigh(result.allTimeHigh);
             }
 
+            // Update local state with result
+            if (result.success) {
+                setEarnedXp(result.xpCaughtUp || 0);
+                setLevel(result.currentLevel || level);
+                setXp(prev => prev + (result.xpCaughtUp || 0));
+
+                // Trigger confetti
+                setShowConfetti(true);
+                setTimeout(() => setShowConfetti(false), 5000);
+            }
+
             // Re-check stats to update count immediately
             const newStats = await checkDailyStats(studentId);
             setDailySessions(newStats);
@@ -127,8 +151,29 @@ export function PracticeMode({ isRunning, studentId, setIsRunning }: PracticeMod
 
     // Error feedback
     useEffect(() => {
-        if (isWrong) playIncorrect();
+        if (isWrong) {
+            playIncorrect();
+            setShake(10); // Shake intensity
+            setTimeout(() => setShake(0), 400);
+        }
     }, [isWrong, playIncorrect]);
+
+    // Combo / Correct Feedback
+    useEffect(() => {
+        if (gameState === "correct") {
+            playCorrect(streak);
+
+            // "Juice": Scale combo text and shake screen slightly on high combos
+            setComboScale(streak > 5 ? 2.5 : 1.5);
+            setTimeout(() => setComboScale(1), 200);
+
+            if (streak > 5) {
+                setShake(5);
+                setTimeout(() => setShake(0), 200);
+            }
+        }
+    }, [gameState, streak, playCorrect]);
+
     const [isMultipleChoice, setIsMultipleChoice] = useState(false);
 
     // Keep focus
@@ -166,9 +211,23 @@ export function PracticeMode({ isRunning, studentId, setIsRunning }: PracticeMod
         const feedback = mode === "assessment" ? getFeedback(stats.correct) : null;
 
         return (
-            <div className="flex flex-col h-[80vh] items-center justify-center text-center p-8 space-y-6 rounded-3xl border border-white/5 bg-white/5 backdrop-blur-3xl overflow-y-auto">
-                <div className="text-4xl">🎉</div>
+            <div className="flex flex-col h-[80vh] items-center justify-center text-center p-8 space-y-6 rounded-3xl border border-white/5 bg-white/5 backdrop-blur-3xl overflow-y-auto relative overflow-hidden">
+                <Confetti active={showConfetti} />
+                <div className="text-4xl animate-bounce">
+                    {earnedXp > 100 ? "🌟" : "🎉"}
+                </div>
                 <h2 className="text-3xl font-bold text-white">Session Complete!</h2>
+
+                <div className="flex flex-col items-center animate-pulse">
+                    <span className="text-emerald-400 font-bold text-xl">+{earnedXp} XP</span>
+                    <div className="w-full h-2 bg-white/10 rounded-full mt-2 w-32 overflow-hidden">
+                        <div
+                            className="h-full bg-emerald-500"
+                            style={{ width: `${(xp % 1000) / 10}%` }}
+                        />
+                    </div>
+                    <span className="text-xs text-muted-foreground mt-1">Level {level}</span>
+                </div>
 
                 <div className="grid grid-cols-2 gap-4 w-full max-w-xs">
                     <div className="p-4 bg-white/5 rounded-xl border border-white/10">
@@ -255,20 +314,40 @@ export function PracticeMode({ isRunning, studentId, setIsRunning }: PracticeMod
             return (
                 <div className="flex flex-col min-h-[50vh] w-full max-w-md items-center justify-center space-y-4 rounded-3xl border border-white/5 bg-white/5 p-8 shadow-2xl backdrop-blur-3xl">
                     <div className="flex flex-col items-center space-y-2">
-                        <div className="px-4 py-2 rounded-full bg-white/5 border border-white/10 text-sm font-medium text-muted-foreground uppercase tracking-widest">
-                            Daily Goal: <span className="text-white font-bold">{dailySessions.count} / 5</span>
+                        <div className="px-4 py-2 rounded-full bg-white/5 border border-white/10 text-sm font-medium text-muted-foreground uppercase tracking-widest flex gap-4">
+                            <span>Goal: <span className="text-white font-bold">{dailySessions.count} / 5</span></span>
+                            <span>Lvl <span className="text-emerald-400 font-bold">{level}</span></span>
+                        </div>
+                        {/* XP Bar */}
+                        <div className="w-32 h-1 bg-white/10 rounded-full overflow-hidden">
+                            <div
+                                className="h-full bg-gradient-to-r from-indigo-500 to-emerald-500"
+                                style={{ width: `${(xp % 1000) / 10}%` }}
+                            />
                         </div>
                     </div>
 
                     {/* Input Mode Toggle - Hidden for Radicals only */}
                     {mode !== "radicals" && (
-                        <div className="flex flex-col items-center gap-2 w-full max-w-xs cursor-pointer hover:opacity-80 transition-opacity p-4 rounded-xl bg-white/5 border border-white/5" onClick={() => setIsMultipleChoice(!isMultipleChoice)}>
-                            <span className="text-[10px] sm:text-xs font-medium uppercase tracking-widest text-muted-foreground">
-                                Input Method
-                            </span>
-                            <div className="flex items-center gap-2 text-white">
-                                {isMultipleChoice ? <ToggleRight className="w-6 h-6 text-indigo-400" /> : <ToggleLeft className="w-6 h-6 text-gray-400" />}
-                                <span className="text-sm font-bold">{isMultipleChoice ? "Multiple Choice" : "Typing"}</span>
+                        <div className="flex gap-2 w-full max-w-xs">
+                            <div className="flex flex-col items-center gap-2 flex-1 cursor-pointer hover:opacity-80 transition-opacity p-3 rounded-xl bg-white/5 border border-white/5" onClick={() => setIsMultipleChoice(!isMultipleChoice)}>
+                                <span className="text-[10px] sm:text-xs font-medium uppercase tracking-widest text-muted-foreground whitespace-nowrap">
+                                    Input
+                                </span>
+                                <div className="flex items-center gap-2 text-white">
+                                    {isMultipleChoice ? <ToggleRight className="w-6 h-6 text-indigo-400" /> : <ToggleLeft className="w-6 h-6 text-gray-400" />}
+                                    <span className="text-xs font-bold">{isMultipleChoice ? "Choice" : "Type"}</span>
+                                </div>
+                            </div>
+
+                            <div className="flex flex-col items-center gap-2 flex-1 cursor-pointer hover:opacity-80 transition-opacity p-3 rounded-xl bg-white/5 border border-white/5" onClick={() => setTimerEnabled(!timerEnabled)}>
+                                <span className="text-[10px] sm:text-xs font-medium uppercase tracking-widest text-muted-foreground whitespace-nowrap">
+                                    Timer
+                                </span>
+                                <div className="flex items-center gap-2 text-white">
+                                    {timerEnabled ? <ToggleRight className="w-6 h-6 text-emerald-400" /> : <ToggleLeft className="w-6 h-6 text-gray-400" />}
+                                    <span className="text-xs font-bold">{timerEnabled ? "On" : "Off"}</span>
+                                </div>
                             </div>
                         </div>
                     )}
@@ -334,7 +413,10 @@ export function PracticeMode({ isRunning, studentId, setIsRunning }: PracticeMod
     }
 
     return (
-        <div className="relative flex min-h-[50vh] w-full max-w-md sm:max-w-2xl flex-col items-center rounded-3xl border border-white/5 bg-white/5 p-6 sm:p-8 shadow-2xl backdrop-blur-3xl mx-4 sm:mx-0 mb-8 overflow-hidden">
+        <motion.div
+            animate={{ x: shake ? [0, -shake, shake, -shake, shake, 0] : 0 }}
+            transition={{ duration: 0.4 }}
+            className="relative flex min-h-[50vh] w-full max-w-md sm:max-w-2xl flex-col items-center rounded-3xl border border-white/5 bg-white/5 p-6 sm:p-8 shadow-2xl backdrop-blur-3xl mx-4 sm:mx-0 mb-8 overflow-hidden">
 
             {/* Timer and Daily Count */}
             <div className="w-full flex justify-center items-center gap-4 z-20 mb-4 sm:mb-8">
@@ -357,6 +439,17 @@ export function PracticeMode({ isRunning, studentId, setIsRunning }: PracticeMod
                 )}>
                     {streak}
                 </span>
+                {streak > 1 && (
+                    <motion.div
+                        animate={{ scale: comboScale, rotate: comboScale > 1.5 ? [0, -10, 10, 0] : 0 }}
+                        className={cn(
+                            "font-black italic mt-1 transition-colors absolute top-8 right-0 pr-8", // Positioned explicitly
+                            streak > 5 ? "text-yellow-400 text-2xl drop-shadow-[0_0_10px_rgba(250,204,21,0.8)]" : "text-emerald-400 text-lg"
+                        )}
+                    >
+                        {streak > 5 ? "ON FIRE!" : `${streak}x COMBO!`}
+                    </motion.div>
+                )}
             </div>
 
             {/* All Time High Display (Assessment only) */}
@@ -507,6 +600,6 @@ export function PracticeMode({ isRunning, studentId, setIsRunning }: PracticeMod
                     </motion.span>
                 )}
             </div>
-        </div>
+        </motion.div>
     );
 }
