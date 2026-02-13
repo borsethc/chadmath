@@ -71,18 +71,7 @@ export function useGameLogic(
         setMastery(initialMastery);
     }, [initialMastery]);
 
-    // Reset stats when game starts
-    useEffect(() => {
-        if (isRunning) {
-            setStats({ correct: 0, wrongAttempts: 0, total: 0, startTime: Date.now(), history: [] });
-            setStreak(0);
-            setIsWrong(false);
-            setGameState("waiting");
-            retryQueue.current = [];
-            clusterQueue.current = [];
-            setSessionMasteryUpdates({});
-        }
-    }, [isRunning]);
+    // Reset stats when game starts (Moved to bottom to access nextQuestion)
 
     // Helper to get mastery key
     const getFactKey = (f1: number, f2: number, op: string) => {
@@ -467,6 +456,22 @@ export function useGameLogic(
             if (revealTimerRef.current) clearTimeout(revealTimerRef.current);
         };
     }, [gameState, nextQuestion, isRunning, mode, currentQuestion, isMultipleChoice, isTimerEnabled]);
+
+    // Reset stats and Start Game Loop when isRunning becomes true
+    useEffect(() => {
+        if (isRunning) {
+            setStats({ correct: 0, wrongAttempts: 0, total: 0, startTime: Date.now(), history: [] });
+            setStreak(0);
+            setIsWrong(false);
+            setGameState("waiting");
+            retryQueue.current = [];
+            clusterQueue.current = [];
+            setSessionMasteryUpdates({});
+
+            // Generate first question
+            nextQuestion();
+        }
+    }, [isRunning, nextQuestion]);
 
     return {
         currentQuestion,
