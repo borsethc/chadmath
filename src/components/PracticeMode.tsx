@@ -590,7 +590,7 @@ export function PracticeMode({ isRunning, studentId, setIsRunning }: PracticeMod
                                         <motion.button
                                             key={opt}
                                             initial={{ opacity: 0, scale: 0.9 }}
-                                            animate={isWrong ? { x: [0, -10, 10, -10, 10, 0], backgroundColor: "rgba(239, 68, 68, 0.2)", borderColor: "rgba(239, 68, 68, 0.5)" } : { opacity: 1, scale: 1, backgroundColor: "rgba(255,255,255,0.05)", borderColor: "rgba(255,255,255,0.1)" }}
+                                            animate={isWrong && userInput === opt.toString() ? { x: [0, -10, 10, -10, 10, 0], backgroundColor: "rgba(239, 68, 68, 0.2)", borderColor: "rgba(239, 68, 68, 0.5)" } : { opacity: 1, scale: 1, backgroundColor: "rgba(255,255,255,0.05)", borderColor: "rgba(255,255,255,0.1)" }}
                                             whileHover={{ scale: 1.05, backgroundColor: "rgba(255,255,255,0.1)" }}
                                             whileTap={{ scale: 0.95 }}
                                             onClick={() => handleOptionClick(opt)}
@@ -598,7 +598,7 @@ export function PracticeMode({ isRunning, studentId, setIsRunning }: PracticeMod
                                             className={cn(
                                                 "h-16 rounded-xl border text-xl sm:text-2xl font-bold text-white transition-colors hover:border-indigo-500/50",
                                                 /* Hide red/wrong styling in Assessment mode */
-                                                mode !== "assessment" && isWrong ? "border-red-500/50 text-red-200" : "border-white/10 bg-white/5"
+                                                mode !== "assessment" && isWrong && userInput === opt.toString() ? "border-red-500/50 text-red-200" : "border-white/10 bg-white/5"
                                             )}
                                         >
                                             {opt}
