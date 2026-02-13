@@ -21,7 +21,14 @@ export default function Home() {
 
     setIsLoading(true);
     try {
-      const result = await loginAction(studentId);
+      const timeoutPromise = new Promise<{ success: boolean, message?: string }>((_, reject) =>
+        setTimeout(() => reject(new Error("Login timed out. Please try again.")), 10000)
+      );
+
+      const result = await Promise.race([
+        loginAction(studentId),
+        timeoutPromise
+      ]);
 
       if (result.success) {
         setIsLoggedIn(true);
@@ -30,7 +37,7 @@ export default function Home() {
       }
     } catch (error) {
       console.error("Login error:", error);
-      alert("System error. Check console / network.");
+      alert(error instanceof Error ? error.message : "System error. Check console / network.");
     } finally {
       setIsLoading(false);
     }
