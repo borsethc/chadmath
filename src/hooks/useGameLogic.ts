@@ -392,7 +392,14 @@ export function useGameLogic(
         if (gameState !== "waiting") return;
         setUserInput(val);
         if (currentQuestion) {
-            // ... (Existing input validation checks)
+
+            // Multiple Choice: Always submit immediately
+            if (isMultipleChoice) {
+                handleAnswer(val);
+                return;
+            }
+
+            // Typing Mode Logic
             if (mode === "radicals") {
                 if (val === currentQuestion.answer) handleAnswer(val);
             } else {
@@ -400,8 +407,10 @@ export function useGameLogic(
                 const answerStr = currentQuestion.answer.toString();
                 if (!isNaN(parsed)) {
                     if (mode === "assessment") {
+                        // Assessment: Submit when length matches (strict)
                         if (val.length >= answerStr.length) setTimeout(() => handleAnswer(val), 200);
                     } else {
+                        // Practice: Auto-submit if correct OR if length bounds met (to show wrong feedback)
                         if (parsed === currentQuestion.answer) handleAnswer(val);
                         else if (val.length >= answerStr.length) handleAnswer(val);
                     }
