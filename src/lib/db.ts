@@ -25,6 +25,8 @@ export type Student = {
     allTimeHigh?: number;
     xp: number;
     level: number;
+    dailyStreak: number;
+    lastStreakUpdate: string; // ISO date string YYYY-MM-DD
 };
 
 export type Database = {
@@ -98,7 +100,9 @@ export const createOrUpdateStudent = async (studentId: string): Promise<Student>
             loginCount: 1,
             sessions: [],
             xp: 0,
-            level: 1
+            level: 1,
+            dailyStreak: 0,
+            lastStreakUpdate: ""
         };
 
         await pool.query(`
@@ -119,7 +123,9 @@ export const createOrUpdateStudent = async (studentId: string): Promise<Student>
                 loginCount: 1,
                 sessions: [],
                 xp: 0,
-                level: 1
+                level: 1,
+                dailyStreak: 0,
+                lastStreakUpdate: ""
             };
         } else {
             db.students[studentId].lastSeen = now;
@@ -173,7 +179,9 @@ export const addSession = async (studentId: string, session: Omit<Session, "id" 
                 // But if strictly new here:
                 sessions: [newSession],
                 xp: 0,
-                level: 1
+                level: 1,
+                dailyStreak: 0,
+                lastStreakUpdate: ""
             };
             await pool.query(`
                 INSERT INTO students (id, data) VALUES ($1, $2)
@@ -205,7 +213,9 @@ export const addSession = async (studentId: string, session: Omit<Session, "id" 
                 loginCount: 1,
                 sessions: [],
                 xp: 0,
-                level: 1
+                level: 1,
+                dailyStreak: 0,
+                lastStreakUpdate: ""
             };
         }
         db.students[studentId].sessions.push(newSession);
@@ -226,7 +236,7 @@ export const addSession = async (studentId: string, session: Omit<Session, "id" 
     return newSession;
 };
 
-export const updateStudentProgress = async (studentId: string, xp: number, level: number) => {
+export const updateStudentProgress = async (studentId: string, xp: number, level: number, dailyStreak?: number, lastStreakUpdate?: string) => {
     await initDb();
 
     if (pool) {
@@ -234,6 +244,8 @@ export const updateStudentProgress = async (studentId: string, xp: number, level
         if (student) {
             student.xp = xp;
             student.level = level;
+            if (dailyStreak !== undefined) student.dailyStreak = dailyStreak;
+            if (lastStreakUpdate !== undefined) student.lastStreakUpdate = lastStreakUpdate;
             await pool.query('UPDATE students SET data = $2 WHERE id = $1', [studentId, JSON.stringify(student)]);
         }
     } else {
@@ -241,6 +253,8 @@ export const updateStudentProgress = async (studentId: string, xp: number, level
         if (db.students[studentId]) {
             db.students[studentId].xp = xp;
             db.students[studentId].level = level;
+            if (dailyStreak !== undefined) db.students[studentId].dailyStreak = dailyStreak;
+            if (lastStreakUpdate !== undefined) db.students[studentId].lastStreakUpdate = lastStreakUpdate;
             await writeDbFile(db);
         }
     }

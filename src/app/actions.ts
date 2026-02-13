@@ -12,7 +12,8 @@ export async function loginAction(studentId: string) {
         success: true,
         allTimeHigh: student.allTimeHigh,
         xp: student.xp || 0,
-        level: student.level || 1
+        level: student.level || 1,
+        dailyStreak: student.dailyStreak || 0
     };
 }
 
@@ -87,10 +88,69 @@ export async function logSessionAction(
     // 1. I will modify `db.ts` to export `updateStudentProgress`.
     // 2. I will call it here.
 
-    await updateStudentProgress(studentId, totalXP, newLevel);
+    // Daily Streak Logic
+    // Goal: 5 sessions per day
+    const todayOptions: Intl.DateTimeFormatOptions = { timeZone: "America/Chicago" };
+    const todayDate = new Date().toLocaleDateString("en-CA", todayOptions); // YYYY-MM-DD format ideally, but en-CA does that.
+
+    // Calculate sessions completed TODAY
+    // We can reuse checkDailyStats logic or filter manually. Since checkDailyStats uses "en-US", let's be consistent or robust.
+    const todaySessionsCount = student?.sessions.filter(s => {
+        // Simple check: match date string
+        return new Date(s.timestamp).toLocaleDateString("en-CA", todayOptions) === todayDate;
+    }).length || 0; // Note: this includes the one we JUST added? actually addSession returns void/promise but we awaited it.
+    // Wait, addSession reads from DB/File. If we just called addSession, and now we call getStudent, it *should* have it.
+    // Let's assume student variable (line 61) has the latest session.
+
+    // Actually, getStudent on 61 fetches fresh. So it includes the session we just added.
+
+    let currentStreak = student?.dailyStreak || 0;
+    let lastUpdate = student?.lastStreakUpdate || "";
+    let streakUpdated = false;
+
+    // Standardize yesterday comparison
+    const yesterdayDate = new Date(Date.now() - 86400000).toLocaleDateString("en-CA", todayOptions);
+
+    if (todaySessionsCount >= 5) {
+        if (lastUpdate === todayDate) {
+            // Already credited for today
+        } else if (lastUpdate === yesterdayDate) {
+            // Continued streak!
+            currentStreak += 1;
+            lastUpdate = todayDate;
+            streakUpdated = true;
+        } else {
+            // Missed a day (or first time), reset to 1
+            // Even if streak was > 0, if last update wasn't Yesterday or Today, it's broken.
+            // Wait, if lastUpdate was empty (new user), and they hit 5, streak becomes 1.
+            currentStreak = 1;
+            lastUpdate = todayDate;
+            streakUpdated = true;
+        }
+    } else {
+        // Hasn't hit 5 yet today. Streak remains as is (could be 0 or N from yesterday).
+        // We don't reset until they try to update continuously and fail? 
+        // Actually, if they log in tomorrow and didn't hit 5 today, the streak breaks THEN? 
+        // Or does it verify on login? 
+        // Simple Approach: We only update streak when they HIT the goal.
+        // If they play tomorrow and hit 5, and lastUpdate is 2 days ago, it resets to 1.
+        // This logic (above `else`) handles the reset correctly upon *success*.
+        // Issue: Displaying "Streak: 5" when you haven't played in a week is misleading?
+        // Maybe loginAction should handle the "display breakdown"?
+        // For now, let's Stick to: Logic updates when you HIT the goal.
+    }
+
+    await updateStudentProgress(studentId, totalXP, newLevel, streakUpdated ? currentStreak : undefined, streakUpdated ? lastUpdate : undefined);
 
     revalidatePath('/dashboard');
-    return { success: true, allTimeHigh: student?.allTimeHigh, xpCaughtUp: sessionXP, currentLevel: newLevel };
+    return {
+        success: true,
+        allTimeHigh: student?.allTimeHigh,
+        xpCaughtUp: sessionXP,
+        currentLevel: newLevel,
+        dailyStreak: currentStreak,
+        streakUpdated
+    };
 }
 
 export async function getDashboardData() {

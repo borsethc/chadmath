@@ -39,6 +39,8 @@ export function PracticeMode({ isRunning, studentId, setIsRunning }: PracticeMod
     const [showConfetti, setShowConfetti] = useState(false);
     const [comboScale, setComboScale] = useState(1);
     const [shake, setShake] = useState(0); // Shake intensity
+    const [dailyStreak, setDailyStreak] = useState(0);
+    const [streakUpdated, setStreakUpdated] = useState(false); // To show effect
 
 
     // Check daily limit and all time high on mount
@@ -49,10 +51,12 @@ export function PracticeMode({ isRunning, studentId, setIsRunning }: PracticeMod
                 const stats = await checkDailyStats(studentId);
                 setDailySessions(stats);
 
-                // Fetch all time high
                 const loginData = await loginAction(studentId);
                 if (loginData.success) {
                     setAllTimeHigh(loginData.allTimeHigh);
+                    if (loginData.xp !== undefined) setXp(loginData.xp);
+                    if (loginData.level !== undefined) setLevel(loginData.level);
+                    if (loginData.dailyStreak !== undefined) setDailyStreak(loginData.dailyStreak);
                 }
             } catch (e) {
                 console.error("Failed to check stats", e);
@@ -433,6 +437,26 @@ export function PracticeMode({ isRunning, studentId, setIsRunning }: PracticeMod
                     </span>
                 </div>
             )}
+
+            {/* Daily Streak Display */}
+            <div className="absolute top-4 left-4 sm:top-8 sm:left-8 flex flex-col items-start z-20">
+                {mode !== "assessment" && (
+                    <>
+                        <span className="text-[10px] sm:text-xs font-medium uppercase tracking-widest text-muted-foreground">
+                            Day Streak
+                        </span>
+                        <div className="flex items-center gap-1">
+                            <span className="text-xl sm:text-2xl">🔥</span>
+                            <span className={cn(
+                                "text-xl sm:text-2xl font-bold transition-colors",
+                                streakUpdated ? "text-orange-400 animate-pulse" : "text-white"
+                            )}>
+                                {dailyStreak}
+                            </span>
+                        </div>
+                    </>
+                )}
+            </div>
 
             {/* Question Display - Only show if NOT Radicals mode (Radicals handles its own display in FactorTree) OR if state is Correct */}
             {mode !== "radicals" && (
