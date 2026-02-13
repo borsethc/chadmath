@@ -359,7 +359,7 @@ export function PracticeMode({ isRunning, studentId, setIsRunning }: PracticeMod
                                 key={m}
                                 onClick={() => setMode(m)}
                                 className={cn(
-                                    "flex-1 py-2 rounded-lg text-[10px] sm:text-xs font-bold capitalize transition-all",
+                                    "flex-1 flex items-center justify-center py-2 rounded-lg text-[10px] sm:text-xs font-bold capitalize transition-all",
                                     mode === m ? "bg-indigo-600 text-white shadow-lg" : "text-gray-400 hover:text-white"
                                 )}
                             >
@@ -441,8 +441,8 @@ export function PracticeMode({ isRunning, studentId, setIsRunning }: PracticeMod
                 </span>
             </div>
 
-            {/* Visual Flair (Combo Text) - MOVED TO BOTTOM */}
-            {streak > 1 && (
+            {/* Visual Flair (Combo Text) - Showing here for Multiple Choice Mode ONLY */}
+            {streak > 1 && isMultipleChoice && (
                 <div className="absolute bottom-6 right-6 z-10 pointer-events-none">
                     <motion.div
                         animate={{ scale: comboScale, rotate: comboScale > 1.5 ? [0, -10, 10, 0] : 0 }}
@@ -546,8 +546,20 @@ export function PracticeMode({ isRunning, studentId, setIsRunning }: PracticeMod
                                             </motion.button>
                                         ))}
 
-                                        {/* Bottom row: Empty, 0, Backspace */}
-                                        <div />
+                                        {/* Bottom row: Juice/Flair, 0, Backspace */}
+                                        <div className="flex items-center justify-center overflow-visible z-20">
+                                            {streak > 1 && !isMultipleChoice && (
+                                                <motion.div
+                                                    animate={{ scale: comboScale, rotate: comboScale > 1.5 ? [0, -10, 10, 0] : 0 }}
+                                                    className={cn(
+                                                        "font-black italic transition-colors text-center whitespace-nowrap",
+                                                        streak > 5 ? "text-yellow-400 text-sm drop-shadow-[0_0_5px_rgba(250,204,21,0.8)]" : "text-emerald-400 text-xs"
+                                                    )}
+                                                >
+                                                    {streak > 5 ? "ON FIRE!" : `${streak}x COMBO!`}
+                                                </motion.div>
+                                            )}
+                                        </div>
                                         <motion.button
                                             whileHover={{ scale: 1.05, backgroundColor: "rgba(255,255,255,0.15)" }}
                                             whileTap={{ scale: 0.95 }}
