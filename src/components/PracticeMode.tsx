@@ -426,13 +426,13 @@ export function PracticeMode({ isRunning, studentId, setIsRunning }: PracticeMod
                     )}
 
                     {/* Game Mode Toggle */}
-                    <div className="flex w-full max-w-xs bg-black/40 p-1 rounded-xl overflow-x-auto">
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-1 w-full max-w-sm bg-black/40 p-1 rounded-xl">
                         {(["multiplication", "division", "tables", "assessment"] as const).map((m) => (
                             <button
                                 key={m}
                                 onClick={() => setMode(m)}
                                 className={cn(
-                                    "flex-1 flex items-center justify-center py-2 px-2 rounded-lg text-[10px] sm:text-xs font-bold capitalize transition-all whitespace-nowrap",
+                                    "flex items-center justify-center py-2 px-2 rounded-lg text-xs font-bold capitalize transition-all",
                                     mode === m ? "bg-indigo-600 text-white shadow-lg" : "text-gray-400 hover:text-white"
                                 )}
                             >
