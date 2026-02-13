@@ -141,15 +141,17 @@ export function useGameLogic(
             // Gather all candidate pairs based on selected groups
             const candidates: { f1: number, f2: number, weight: number }[] = [];
 
-            const validF1s = new Set<number>();
-            if (selectedGroups.includes("2-4")) [2, 3, 4].forEach(n => validF1s.add(n));
-            if (selectedGroups.includes("5-7")) [5, 6, 7].forEach(n => validF1s.add(n));
-            if (selectedGroups.includes("8-9")) [8, 9].forEach(n => validF1s.add(n));
-            const f1Options = validF1s.size > 0 ? Array.from(validF1s) : [2, 3, 4, 5, 6, 7, 8, 9];
+            const validFactors = new Set<number>();
+            if (selectedGroups.includes("2-4")) [2, 3, 4].forEach(n => validFactors.add(n));
+            if (selectedGroups.includes("5-7")) [5, 6, 7].forEach(n => validFactors.add(n));
+            if (selectedGroups.includes("8-9")) [8, 9].forEach(n => validFactors.add(n));
 
-            // Loop through all f1 and possible f2 (2-9)
-            for (const cf1 of f1Options) {
-                for (let cf2 = 2; cf2 <= 9; cf2++) {
+            // If nothing selected (shouldn't happen due to UI), fallback to all
+            const fOptions = validFactors.size > 0 ? Array.from(validFactors) : [2, 3, 4, 5, 6, 7, 8, 9];
+
+            // Loop through all f1 and f2 from valid options ONLY
+            for (const cf1 of fOptions) {
+                for (const cf2 of fOptions) {
                     const key = getFactKey(cf1, cf2, "×"); // Use mult key for core mastery
                     const m = mastery[key] || 0;
                     // Weight: If mastery is 0, weight is 1. If mastery is 1, weight is 0.1 (small chance).
