@@ -332,7 +332,7 @@ export function PracticeMode({ isRunning, studentId, setIsRunning }: PracticeMod
                         <div className="flex gap-2 w-full max-w-xs">
                             <div className="flex flex-col items-center gap-2 flex-1 cursor-pointer hover:opacity-80 transition-opacity p-3 rounded-xl bg-white/5 border border-white/5" onClick={() => setIsMultipleChoice(!isMultipleChoice)}>
                                 <span className="text-[10px] sm:text-xs font-medium uppercase tracking-widest text-muted-foreground whitespace-nowrap">
-                                    Input
+                                    Input Method
                                 </span>
                                 <div className="flex items-center gap-2 text-white">
                                     {isMultipleChoice ? <ToggleRight className="w-6 h-6 text-indigo-400" /> : <ToggleLeft className="w-6 h-6 text-gray-400" />}
@@ -428,7 +428,7 @@ export function PracticeMode({ isRunning, studentId, setIsRunning }: PracticeMod
                 </div>
             </div>
 
-            {/* Streak Counter */}
+            {/* Streak Counter - TOP RIGHT for counter only */}
             <div className="absolute top-4 right-4 sm:top-8 sm:right-8 flex flex-col items-end z-20">
                 <span className="text-[10px] sm:text-xs font-medium uppercase tracking-widest text-muted-foreground">
                     Streak
@@ -439,18 +439,22 @@ export function PracticeMode({ isRunning, studentId, setIsRunning }: PracticeMod
                 )}>
                     {streak}
                 </span>
-                {streak > 1 && (
+            </div>
+
+            {/* Visual Flair (Combo Text) - MOVED TO BOTTOM */}
+            {streak > 1 && (
+                <div className="absolute bottom-6 right-6 z-10 pointer-events-none">
                     <motion.div
                         animate={{ scale: comboScale, rotate: comboScale > 1.5 ? [0, -10, 10, 0] : 0 }}
                         className={cn(
-                            "font-black italic mt-1 transition-colors absolute top-8 right-0 pr-8", // Positioned explicitly
+                            "font-black italic transition-colors text-right",
                             streak > 5 ? "text-yellow-400 text-2xl drop-shadow-[0_0_10px_rgba(250,204,21,0.8)]" : "text-emerald-400 text-lg"
                         )}
                     >
                         {streak > 5 ? "ON FIRE!" : `${streak}x COMBO!`}
                     </motion.div>
-                )}
-            </div>
+                </div>
+            )}
 
             {/* All Time High Display (Assessment only) */}
             {mode === "assessment" && allTimeHigh !== undefined && (
