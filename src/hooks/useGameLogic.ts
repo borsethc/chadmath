@@ -433,14 +433,15 @@ export function useGameLogic(
 
                 // Check for immediate correctness
                 if (val === answerStr) {
-                    handleAnswer(val);
+                    // Small delay to allow UI to update with full number before locking state
+                    setTimeout(() => handleAnswer(val), 0);
                     return;
                 }
 
                 // If not correct, check if we should submit anyway (e.g. length limit reached)
                 if (val.length >= answerStr.length) {
                     // It's wrong, but we have enough digits. Submit to trigger "Wrong" feedback.
-                    handleAnswer(val);
+                    setTimeout(() => handleAnswer(val), 0);
                 }
             }
         }
