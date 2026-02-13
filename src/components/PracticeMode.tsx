@@ -114,6 +114,24 @@ export function PracticeMode({ isRunning, studentId, setIsRunning }: PracticeMod
 
     // Timer Logic
     useEffect(() => {
+        if (!isRunning || sessionComplete) return;
+
+        // Reset timer if it's the start (or just ensure it's running correctly)
+        // Actually, we should reset when isRunning BECOMES true.
+        // But this effect runs on change.
+        // We can't easily detect "start" here without a ref or separate effect.
+        // Let's stick to the interval logic, BUT...
+        // We need a separate effect to reset time on start.
+    }, [isRunning, sessionComplete]);
+
+    // Reset Timer on Start
+    useEffect(() => {
+        if (isRunning && !sessionComplete) {
+            setTimeLeft(SESSION_DURATION);
+        }
+    }, [isRunning, sessionComplete]);
+
+    useEffect(() => {
         if (!isRunning || sessionComplete || !isTimerEnabled) return;
 
         const timer = setInterval(() => {
