@@ -6,7 +6,7 @@ import { useState, useEffect, useCallback, useRef } from "react";
 
 export type GameState = "waiting" | "revealed" | "correct";
 export type FactorGroup = "2-4" | "5-7" | "8-9";
-export type GameMode = "multiplication" | "division" | "radicals" | "assessment";
+export type GameMode = "multiplication" | "division" | "radicals" | "assessment" | "tables";
 
 interface SessionStats {
     correct: number;
@@ -50,6 +50,7 @@ export function useGameLogic(
     initialMastery: FactMastery = {}
 ) {
     const [selectedGroups, setSelectedGroups] = useState<FactorGroup[]>(["2-4", "5-7", "8-9"]);
+    const [selectedTable, setSelectedTable] = useState<number>(2); // Default to x2 table
     const [currentQuestion, setCurrentQuestion] = useState<Question | null>(null);
     const [userInput, setUserInput] = useState("");
     const [gameState, setGameState] = useState<GameState>("waiting");
@@ -123,6 +124,18 @@ export function useGameLogic(
         if (mode === "assessment") {
             f1 = Math.floor(Math.random() * 8) + 2;
             f2 = Math.floor(Math.random() * 8) + 2;
+        } else if (mode === "tables") {
+            // Table Mode: Fixed factor (selectedTable) x Random (1-9)
+            // We want 1-9 for the second factor to allow e.g. 9x1, 9x9.
+            // Actually usually 2-9 or 1-12?
+            // User example: "1x9, 2x9... 9x9"
+            f1 = selectedTable;
+            f2 = Math.floor(Math.random() * 9) + 1; // 1 to 9
+
+            // Randomly swap for display variety? User said "Occasionally flip"
+            if (Math.random() > 0.5) {
+                [f1, f2] = [f2, f1];
+            }
         } else {
             // 4. Adaptive Selection (Smart Repetition)
             // Instead of pure random, we weight by (1.0 - mastery). Lower mastery = Higher chance.
@@ -245,7 +258,7 @@ export function useGameLogic(
             options: sortedOptions,
             operator: qOperator
         };
-    }, [selectedGroups, mode, mastery]); // Added mastery dependency
+    }, [selectedGroups, mode, mastery, selectedTable]); // Added selectedTable dependency
 
     const toggleGroup = useCallback((group: FactorGroup) => {
         setSelectedGroups(prev => {
@@ -495,6 +508,8 @@ export function useGameLogic(
         stats,
         selectedGroups,
         toggleGroup,
+        selectedTable,
+        setSelectedTable,
         sessionMasteryUpdates // Export this so PracticeMode can save it
     };
 }

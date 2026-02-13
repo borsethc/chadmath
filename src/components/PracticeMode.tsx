@@ -75,7 +75,7 @@ export function PracticeMode({ isRunning, studentId, setIsRunning }: PracticeMod
     const [factMastery, setFactMastery] = useState<Record<string, number>>({});
 
     // Hooks - Must be called before effects that use them
-    const { currentQuestion, userInput, setInput, gameState, streak, selectedGroups, toggleGroup, stats, isWrong, sessionMasteryUpdates } = useGameLogic(isRunning, mode, isTimerEnabled, isMultipleChoice, factMastery);
+    const { currentQuestion, userInput, setInput, gameState, streak, selectedGroups, toggleGroup, stats, isWrong, sessionMasteryUpdates, selectedTable, setSelectedTable } = useGameLogic(isRunning, mode, isTimerEnabled, isMultipleChoice, factMastery);
 
     // Check daily limit and all time high on mount
     useEffect(() => {
@@ -422,12 +422,12 @@ export function PracticeMode({ isRunning, studentId, setIsRunning }: PracticeMod
 
                     {/* Game Mode Toggle */}
                     <div className="flex w-full max-w-xs bg-black/40 p-1 rounded-xl overflow-x-auto">
-                        {(["multiplication", "division", "assessment"] as const).map((m) => (
+                        {(["multiplication", "division", "tables", "assessment"] as const).map((m) => (
                             <button
                                 key={m}
                                 onClick={() => setMode(m)}
                                 className={cn(
-                                    "flex-1 flex items-center justify-center py-2 rounded-lg text-[10px] sm:text-xs font-bold capitalize transition-all",
+                                    "flex-1 flex items-center justify-center py-2 px-2 rounded-lg text-[10px] sm:text-xs font-bold capitalize transition-all whitespace-nowrap",
                                     mode === m ? "bg-indigo-600 text-white shadow-lg" : "text-gray-400 hover:text-white"
                                 )}
                             >
@@ -436,8 +436,8 @@ export function PracticeMode({ isRunning, studentId, setIsRunning }: PracticeMod
                         ))}
                     </div>
 
-                    {/* Factor Group Selection - Hidden for Assessment */}
-                    {mode !== "assessment" && (
+                    {/* Factor Group Selection - Hide for Assessment AND Tables */}
+                    {mode !== "assessment" && mode !== "tables" && (
                         <div className="flex flex-col items-center gap-3 w-full max-w-xs">
                             <span className="text-[10px] sm:text-xs font-medium uppercase tracking-widest text-muted-foreground">
                                 Factor Focus
@@ -455,6 +455,31 @@ export function PracticeMode({ isRunning, studentId, setIsRunning }: PracticeMod
                                         )}
                                     >
                                         {group}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Table Selection - Only for Tables Mode */}
+                    {mode === "tables" && (
+                        <div className="flex flex-col items-center gap-3 w-full max-w-xs">
+                            <span className="text-[10px] sm:text-xs font-medium uppercase tracking-widest text-muted-foreground">
+                                Select Table
+                            </span>
+                            <div className="grid grid-cols-4 gap-2 w-full">
+                                {[2, 3, 4, 5, 6, 7, 8, 9].map((num) => (
+                                    <button
+                                        key={num}
+                                        onClick={() => setSelectedTable(num)}
+                                        className={cn(
+                                            "aspect-square rounded-xl text-lg font-bold transition-all border flex items-center justify-center",
+                                            selectedTable === num
+                                                ? "bg-emerald-500/20 border-emerald-500 text-emerald-300 shadow-[0_0_15px_rgba(16,185,129,0.3)]"
+                                                : "bg-white/5 border-white/10 text-muted-foreground hover:bg-white/10 hover:text-white"
+                                        )}
+                                    >
+                                        ×{num}
                                     </button>
                                 ))}
                             </div>
