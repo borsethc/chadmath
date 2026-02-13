@@ -300,6 +300,7 @@ export function PracticeMode({ isRunning, studentId, setIsRunning }: PracticeMod
 
 
 
+
     if (sessionComplete) {
         const feedback = mode === "assessment" ? getFeedback(stats.correct) : null;
 
