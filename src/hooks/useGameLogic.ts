@@ -375,6 +375,7 @@ export function useGameLogic(
 
                     setTimeout(() => {
                         setIsWrong(false);
+                        setUserInput(""); // Clear input so red highlight goes away
                         nextQuestion();
                     }, NEXT_QUESTION_DELAY_MS);
 
