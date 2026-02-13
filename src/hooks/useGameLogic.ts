@@ -161,6 +161,11 @@ export function useGameLogic(
                 }
             }
 
+            // Safety check: ensure candidates is not empty
+            if (candidates.length === 0) {
+                candidates.push({ f1: 2, f2: 2, weight: 1 });
+            }
+
             // Weighted Random Selection
             const totalWeight = candidates.reduce((sum, c) => sum + c.weight, 0);
             let r = Math.random() * totalWeight;
@@ -172,6 +177,9 @@ export function useGameLogic(
                     break;
                 }
             }
+            // Fallback if float math weirdness (r > 0 at end)
+            if (!selected && candidates.length > 0) selected = candidates[0];
+
             f1 = selected.f1;
             f2 = selected.f2;
 
