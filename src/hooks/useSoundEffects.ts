@@ -121,12 +121,9 @@ export function useSoundEffects() {
         osc.connect(gain);
         gain.connect(masterGainRef.current);
 
-        // Buzz / Error sound: Sawtooth wave, low pitch, descending
+        // Low frequency "thud" or "buzz"
         osc.type = "sawtooth";
         osc.frequency.setValueAtTime(150, ctx.currentTime);
-        osc.frequency.linearRampToValueAtTime(100, ctx.currentTime + 0.3);
-
-        gain.gain.setValueAtTime(0.2, ctx.currentTime);
         gain.gain.linearRampToValueAtTime(0, ctx.currentTime + 0.3);
 
         osc.start(ctx.currentTime);

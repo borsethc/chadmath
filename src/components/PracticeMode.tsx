@@ -124,6 +124,11 @@ export function PracticeMode({ isRunning, studentId, setIsRunning }: PracticeMod
         // We need a separate effect to reset time on start.
     }, [isRunning, sessionComplete]);
 
+    // Play sound when answer is wrong
+    useEffect(() => {
+        if (isWrong) playIncorrect();
+    }, [isWrong, playIncorrect]);
+
     // Reset Timer on Start
     useEffect(() => {
         if (isRunning && !sessionComplete) {
@@ -646,7 +651,7 @@ export function PracticeMode({ isRunning, studentId, setIsRunning }: PracticeMod
                                             className={cn(
                                                 "h-16 rounded-xl border text-xl sm:text-2xl font-bold text-white transition-colors hover:border-indigo-500/50",
                                                 /* Show red/wrong styling in all modes */
-                                                isWrong && userInput === opt.toString() ? "border-red-500/50 text-red-200" : "border-white/10 bg-white/5"
+                                                isWrong && userInput === opt.toString() ? "border-red-500/50 text-red-200 bg-red-500/20" : "border-white/10 bg-white/5"
                                             )}
                                         >
                                             {opt}
@@ -663,7 +668,7 @@ export function PracticeMode({ isRunning, studentId, setIsRunning }: PracticeMod
                                         className={cn(
                                             "w-full max-w-[200px] border-b-4 bg-transparent text-center text-6xl font-bold outline-none placeholder:text-white/10 focus:border-indigo-500 transition-all caret-transparent cursor-default",
                                             /* Show red/wrong styling in all modes */
-                                            isWrong ? "border-red-500 text-red-500 animate-pulse" : "border-white/20 text-white"
+                                            isWrong ? "border-red-500 text-red-500 animate-pulse bg-red-500/10" : "border-white/20 text-white"
                                         )}
                                         placeholder="?"
                                     />
