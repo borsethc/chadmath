@@ -633,7 +633,7 @@ export function PracticeMode({ isRunning, studentId, setIsRunning }: PracticeMod
             {/* Answer Section */}
             <div className="relative w-full flex justify-center min-h-[128px]">
                 {isRunning && currentQuestion && (
-                    gameState === "waiting" ? (
+                    gameState === "waiting" || gameState === "correct" ? (
                         mode === "radicals" ? (
                             <FactorTree key={currentQuestion.id} initialNumber={currentQuestion.factor2} onComplete={(res) => setInput(res)} />
                         ) : (
@@ -668,7 +668,8 @@ export function PracticeMode({ isRunning, studentId, setIsRunning }: PracticeMod
                                         className={cn(
                                             "w-full max-w-[200px] border-b-4 bg-transparent text-center text-6xl font-bold outline-none placeholder:text-white/10 focus:border-indigo-500 transition-all caret-transparent cursor-default",
                                             /* Show red/wrong styling in all modes */
-                                            isWrong ? "border-red-500 text-red-500 animate-pulse bg-red-500/10" : "border-white/20 text-white"
+                                            isWrong ? "border-red-500 text-red-500 animate-pulse bg-red-500/10" :
+                                                gameState === "correct" ? "border-emerald-500 text-emerald-400 scale-110 duration-300" : "border-white/20 text-white"
                                         )}
                                         placeholder="?"
                                     />
@@ -725,8 +726,7 @@ export function PracticeMode({ isRunning, studentId, setIsRunning }: PracticeMod
                             initial={{ opacity: 0, scale: 0.5 }}
                             animate={{ opacity: 1, scale: 1 }}
                             className={cn(
-                                "flex h-32 w-full max-w-[200px] items-center justify-center rounded-xl text-6xl font-bold",
-                                gameState === "correct" ? "bg-emerald-500/20 text-emerald-400 shadow-[0_0_30px_rgba(52,211,153,0.2)]" : "bg-rose-500/20 text-rose-400"
+                                "flex h-32 w-full max-w-[200px] items-center justify-center rounded-xl text-6xl font-bold bg-rose-500/20 text-rose-400"
                             )}
                         >
                             {currentQuestion?.answer}
