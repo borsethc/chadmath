@@ -429,17 +429,18 @@ export function useGameLogic(
             if (mode === "radicals") {
                 if (val === currentQuestion.answer) handleAnswer(val);
             } else {
-                const parsed = parseInt(val);
                 const answerStr = currentQuestion.answer.toString();
-                if (!isNaN(parsed)) {
-                    if (mode === "assessment") {
-                        // Assessment: Submit when length matches (strict)
-                        if (val.length >= answerStr.length) setTimeout(() => handleAnswer(val), 200);
-                    } else {
-                        // Practice: Auto-submit if correct OR if length bounds met (to show wrong feedback)
-                        if (parsed === currentQuestion.answer) handleAnswer(val);
-                        else if (val.length >= answerStr.length) handleAnswer(val);
-                    }
+
+                // Check for immediate correctness
+                if (val === answerStr) {
+                    handleAnswer(val);
+                    return;
+                }
+
+                // If not correct, check if we should submit anyway (e.g. length limit reached)
+                if (val.length >= answerStr.length) {
+                    // It's wrong, but we have enough digits. Submit to trigger "Wrong" feedback.
+                    handleAnswer(val);
                 }
             }
         }
