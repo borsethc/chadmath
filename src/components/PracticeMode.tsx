@@ -75,7 +75,7 @@ export function PracticeMode({ isRunning, studentId, setIsRunning }: PracticeMod
     const [factMastery, setFactMastery] = useState<Record<string, number>>({});
 
     // Hooks - Must be called before effects that use them
-    const { currentQuestion, userInput, setInput, gameState, streak, selectedGroups, toggleGroup, stats, isWrong, sessionMasteryUpdates, selectedTable, setSelectedTable } = useGameLogic(isRunning, mode, isTimerEnabled, isMultipleChoice, factMastery);
+    const { currentQuestion, userInput, setInput, gameState, streak, selectedGroups, toggleGroup, stats, isWrong, sessionMasteryUpdates, selectedTables, setSelectedTables } = useGameLogic(isRunning, mode, isTimerEnabled, isMultipleChoice, factMastery);
 
     // Check daily limit and all time high on mount
     useEffect(() => {
@@ -465,19 +465,31 @@ export function PracticeMode({ isRunning, studentId, setIsRunning }: PracticeMod
                     {mode === "tables" && (
                         <div className="flex flex-col items-center gap-3 w-full max-w-xs">
                             <span className="text-[10px] sm:text-xs font-medium uppercase tracking-widest text-muted-foreground">
-                                Select Table
+                                Select Tables
                             </span>
                             <div className="grid grid-cols-4 gap-2 w-full">
                                 {[2, 3, 4, 5, 6, 7, 8, 9].map((num) => (
                                     <button
                                         key={num}
-                                        onClick={() => setSelectedTable(num)}
+                                        onClick={() => {
+                                            // Toggle logic
+                                            setSelectedTables(prev => {
+                                                if (prev.includes(num)) {
+                                                    // Don't allow empty, keep at least one
+                                                    if (prev.length === 1) return prev;
+                                                    return prev.filter(n => n !== num);
+                                                } else {
+                                                    return [...prev, num].sort((a, b) => a - b);
+                                                }
+                                            });
+                                        }}
                                         className={cn(
                                             "aspect-square rounded-xl text-lg font-bold transition-all border flex items-center justify-center",
-                                            selectedTable === num
+                                            selectedTables.includes(num)
                                                 ? "bg-emerald-500/20 border-emerald-500 text-emerald-300 shadow-[0_0_15px_rgba(16,185,129,0.3)]"
                                                 : "bg-white/5 border-white/10 text-muted-foreground hover:bg-white/10 hover:text-white"
                                         )}
+
                                     >
                                         ×{num}
                                     </button>

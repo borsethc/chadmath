@@ -50,7 +50,7 @@ export function useGameLogic(
     initialMastery: FactMastery = {}
 ) {
     const [selectedGroups, setSelectedGroups] = useState<FactorGroup[]>(["2-4", "5-7", "8-9"]);
-    const [selectedTable, setSelectedTable] = useState<number>(2); // Default to x2 table
+    const [selectedTables, setSelectedTables] = useState<number[]>([2]); // Default to x2 table array
     const [currentQuestion, setCurrentQuestion] = useState<Question | null>(null);
     const [userInput, setUserInput] = useState("");
     const [gameState, setGameState] = useState<GameState>("waiting");
@@ -125,11 +125,12 @@ export function useGameLogic(
             f1 = Math.floor(Math.random() * 8) + 2;
             f2 = Math.floor(Math.random() * 8) + 2;
         } else if (mode === "tables") {
-            // Table Mode: Fixed factor (selectedTable) x Random (1-9)
-            // We want 1-9 for the second factor to allow e.g. 9x1, 9x9.
-            // Actually usually 2-9 or 1-12?
-            // User example: "1x9, 2x9... 9x9"
-            f1 = selectedTable;
+            // Table Mode: Randomly select one of the active tables
+            // If none selected (should be blocked by UI), default to 2
+            const activeTables = selectedTables.length > 0 ? selectedTables : [2];
+            const table = activeTables[Math.floor(Math.random() * activeTables.length)];
+
+            f1 = table;
             f2 = Math.floor(Math.random() * 9) + 1; // 1 to 9
 
             // Randomly swap for display variety? User said "Occasionally flip"
@@ -198,7 +199,7 @@ export function useGameLogic(
                     // For Division, it would be Product / f2 = f1
                     // For now let's just stick to the current mode's logic for the queued item
                     // We construct "Virtual Questions" to push to queue.
-                    // IMPORTANT: We need full question generation logic for queued items. 
+                    // IMPORTANT: We need full question generation logic for queued items.
                     // Let's simplify: Just Push DATA to queue, and let logic below handle formatting?
                     // No, queue stores full Question objects.
 
@@ -258,7 +259,7 @@ export function useGameLogic(
             options: sortedOptions,
             operator: qOperator
         };
-    }, [selectedGroups, mode, mastery, selectedTable]); // Added selectedTable dependency
+    }, [selectedGroups, mode, mastery, selectedTables]); // Added selectedTables dependency
 
     const toggleGroup = useCallback((group: FactorGroup) => {
         setSelectedGroups(prev => {
@@ -508,8 +509,8 @@ export function useGameLogic(
         stats,
         selectedGroups,
         toggleGroup,
-        selectedTable,
-        setSelectedTable,
+        selectedTables,
+        setSelectedTables,
         sessionMasteryUpdates // Export this so PracticeMode can save it
     };
 }
