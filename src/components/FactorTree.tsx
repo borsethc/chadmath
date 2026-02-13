@@ -113,7 +113,10 @@ export function FactorTree({ initialNumber, onComplete }: FactorTreeProps) {
                                     type="number"
                                     value={factors.f1}
                                     onChange={(e) => setFactors({ ...factors, f1: e.target.value })}
-                                    className="w-20 bg-white/5 border border-white/20 rounded-xl p-3 text-center text-white font-bold text-xl focus:border-indigo-500 focus:outline-none transition-colors"
+                                    className={cn(
+                                        "w-20 bg-white/5 border border-white/20 rounded-xl p-3 text-center text-white font-bold text-xl focus:outline-none transition-all",
+                                        error ? "border-red-500 text-red-500 animate-pulse" : "focus:border-indigo-500"
+                                    )}
                                     placeholder="?"
                                 />
                                 <span className="text-gray-400 font-bold">×</span>
@@ -121,7 +124,10 @@ export function FactorTree({ initialNumber, onComplete }: FactorTreeProps) {
                                     type="number"
                                     value={factors.f2}
                                     onChange={(e) => setFactors({ ...factors, f2: e.target.value })}
-                                    className="w-20 bg-white/5 border border-white/20 rounded-xl p-3 text-center text-white font-bold text-xl focus:border-indigo-500 focus:outline-none transition-colors"
+                                    className={cn(
+                                        "w-20 bg-white/5 border border-white/20 rounded-xl p-3 text-center text-white font-bold text-xl focus:outline-none transition-all",
+                                        error ? "border-red-500 text-red-500 animate-pulse" : "focus:border-indigo-500"
+                                    )}
                                     placeholder="?"
                                     onKeyDown={(e) => e.key === "Enter" && handleSplit()}
                                 />
@@ -150,7 +156,10 @@ export function FactorTree({ initialNumber, onComplete }: FactorTreeProps) {
                                     type="number"
                                     value={simplifyValue}
                                     onChange={(e) => setSimplifyValue(e.target.value)}
-                                    className="w-24 bg-white/5 border border-emerald-500/30 rounded-xl p-3 text-center text-emerald-300 font-bold text-xl focus:border-emerald-400 focus:outline-none transition-colors"
+                                    className={cn(
+                                        "w-24 bg-white/5 border border-emerald-500/30 rounded-xl p-3 text-center text-emerald-300 font-bold text-xl focus:outline-none transition-all",
+                                        error ? "border-red-500 text-red-500 animate-pulse" : "focus:border-emerald-400"
+                                    )}
                                     placeholder="?"
                                     onKeyDown={(e) => e.key === "Enter" && handleSimplify()}
                                 />
