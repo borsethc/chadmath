@@ -364,7 +364,14 @@ export function useGameLogic(
                         isCorrect: false
                     }]
                 }));
-                nextQuestion();
+
+                // Show red flash for a moment before moving on
+                setIsWrong(true);
+                setTimeout(() => {
+                    setIsWrong(false);
+                    setUserInput("");
+                    nextQuestion();
+                }, 500);
             } else {
                 // Practice Mode
                 setIsWrong(true);

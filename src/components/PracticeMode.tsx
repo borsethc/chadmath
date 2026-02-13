@@ -645,8 +645,8 @@ export function PracticeMode({ isRunning, studentId, setIsRunning }: PracticeMod
                                             onMouseEnter={() => playHover()}
                                             className={cn(
                                                 "h-16 rounded-xl border text-xl sm:text-2xl font-bold text-white transition-colors hover:border-indigo-500/50",
-                                                /* Hide red/wrong styling in Assessment mode */
-                                                mode !== "assessment" && isWrong && userInput === opt.toString() ? "border-red-500/50 text-red-200" : "border-white/10 bg-white/5"
+                                                /* Show red/wrong styling in all modes */
+                                                isWrong && userInput === opt.toString() ? "border-red-500/50 text-red-200" : "border-white/10 bg-white/5"
                                             )}
                                         >
                                             {opt}
@@ -662,8 +662,8 @@ export function PracticeMode({ isRunning, studentId, setIsRunning }: PracticeMod
                                         readOnly
                                         className={cn(
                                             "w-full max-w-[200px] border-b-4 bg-transparent text-center text-6xl font-bold outline-none placeholder:text-white/10 focus:border-indigo-500 transition-all caret-transparent cursor-default",
-                                            /* Hide red/wrong styling in Assessment mode */
-                                            mode !== "assessment" && isWrong ? "border-red-500 text-red-500 animate-pulse" : "border-white/20 text-white"
+                                            /* Show red/wrong styling in all modes */
+                                            isWrong ? "border-red-500 text-red-500 animate-pulse" : "border-white/20 text-white"
                                         )}
                                         placeholder="?"
                                     />
