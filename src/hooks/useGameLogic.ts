@@ -32,7 +32,9 @@ interface SessionStats {
 // REVEAL_DELAY_MS removed in favor of dynamic delay
 const NEXT_QUESTION_DELAY_MS = 2000; // Time to show result before next
 
-export function useGameLogic(isRunning: boolean, mode: GameMode = "multiplication", timerEnabled: boolean = true) {
+// Rename parameter
+// Rename parameter
+export function useGameLogic(isRunning: boolean, mode: GameMode = "multiplication", isTimerEnabled: boolean = true) {
     const [selectedGroups, setSelectedGroups] = useState<FactorGroup[]>(["2-4", "5-7", "8-9"]);
     const [currentQuestion, setCurrentQuestion] = useState<Question | null>(null);
     const [userInput, setUserInput] = useState("");
@@ -298,7 +300,7 @@ export function useGameLogic(isRunning: boolean, mode: GameMode = "multiplicatio
     useEffect(() => {
         if (!isRunning) return;
         if (mode === "assessment") return; // Disable reveal timer for assessment
-        if (!timerEnabled) return;
+        if (!isTimerEnabled) return;
 
         if (gameState === "waiting") {
             const delay = mode === "radicals" ? 30000 : 5000;
