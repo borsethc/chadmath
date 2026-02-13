@@ -36,14 +36,21 @@ export type Database = {
 
 // --- POSTGRES CLIENT ---
 // Only connect if DATABASE_URL is provided (Production/Railway)
-const pool = process.env.DATABASE_URL
-    ? new Pool({
-        connectionString: process.env.DATABASE_URL,
-        ssl: { rejectUnauthorized: false }, // Required for Railway
-        connectionTimeoutMillis: 5000, // 5s timeout for connection
-        idleTimeoutMillis: 30000, // Close idle clients after 30s
-    })
-    : null;
+let pool: Pool | null = null;
+
+try {
+    if (process.env.DATABASE_URL) {
+        pool = new Pool({
+            connectionString: process.env.DATABASE_URL,
+            ssl: { rejectUnauthorized: false }, // Required for Railway
+            connectionTimeoutMillis: 5000, // 5s timeout for connection
+            idleTimeoutMillis: 30000, // Close idle clients after 30s
+        });
+    }
+} catch (e) {
+    console.error("Failed to initialize Postgres Pool:", e);
+    // Fallback to null (filesystem mode will be attempted if logic permits, or just fail calls)
+}
 
 // --- INITIALIZATION ---
 const initDb = async () => {
