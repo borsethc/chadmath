@@ -20,7 +20,38 @@ interface PracticeModeProps {
 export function PracticeMode({ isRunning, studentId, setIsRunning }: PracticeModeProps) {
     const [mode, setMode] = useState<GameMode>("multiplication");
     const [isTimerEnabled, setIsTimerEnabled] = useState(true);
-    const { currentQuestion, userInput, setInput, gameState, streak, selectedGroups, toggleGroup, stats, isWrong } = useGameLogic(isRunning, mode, isTimerEnabled);
+    const [isMultipleChoice, setIsMultipleChoice] = useState(false);
+
+    // We lift factMastery state up slightly to pass it down, but useGameLogic manages its internal copy
+    // We need a ref to hold initial mastery because we don't want to reset logic on state update?
+    // Actually useGameLogic handles internal state. We just pass initial.
+    // The issue is `factMastery` state is loaded async.
+    // We can key the useGameLogic on `factMastery` loaded? Or update useGameLogic to sync.
+    // Logic updated to sync on prop change.
+
+    // Move logic call below state definitions
+    // But we need `factMastery` defined before `useGameLogic`... 
+    // And `useGameLogic` returns `sessionMasteryUpdates`.
+
+    // We need to define stats etc later? No, hooks order.
+    // Initialize empty, then update when loaded.
+
+    // Define `factMastery` state here (initially empty).
+    // See modification in next chunk. 
+
+    // We need to move `useGameLogic` call AFTER `factMastery` state decl.
+    // But `factMastery` is in the same scope. 
+    // Typescript hoisting works? No, `const`.
+    // We'll move `useGameLogic` down.
+
+    // WAIT, I can't move hooks easily with find/replace if they are interspersed.
+    // I will replace the whole top block.
+
+    // Let's modify the props of useGameLogic first.
+    // I will do this in stages. this chunk replaces the top.
+
+    // ... ignoring implementation details, I will use next chunks.
+
     const { playCorrect, playHover, initAudio, playIncorrect } = useSoundEffects();
     const inputRef = useRef<HTMLInputElement>(null);
 
@@ -41,7 +72,10 @@ export function PracticeMode({ isRunning, studentId, setIsRunning }: PracticeMod
     const [shake, setShake] = useState(0); // Shake intensity
     const [dailyStreak, setDailyStreak] = useState(0);
     const [streakUpdated, setStreakUpdated] = useState(false); // To show effect
+    const [factMastery, setFactMastery] = useState<Record<string, number>>({});
 
+    // Hooks - Must be called before effects that use them
+    const { currentQuestion, userInput, setInput, gameState, streak, selectedGroups, toggleGroup, stats, isWrong, sessionMasteryUpdates } = useGameLogic(isRunning, mode, isTimerEnabled, isMultipleChoice, factMastery);
 
     // Check daily limit and all time high on mount
     useEffect(() => {
@@ -57,6 +91,7 @@ export function PracticeMode({ isRunning, studentId, setIsRunning }: PracticeMod
                     if (loginData.xp !== undefined) setXp(loginData.xp);
                     if (loginData.level !== undefined) setLevel(loginData.level);
                     if (loginData.dailyStreak !== undefined) setDailyStreak(loginData.dailyStreak);
+                    if (loginData.factMastery !== undefined) setFactMastery(loginData.factMastery);
                 }
             } catch (e) {
                 console.error("Failed to check stats", e);
@@ -117,8 +152,14 @@ export function PracticeMode({ isRunning, studentId, setIsRunning }: PracticeMod
                 wrong,
                 isMultipleChoice,
                 selectedGroups as string[],
-                assessmentTier
+                assessmentTier,
+                sessionMasteryUpdates // Pass the mastery updates
             );
+
+            // Update local state if needed (e.g. merge updates back to factMastery so if they restart, they keep it)
+            if (Object.keys(sessionMasteryUpdates).length > 0) {
+                setFactMastery(prev => ({ ...prev, ...sessionMasteryUpdates }));
+            }
 
             if (result.allTimeHigh !== undefined) {
                 setAllTimeHigh(result.allTimeHigh);
@@ -165,7 +206,14 @@ export function PracticeMode({ isRunning, studentId, setIsRunning }: PracticeMod
         }
     }, [gameState, streak, playCorrect]);
 
-    const [isMultipleChoice, setIsMultipleChoice] = useState(false);
+    // Move isMultipleChoice state up
+    // Removed duplicate declaration
+
+    // ...
+    // Since we moved isMultipleChoice, we need to remove the duplicate declaration line if it exists content-wise. 
+    // In original code: `const [isMultipleChoice, setIsMultipleChoice] = useState(false);` was around line 280.
+    // I need to find it and delete it.
+
 
     // Keep focus
     useEffect(() => {

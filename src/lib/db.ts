@@ -27,6 +27,7 @@ export type Student = {
     level: number;
     dailyStreak: number;
     lastStreakUpdate: string; // ISO date string YYYY-MM-DD
+    factMastery: Record<string, number>; // Key: "AxB", Value: 0.0 - 1.0
 };
 
 export type Database = {
@@ -102,7 +103,8 @@ export const createOrUpdateStudent = async (studentId: string): Promise<Student>
             xp: 0,
             level: 1,
             dailyStreak: 0,
-            lastStreakUpdate: ""
+            lastStreakUpdate: "",
+            factMastery: {}
         };
 
         await pool.query(`
@@ -125,7 +127,8 @@ export const createOrUpdateStudent = async (studentId: string): Promise<Student>
                 xp: 0,
                 level: 1,
                 dailyStreak: 0,
-                lastStreakUpdate: ""
+                lastStreakUpdate: "",
+                factMastery: {}
             };
         } else {
             db.students[studentId].lastSeen = now;
@@ -181,7 +184,8 @@ export const addSession = async (studentId: string, session: Omit<Session, "id" 
                 xp: 0,
                 level: 1,
                 dailyStreak: 0,
-                lastStreakUpdate: ""
+                lastStreakUpdate: "",
+                factMastery: {}
             };
             await pool.query(`
                 INSERT INTO students (id, data) VALUES ($1, $2)
@@ -215,7 +219,8 @@ export const addSession = async (studentId: string, session: Omit<Session, "id" 
                 xp: 0,
                 level: 1,
                 dailyStreak: 0,
-                lastStreakUpdate: ""
+                lastStreakUpdate: "",
+                factMastery: {}
             };
         }
         db.students[studentId].sessions.push(newSession);
@@ -236,7 +241,14 @@ export const addSession = async (studentId: string, session: Omit<Session, "id" 
     return newSession;
 };
 
-export const updateStudentProgress = async (studentId: string, xp: number, level: number, dailyStreak?: number, lastStreakUpdate?: string) => {
+export const updateStudentProgress = async (
+    studentId: string,
+    xp: number,
+    level: number,
+    dailyStreak?: number,
+    lastStreakUpdate?: string,
+    factMastery?: Record<string, number>
+) => {
     await initDb();
 
     if (pool) {
@@ -246,6 +258,13 @@ export const updateStudentProgress = async (studentId: string, xp: number, level
             student.level = level;
             if (dailyStreak !== undefined) student.dailyStreak = dailyStreak;
             if (lastStreakUpdate !== undefined) student.lastStreakUpdate = lastStreakUpdate;
+            if (factMastery !== undefined) {
+                // Merge mastery logic? Or overwrite? 
+                // Overwrite is safer if we trust the client's latest session state, 
+                // but if multiple devices, merge is better. 
+                // For now, simple overwrite or merge. Let's do simple merge.
+                student.factMastery = { ...(student.factMastery || {}), ...factMastery };
+            }
             await pool.query('UPDATE students SET data = $2 WHERE id = $1', [studentId, JSON.stringify(student)]);
         }
     } else {
@@ -255,6 +274,9 @@ export const updateStudentProgress = async (studentId: string, xp: number, level
             db.students[studentId].level = level;
             if (dailyStreak !== undefined) db.students[studentId].dailyStreak = dailyStreak;
             if (lastStreakUpdate !== undefined) db.students[studentId].lastStreakUpdate = lastStreakUpdate;
+            if (factMastery !== undefined) {
+                db.students[studentId].factMastery = { ...(db.students[studentId].factMastery || {}), ...factMastery };
+            }
             await writeDbFile(db);
         }
     }

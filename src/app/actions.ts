@@ -13,7 +13,8 @@ export async function loginAction(studentId: string) {
         allTimeHigh: student.allTimeHigh,
         xp: student.xp || 0,
         level: student.level || 1,
-        dailyStreak: student.dailyStreak || 0
+        dailyStreak: student.dailyStreak || 0,
+        factMastery: student.factMastery || {}
     };
 }
 
@@ -43,7 +44,8 @@ export async function logSessionAction(
     wrong: number,
     isMultipleChoice: boolean,
     selectedFactors: string[],
-    assessmentTier?: string
+    assessmentTier?: string,
+    sessionMasteryUpdates?: Record<string, number>
 ) {
     const session = await addSession(studentId, {
         score,
@@ -140,7 +142,7 @@ export async function logSessionAction(
         // For now, let's Stick to: Logic updates when you HIT the goal.
     }
 
-    await updateStudentProgress(studentId, totalXP, newLevel, streakUpdated ? currentStreak : undefined, streakUpdated ? lastUpdate : undefined);
+    await updateStudentProgress(studentId, totalXP, newLevel, streakUpdated ? currentStreak : undefined, streakUpdated ? lastUpdate : undefined, sessionMasteryUpdates);
 
     revalidatePath('/dashboard');
     return {

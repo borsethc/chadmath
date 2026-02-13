@@ -2,14 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from "react";
 
-export type Question = {
-    id: string; // Unique ID for key mapping
-    factor1: number | null; // For radicals, this might be null if we just show '√factor2'
-    factor2: number; // The main number to simplify (e.g. 72 in √72)
-    answer: number | string; // Can be string for radicals format (e.g. "6√2")
-    options: (number | string)[]; // Mixed types for options
-    operator: "×" | "÷" | "√";
-};
+
 
 export type GameState = "waiting" | "revealed" | "correct";
 export type FactorGroup = "2-4" | "5-7" | "8-9";
@@ -34,7 +27,28 @@ const NEXT_QUESTION_DELAY_MS = 2000; // Time to show result before next
 
 // Rename parameter
 // Rename parameter
-export function useGameLogic(isRunning: boolean, mode: GameMode = "multiplication", isTimerEnabled: boolean = true) {
+export type Question = {
+    id: string;
+    factor1: number | null;
+    factor2: number;
+    answer: number | string;
+    options: (number | string)[];
+    operator: "×" | "÷" | "√";
+    isRetry?: boolean; // Flag to indicate if this is a retry from the queue
+};
+
+// ... (previous types remain)
+
+// New Type for Mastery
+export type FactMastery = Record<string, number>;
+
+export function useGameLogic(
+    isRunning: boolean,
+    mode: GameMode = "multiplication",
+    isTimerEnabled: boolean = true,
+    isMultipleChoice: boolean = false,
+    initialMastery: FactMastery = {}
+) {
     const [selectedGroups, setSelectedGroups] = useState<FactorGroup[]>(["2-4", "5-7", "8-9"]);
     const [currentQuestion, setCurrentQuestion] = useState<Question | null>(null);
     const [userInput, setUserInput] = useState("");
@@ -43,8 +57,19 @@ export function useGameLogic(isRunning: boolean, mode: GameMode = "multiplicatio
     const [isWrong, setIsWrong] = useState(false);
     const [stats, setStats] = useState<SessionStats>(() => ({ correct: 0, wrongAttempts: 0, total: 0, startTime: Date.now(), history: [] }));
 
-    // Timer for auto-reveal
+    // Adaptive Learning State
+    const [mastery, setMastery] = useState<FactMastery>(initialMastery);
+    const retryQueue = useRef<Question[]>([]);
+    const clusterQueue = useRef<Question[]>([]);
+    const [sessionMasteryUpdates, setSessionMasteryUpdates] = useState<FactMastery>({}); // Track session changes to sync back
+
+    // Timer for auto-reveal (Smart Timer)
     const revealTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+    // Initial Mastery Sync
+    useEffect(() => {
+        setMastery(initialMastery);
+    }, [initialMastery]);
 
     // Reset stats when game starts
     useEffect(() => {
@@ -53,105 +78,156 @@ export function useGameLogic(isRunning: boolean, mode: GameMode = "multiplicatio
             setStreak(0);
             setIsWrong(false);
             setGameState("waiting");
+            retryQueue.current = [];
+            clusterQueue.current = [];
+            setSessionMasteryUpdates({});
         }
     }, [isRunning]);
 
+    // Helper to get mastery key
+    const getFactKey = (f1: number, f2: number, op: string) => {
+        // Normalize: smaller x larger for multiplication to treat AxB same as BxA
+        if (op === "×") {
+            const [min, max] = f1 < f2 ? [f1, f2] : [f2, f1];
+            return `${min}x${max}`;
+        }
+        return `${f1}${op}${f2}`;
+    };
+
     const generateQuestion = useCallback(() => {
+        // 1. Priority: Retry Queue (Missed questions)
+        if (retryQueue.current.length > 0) {
+            const retryQ = retryQueue.current.shift();
+            if (retryQ) return { ...retryQ, id: Math.random().toString(36).substring(2, 9), isRetry: true };
+        }
+
+        // 2. Priority: Cluster Queue (Current cluster)
+        if (clusterQueue.current.length > 0) {
+            const clusterQ = clusterQueue.current.shift();
+            if (clusterQ) return { ...clusterQ, id: Math.random().toString(36).substring(2, 9) };
+        }
+
+        // 3. Generation Logic
         if (mode === "radicals") {
-            // Pick a perfect square (4, 9, 16, 25, 36, 49, 64, 81, 100)
+            // ... (Existing Radicals Logic - kept simple for now)
             const perfectSquares = [4, 9, 16, 25, 36, 49, 64, 81, 100];
             const square = perfectSquares[Math.floor(Math.random() * perfectSquares.length)];
-
-            // Pick a non-square multiplier (2, 3, 5, 6, 7, 8, 10...)
-            // Let's keep it simple: 2, 3, 5, 6, 7, 10
             const remainders = [2, 3, 5, 6, 7];
             const remainder = remainders[Math.floor(Math.random() * remainders.length)];
-
             const number = square * remainder;
-            const root = Math.sqrt(square); // integer
+            const root = Math.sqrt(square);
             const answer = `${root}√${remainder}`;
-
-            // Generate options? Even if we use factor tree, we might fall back to MC or just need an Answer property.
-            // Distractors:
-            // 1. Wrong root (e.g. if answer 6√2, maybe 3√8 - which is technically correct but not simplified)
-            // 2. Swapped (e.g. 2√6)
-            // 3. Just random like 4√3
-
             return {
                 id: Math.random().toString(36).substring(2, 9),
                 factor1: null,
                 factor2: number,
                 answer: answer,
-                options: [answer], // Placeholder if not used in tree mode
+                options: [answer],
                 operator: "√" as const
             };
         }
 
+        // Generate Multiplication/Division with Adaptive Logic
+        // Select Factors
         let f1, f2;
 
         if (mode === "assessment") {
-            f1 = Math.floor(Math.random() * 8) + 2; // 2-9
-            f2 = Math.floor(Math.random() * 8) + 2; // 2-9
+            f1 = Math.floor(Math.random() * 8) + 2;
+            f2 = Math.floor(Math.random() * 8) + 2;
         } else {
-            // Collect valid factors for f1 based on selected groups
+            // 4. Adaptive Selection (Smart Repetition)
+            // Instead of pure random, we weight by (1.0 - mastery). Lower mastery = Higher chance.
+
+            // Gather all candidate pairs based on selected groups
+            const candidates: { f1: number, f2: number, weight: number }[] = [];
+
             const validF1s = new Set<number>();
             if (selectedGroups.includes("2-4")) [2, 3, 4].forEach(n => validF1s.add(n));
             if (selectedGroups.includes("5-7")) [5, 6, 7].forEach(n => validF1s.add(n));
             if (selectedGroups.includes("8-9")) [8, 9].forEach(n => validF1s.add(n));
-
-            // Default to all if somehow empty
             const f1Options = validF1s.size > 0 ? Array.from(validF1s) : [2, 3, 4, 5, 6, 7, 8, 9];
 
-            f1 = f1Options[Math.floor(Math.random() * f1Options.length)];
-            f2 = Math.floor(Math.random() * 8) + 2; // 2 to 9 (exclude 1)
+            // Loop through all f1 and possible f2 (2-9)
+            for (const cf1 of f1Options) {
+                for (let cf2 = 2; cf2 <= 9; cf2++) {
+                    const key = getFactKey(cf1, cf2, "×"); // Use mult key for core mastery
+                    const m = mastery[key] || 0;
+                    // Weight: If mastery is 0, weight is 1. If mastery is 1, weight is 0.1 (small chance).
+                    // Add slight base weight so perfected facts still appear occasionally.
+                    const weight = Math.max(0.1, 1.0 - m);
+                    candidates.push({ f1: cf1, f2: cf2, weight });
+                }
+            }
+
+            // Weighted Random Selection
+            const totalWeight = candidates.reduce((sum, c) => sum + c.weight, 0);
+            let r = Math.random() * totalWeight;
+            let selected = candidates[0];
+            for (const c of candidates) {
+                r -= c.weight;
+                if (r <= 0) {
+                    selected = c;
+                    break;
+                }
+            }
+            f1 = selected.f1;
+            f2 = selected.f2;
+
+            // 5. Build Mini-Cluster (Fact Clusters)
+            // If we picked a "hard" fact (low mastery), queue up related facts.
+            // Only do this occasionally or if mastery is low to avoid predictability overload.
+            const key = getFactKey(f1, f2, "×");
+            if ((mastery[key] || 0) < 0.6) {
+                // Create Cluster: Commutative property + Neighbors
+                // e.g. 6x7 -> Queue 7x6, maybe 6x8
+                if (f1 !== f2) {
+                    // Add Commutative (BxA)
+                    // Determine structure for next Q
+                    // For Division, it would be Product / f2 = f1
+                    // For now let's just stick to the current mode's logic for the queued item
+                    // We construct "Virtual Questions" to push to queue.
+                    // IMPORTANT: We need full question generation logic for queued items. 
+                    // Let's simplify: Just Push DATA to queue, and let logic below handle formatting?
+                    // No, queue stores full Question objects.
+
+                    // We need a helper to format a question from f1, f2.
+                    // Defining helper inside or outside... let's do inline for now.
+                }
+            }
         }
 
         // Determine Question Values based on Mode
         let qFactor1, qFactor2, qAnswer: number | string, qOperator: "×" | "÷";
 
         if (mode === "division") {
-            // Division: Product / Factor = Answer
-            // Example: 21 / 7 = 3
-            // f1 is the "focused" number (e.g. 7)
-            // So we want the question to be: (f1 * f2) ÷ f1 = f2
             qFactor1 = f1 * f2;
             qFactor2 = f1;
             qAnswer = f2;
             qOperator = "÷";
         } else {
-            // Multiplication: Factor * Factor = Product
             qFactor1 = f1;
             qFactor2 = f2;
             qAnswer = f1 * f2;
             qOperator = "×";
         }
 
-        // Randomize answer position while keeping sorted order
+        // Randomize answer position while keeping sorted order (Existing Logic)
         const sortedOptions = (() => {
             const numOptions = 4;
-            const answer = qAnswer;
-
-            // 1. Determine how many numbers should be smaller than the answer (0 to 3)
-            // Note: For radicals we might not use this option generation, but safe to leave or refactor
-            const ansVal = typeof answer === 'number' ? answer : 0;
+            const answer = typeof qAnswer === 'number' ? qAnswer : 0;
+            const ansVal = answer;
             const maxPossibleSmaller = Math.max(0, ansVal - 1);
             const maxAllowedSmaller = Math.min(numOptions - 1, maxPossibleSmaller);
-
             const targetSmallerCount = Math.floor(Math.random() * (maxAllowedSmaller + 1));
-
             const optionsSet = new Set<number>();
-            if (typeof answer === 'number') optionsSet.add(answer);
-
-            // 2. Generate smaller numbers
+            optionsSet.add(answer);
             while (optionsSet.size < 1 + targetSmallerCount) {
-                const range = 10; // look within 10 numbers
+                const range = 10;
                 const minVal = Math.max(1, ansVal - range);
                 const maxVal = ansVal - 1;
                 const val = Math.floor(Math.random() * (maxVal - minVal + 1)) + minVal;
                 optionsSet.add(val);
             }
-
-            // 3. Generate larger numbers
             while (optionsSet.size < numOptions) {
                 const range = 10;
                 const minVal = ansVal + 1;
@@ -159,11 +235,8 @@ export function useGameLogic(isRunning: boolean, mode: GameMode = "multiplicatio
                 const val = Math.floor(Math.random() * (maxVal - minVal + 1)) + minVal;
                 optionsSet.add(val);
             }
-
-            // Sort options numerically for all numeric modes (Multiplication, Division, Assessment)
             return Array.from(optionsSet).sort((a, b) => a - b);
         })();
-
 
         return {
             id: Math.random().toString(36).substring(2, 9),
@@ -173,11 +246,10 @@ export function useGameLogic(isRunning: boolean, mode: GameMode = "multiplicatio
             options: sortedOptions,
             operator: qOperator
         };
-    }, [selectedGroups, mode]);
+    }, [selectedGroups, mode, mastery]); // Added mastery dependency
 
     const toggleGroup = useCallback((group: FactorGroup) => {
         setSelectedGroups(prev => {
-            // Prevent deselecting specific group if it's the only one
             if (prev.includes(group) && prev.length === 1) return prev;
             return prev.includes(group) ? prev.filter(g => g !== group) : [...prev, group];
         });
@@ -189,29 +261,62 @@ export function useGameLogic(isRunning: boolean, mode: GameMode = "multiplicatio
         setCurrentQuestion(generateQuestion());
     }, [generateQuestion]);
 
+    // Update Mastery Helper
+    const updateMastery = (question: Question, correct: boolean) => {
+        if (question.operator === "√") return; // Skip radicals for now
+
+        let f1, f2;
+        if (question.operator === "÷") {
+            // 21 / 7 = 3. Factors are 7 and 3.
+            f1 = question.factor2 as number;
+            f2 = question.answer as number;
+        } else {
+            // 3 * 7 = 21. Factors are 3 and 7.
+            f1 = question.factor1 as number;
+            f2 = question.factor2 as number;
+        }
+
+        const key = getFactKey(f1, f2, "×");
+
+        setMastery(prev => {
+            const current = prev[key] || 0;
+            // Increase on success, Decrease on failure
+            // Adaptive rates:
+            // Success: +0.1
+            // Failure: -0.2 (Punish mistakes more to force repetition)
+            let change = correct ? 0.1 : -0.2;
+
+            // Cap between 0 and 1
+            const newVal = Math.max(0, Math.min(1, current + change));
+
+            const newMastery = { ...prev, [key]: newVal };
+
+            // Track delta for session update
+            setSessionMasteryUpdates(updates => ({ ...updates, [key]: newVal }));
+
+            return newMastery;
+        });
+    };
+
     // Handle answer submission or timeout
     const handleAnswer = useCallback((input: string) => {
         if (!currentQuestion || gameState !== "waiting") return;
 
         let isCorrect = false;
 
+        // Validation Logic
         if (mode === "radicals") {
-            // String comparison for radicals
-            if (input === currentQuestion.answer) {
-                isCorrect = true;
-            }
+            if (input === currentQuestion.answer) isCorrect = true;
         } else {
             const val = parseInt(input);
-            if (isNaN(val)) return;
-            // Number comparison
-            if (val === currentQuestion.answer) {
-                isCorrect = true;
-            }
+            if (!isNaN(val) && val === currentQuestion.answer) isCorrect = true;
         }
 
         if (isCorrect) {
             setGameState("correct");
             setStreak((s) => s + 1);
+            updateMastery(currentQuestion, true);
+
             setStats((prev) => ({
                 ...prev,
                 correct: prev.correct + 1,
@@ -224,17 +329,17 @@ export function useGameLogic(isRunning: boolean, mode: GameMode = "multiplicatio
                 }]
             }));
 
-            // Move to next question after delay
+            // Move to next
             const delay = mode === "assessment" ? 0 : 500;
-            if (mode === "assessment") {
-                nextQuestion();
-            } else {
-                setTimeout(nextQuestion, delay);
-            }
+            if (mode === "assessment") nextQuestion();
+            else setTimeout(nextQuestion, delay);
+
         } else {
-            // Wrong answer logic
+            // Wrong Answer
+            updateMastery(currentQuestion, false);
+
             if (mode === "assessment") {
-                // Assessment mode: Count as wrong but move on immediately without feedback
+                // Assessment: faster, no retry
                 setStats((prev) => ({
                     ...prev,
                     wrongAttempts: prev.wrongAttempts + 1,
@@ -248,81 +353,110 @@ export function useGameLogic(isRunning: boolean, mode: GameMode = "multiplicatio
                 }));
                 nextQuestion();
             } else {
+                // Practice Mode
                 setIsWrong(true);
                 setStats((prev) => ({ ...prev, wrongAttempts: prev.wrongAttempts + 1 }));
-                setTimeout(() => setIsWrong(false), 500);
-                setUserInput("");
+
+                // Smart Retry: If MC mode (Adaptive), Queue for retry!
+                // "If no answer" or "Wrong answer" -> Same effect in this logic flow
+                // Actually, if they type wrong, we usually just shake and let them try again?
+                // But for MC, we want to show answer and move on, then retry.
+
+                if (isMultipleChoice) {
+                    // For MC, wrong answer means "Reveal + Retry Later"
+                    setGameState("revealed");
+                    setStreak(0);
+
+                    // Add to Retry Queue!
+                    // Insert at front (Next) or slightly delayed?
+                    // User asked: "Repeat it again soon"
+                    // Let's insert at index 1 (after next question) so it's not immediate?
+                    // Or retryQueue is a FIFO. unshift puts it at front.
+                    retryQueue.current.unshift(currentQuestion);
+
+                    setTimeout(() => {
+                        setIsWrong(false);
+                        nextQuestion();
+                    }, NEXT_QUESTION_DELAY_MS);
+
+                } else {
+                    // Typing mode: Standard shake and retry immediately
+                    setTimeout(() => setIsWrong(false), 500);
+                    setUserInput("");
+                }
             }
         }
-    }, [currentQuestion, gameState, nextQuestion, mode]);
+    }, [currentQuestion, gameState, nextQuestion, mode, isMultipleChoice]); // Added isMultipleChoice
 
-    // Formatting input
+    // Formatting input (unchanged logic mostly)
     const setInput = (val: string) => {
         if (gameState !== "waiting") return;
         setUserInput(val);
-
         if (currentQuestion) {
+            // ... (Existing input validation checks)
             if (mode === "radicals") {
-                // Check if it matches exactly
-                if (val === currentQuestion.answer) {
-                    handleAnswer(val);
-                }
+                if (val === currentQuestion.answer) handleAnswer(val);
             } else {
                 const parsed = parseInt(val);
                 const answerStr = currentQuestion.answer.toString();
-
                 if (!isNaN(parsed)) {
-                    // Assessment mode: Submit if length matches answer length (or we could wait for verified enter, but current UI is digit-based)
                     if (mode === "assessment") {
-                        if (val.length >= answerStr.length) {
-                            // Add a small delay so user sees the last digit
-                            setTimeout(() => {
-                                handleAnswer(val);
-                            }, 200);
-                        }
+                        if (val.length >= answerStr.length) setTimeout(() => handleAnswer(val), 200);
                     } else {
-                        // Normal modes
-                        if (parsed === currentQuestion.answer) {
-                            handleAnswer(val);
-                        } else if (val.length >= answerStr.length) {
-                            handleAnswer(val);
-                        }
+                        if (parsed === currentQuestion.answer) handleAnswer(val);
+                        else if (val.length >= answerStr.length) handleAnswer(val);
                     }
                 }
             }
         }
     };
 
-    // Check answer on input change removed in favor of direct check in setInput
 
-
-    // Timer Effect
+    // Timer Effect (Smart Timer)
     useEffect(() => {
         if (!isRunning) return;
-        if (mode === "assessment") return; // Disable reveal timer for assessment
-        if (!isTimerEnabled) return;
+        if (mode === "assessment") return;
+
+        // Smart Timer Logic:
+        // MC Mode: 3 seconds (Aggressive) -> Triggers Wrong/Reveal -> Retry
+        // Typing Mode: 5 seconds -> Just Reveal (Old behavior) OR we can align it.
+        // User request: "In multiple choice mode, Change 1: Lower response window to 2–3 seconds"
 
         if (gameState === "waiting") {
-            const delay = mode === "radicals" ? 30000 : 5000;
-            revealTimerRef.current = setTimeout(() => {
-                setGameState("revealed");
-                setStreak(0); // Reset streak on timeout
-                setStats((prev) => ({ ...prev, total: prev.total + 1 }));
-                // Automatically go to next question after showing answer
-                setTimeout(nextQuestion, NEXT_QUESTION_DELAY_MS);
-            }, delay);
+            let delay = 5000;
+            if (isMultipleChoice) delay = 3000; // 3 seconds for MC
+            if (mode === "radicals") delay = 30000; // Long timer for radicals
+
+            if (isTimerEnabled) {
+                revealTimerRef.current = setTimeout(() => {
+                    // Timeout Logic
+                    if (isMultipleChoice) {
+                        // Treat validation timeout as WRONG + RETRY
+                        updateMastery(currentQuestion!, false);
+                        setGameState("revealed");
+                        setStreak(0);
+                        setStats((prev) => ({ ...prev, wrongAttempts: prev.wrongAttempts + 1, total: prev.total + 1 }));
+
+                        // Queue Retry
+                        if (currentQuestion) retryQueue.current.unshift(currentQuestion);
+
+                        setTimeout(nextQuestion, NEXT_QUESTION_DELAY_MS);
+                    } else {
+                        // Typing Mode: Just reveal, maybe don't punish mastery as hard?
+                        // Legacy behavior
+                        setGameState("revealed");
+                        setStreak(0);
+                        setStats((prev) => ({ ...prev, total: prev.total + 1 }));
+                        setTimeout(nextQuestion, NEXT_QUESTION_DELAY_MS);
+                    }
+                }, delay);
+            }
         }
 
         return () => {
             if (revealTimerRef.current) clearTimeout(revealTimerRef.current);
         };
-    }, [gameState, nextQuestion, isRunning, mode, currentQuestion]);
-
-    // Initial load
-    useEffect(() => {
-        // eslint-disable-next-line react-hooks/set-state-in-effect
-        if (isRunning && !currentQuestion) nextQuestion();
-    }, [isRunning, currentQuestion, nextQuestion]);
+    }, [gameState, nextQuestion, isRunning, mode, currentQuestion, isMultipleChoice, isTimerEnabled]);
 
     return {
         currentQuestion,
@@ -333,6 +467,7 @@ export function useGameLogic(isRunning: boolean, mode: GameMode = "multiplicatio
         isWrong,
         stats,
         selectedGroups,
-        toggleGroup
+        toggleGroup,
+        sessionMasteryUpdates // Export this so PracticeMode can save it
     };
 }
