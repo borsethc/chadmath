@@ -115,7 +115,7 @@ export function FactorTree({ initialNumber, onComplete }: FactorTreeProps) {
                                     onChange={(e) => setFactors({ ...factors, f1: e.target.value })}
                                     className={cn(
                                         "w-20 bg-white/5 border border-white/20 rounded-xl p-3 text-center text-white font-bold text-xl focus:outline-none transition-all",
-                                        error ? "border-red-500 text-red-500 animate-pulse" : "focus:border-indigo-500"
+                                        error ? "border-red-600 bg-red-600 text-white" : "focus:border-indigo-500"
                                     )}
                                     placeholder="?"
                                 />
@@ -126,7 +126,7 @@ export function FactorTree({ initialNumber, onComplete }: FactorTreeProps) {
                                     onChange={(e) => setFactors({ ...factors, f2: e.target.value })}
                                     className={cn(
                                         "w-20 bg-white/5 border border-white/20 rounded-xl p-3 text-center text-white font-bold text-xl focus:outline-none transition-all",
-                                        error ? "border-red-500 text-red-500 animate-pulse" : "focus:border-indigo-500"
+                                        error ? "border-red-600 bg-red-600 text-white" : "focus:border-indigo-500"
                                     )}
                                     placeholder="?"
                                     onKeyDown={(e) => e.key === "Enter" && handleSplit()}
@@ -158,7 +158,7 @@ export function FactorTree({ initialNumber, onComplete }: FactorTreeProps) {
                                     onChange={(e) => setSimplifyValue(e.target.value)}
                                     className={cn(
                                         "w-24 bg-white/5 border border-emerald-500/30 rounded-xl p-3 text-center text-emerald-300 font-bold text-xl focus:outline-none transition-all",
-                                        error ? "border-red-500 text-red-500 animate-pulse" : "focus:border-emerald-400"
+                                        error ? "border-red-600 bg-red-600 text-white" : "focus:border-emerald-400"
                                     )}
                                     placeholder="?"
                                     onKeyDown={(e) => e.key === "Enter" && handleSimplify()}
