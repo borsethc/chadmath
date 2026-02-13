@@ -258,7 +258,7 @@ export function PracticeMode({ isRunning, studentId, setIsRunning }: PracticeMod
     }, [isMultipleChoice, isRunning, sessionComplete, gameState, mode]);
 
     const handleOptionClick = (val: number | string) => {
-        if (gameState !== "waiting" || sessionComplete) return;
+        if (gameState !== "waiting" || sessionComplete || isWrong) return;
         setInput(val.toString());
     };
 

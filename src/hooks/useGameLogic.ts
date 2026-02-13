@@ -362,9 +362,9 @@ export function useGameLogic(
                 // But for MC, we want to show answer and move on, then retry.
 
                 if (isMultipleChoice) {
-                    // For MC, wrong answer means "Reveal + Retry Later"
-                    setGameState("revealed");
-                    setStreak(0);
+                    // For MC, wrong answer means "Show Red + Retry Later"
+                    // We DO NOT set "revealed" immediately, because that hides the buttons!
+                    // We keep it in "waiting" state but with isWrong=true.
 
                     // Add to Retry Queue!
                     // Insert at front (Next) or slightly delayed?
