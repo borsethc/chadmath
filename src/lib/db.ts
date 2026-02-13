@@ -47,22 +47,26 @@ const pool = process.env.DATABASE_URL
 
 // --- INITIALIZATION ---
 const initDb = async () => {
-    if (pool) {
-        // Create table if not exists (Postgres)
-        // We store the entire Student object as JSONB for simplicity to match current structure
-        await pool.query(`
-            CREATE TABLE IF NOT EXISTS students (
-                id TEXT PRIMARY KEY,
-                data JSONB NOT NULL
-            );
-        `);
-    } else {
-        // File System Fallback
-        try {
-            await fs.access(DB_PATH);
-        } catch {
-            await fs.writeFile(DB_PATH, JSON.stringify({ students: {} }, null, 2));
+    try {
+        if (pool) {
+            // Create table if not exists (Postgres)
+            await pool.query(`
+                CREATE TABLE IF NOT EXISTS students (
+                    id TEXT PRIMARY KEY,
+                    data JSONB NOT NULL
+                );
+            `);
+        } else {
+            // File System Fallback
+            try {
+                await fs.access(DB_PATH);
+            } catch {
+                await fs.writeFile(DB_PATH, JSON.stringify({ students: {} }, null, 2));
+            }
         }
+    } catch (error) {
+        console.error("Failed to initialize DB:", error);
+        // Do not throw, allow app to proceed potentially without DB (or fail gracefully later)
     }
 };
 

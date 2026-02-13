@@ -244,10 +244,31 @@ export function PracticeMode({ isRunning, studentId, setIsRunning }: PracticeMod
         setInput(val.toString());
     };
 
+    // Loading State with Escape Hatch
+    const [showSkipButton, setShowSkipButton] = useState(false);
+
+    useEffect(() => {
+        let timer: NodeJS.Timeout;
+        if (isCheckingLimit) {
+            timer = setTimeout(() => setShowSkipButton(true), 3000); // Show skip after 3s
+        }
+        return () => clearTimeout(timer);
+    }, [isCheckingLimit]);
+
     if (isCheckingLimit) {
         return (
-            <div className="flex h-screen items-center justify-center text-muted-foreground">
-                <Loader2 className="animate-spin mr-2" /> Checking usage...
+            <div className="flex flex-col h-screen items-center justify-center text-muted-foreground gap-4">
+                <div className="flex items-center">
+                    <Loader2 className="animate-spin mr-2" /> Checking usage...
+                </div>
+                {showSkipButton && (
+                    <button
+                        onClick={() => setIsCheckingLimit(false)}
+                        className="text-xs text-red-400 hover:text-red-300 underline underline-offset-4"
+                    >
+                        Skip checks (Force Start)
+                    </button>
+                )}
             </div>
         );
     }
