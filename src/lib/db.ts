@@ -39,7 +39,9 @@ export type Database = {
 const pool = process.env.DATABASE_URL
     ? new Pool({
         connectionString: process.env.DATABASE_URL,
-        ssl: { rejectUnauthorized: false } // Required for Railway
+        ssl: { rejectUnauthorized: false }, // Required for Railway
+        connectionTimeoutMillis: 5000, // 5s timeout for connection
+        idleTimeoutMillis: 30000, // Close idle clients after 30s
     })
     : null;
 
