@@ -217,8 +217,6 @@ export function PracticeMode({ isRunning, studentId, setIsRunning }: PracticeMod
     useEffect(() => {
         if (isWrong) {
             playIncorrect();
-            setShake(5); // Reduced shake intensity (was 10)
-            setTimeout(() => setShake(0), 400);
         }
     }, [isWrong, playIncorrect]);
 
@@ -402,29 +400,27 @@ export function PracticeMode({ isRunning, studentId, setIsRunning }: PracticeMod
                     </div>
 
                     {/* Input Mode Toggle */}
-                    {(
-                        <div className="flex gap-2 w-full max-w-xs">
-                            <div className="flex flex-col items-center gap-2 flex-1 cursor-pointer hover:opacity-80 transition-opacity p-3 rounded-xl bg-white/5 border border-white/5" onClick={() => setIsMultipleChoice(!isMultipleChoice)}>
-                                <span className="text-[10px] sm:text-xs font-medium uppercase tracking-widest text-muted-foreground whitespace-nowrap">
-                                    Input Method
-                                </span>
-                                <div className="flex items-center gap-2 text-white">
-                                    {isMultipleChoice ? <ToggleRight className="w-6 h-6 text-indigo-400" /> : <ToggleLeft className="w-6 h-6 text-gray-400" />}
-                                    <span className="text-xs font-bold">{isMultipleChoice ? "Choice" : "Type"}</span>
-                                </div>
-                            </div>
-
-                            <div className="flex flex-col items-center gap-2 flex-1 cursor-pointer hover:opacity-80 transition-opacity p-3 rounded-xl bg-white/5 border border-white/5" onClick={() => setIsTimerEnabled(!isTimerEnabled)}>
-                                <span className="text-[10px] sm:text-xs font-medium uppercase tracking-widest text-muted-foreground whitespace-nowrap">
-                                    Timer
-                                </span>
-                                <div className="flex items-center gap-2 text-white">
-                                    {isTimerEnabled ? <ToggleRight className="w-6 h-6 text-emerald-400" /> : <ToggleLeft className="w-6 h-6 text-gray-400" />}
-                                    <span className="text-xs font-bold">{isTimerEnabled ? "On" : "Off"}</span>
-                                </div>
+                    <div className="flex gap-2 w-full max-w-xs">
+                        <div className="flex flex-col items-center gap-2 flex-1 cursor-pointer hover:opacity-80 transition-opacity p-3 rounded-xl bg-white/5 border border-white/5" onClick={() => setIsMultipleChoice(!isMultipleChoice)}>
+                            <span className="text-[10px] sm:text-xs font-medium uppercase tracking-widest text-muted-foreground whitespace-nowrap">
+                                Input Method
+                            </span>
+                            <div className="flex items-center gap-2 text-white">
+                                {isMultipleChoice ? <ToggleRight className="w-6 h-6 text-indigo-400" /> : <ToggleLeft className="w-6 h-6 text-gray-400" />}
+                                <span className="text-xs font-bold">{isMultipleChoice ? "Choice" : "Type"}</span>
                             </div>
                         </div>
-                    )}
+
+                        <div className="flex flex-col items-center gap-2 flex-1 cursor-pointer hover:opacity-80 transition-opacity p-3 rounded-xl bg-white/5 border border-white/5" onClick={() => setIsTimerEnabled(!isTimerEnabled)}>
+                            <span className="text-[10px] sm:text-xs font-medium uppercase tracking-widest text-muted-foreground whitespace-nowrap">
+                                Timer
+                            </span>
+                            <div className="flex items-center gap-2 text-white">
+                                {isTimerEnabled ? <ToggleRight className="w-6 h-6 text-emerald-400" /> : <ToggleLeft className="w-6 h-6 text-gray-400" />}
+                                <span className="text-xs font-bold">{isTimerEnabled ? "On" : "Off"}</span>
+                            </div>
+                        </div>
+                    </div>
 
                     {/* Game Mode Toggle */}
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-1 w-full max-w-sm bg-black/40 p-1 rounded-xl">
@@ -660,6 +656,7 @@ export function PracticeMode({ isRunning, studentId, setIsRunning }: PracticeMod
                         ) : (
                             <div className="flex flex-col items-center gap-2 w-full">
                                 <motion.div
+                                    key={isWrong ? "shake" : "idle"}
                                     animate={isWrong ? { x: [0, -10, 10, -10, 10, 0] } : { x: 0 }}
                                     transition={{ duration: 0.4 }}
                                     className="w-full max-w-[200px]"
@@ -778,10 +775,6 @@ export function PracticeMode({ isRunning, studentId, setIsRunning }: PracticeMod
             {/* Confetti Effect */}
             <Confetti active={showConfetti} />
 
-            {/* DEBUG OVERLAY - REMOVE LATER */}
-            <div className="absolute top-0 right-0 p-2 text-[10px] text-white/50 bg-black/50 pointer-events-none">
-                Debug: Wrong={isWrong.toString()} Input="{userInput}" Mode={mode} MC={isMultipleChoice.toString()} State={gameState}
-            </div>
         </div >
     );
 }
