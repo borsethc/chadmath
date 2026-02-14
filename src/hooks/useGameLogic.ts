@@ -6,7 +6,7 @@ import { useState, useEffect, useCallback, useRef } from "react";
 
 export type GameState = "waiting" | "revealed" | "correct";
 export type FactorGroup = "2-4" | "5-7" | "8-9";
-export type GameMode = "multiplication" | "division" | "radicals" | "assessment" | "tables";
+export type GameMode = "multiplication" | "division" | "assessment" | "tables";
 
 interface SessionStats {
     correct: number;
@@ -33,7 +33,7 @@ export type Question = {
     factor2: number;
     answer: number | string;
     options: (number | string)[];
-    operator: "×" | "÷" | "√";
+    operator: "×" | "÷";
     isRetry?: boolean; // Flag to indicate if this is a retry from the queue
 };
 
@@ -98,24 +98,7 @@ export function useGameLogic(
         }
 
         // 3. Generation Logic
-        if (mode === "radicals") {
-            // ... (Existing Radicals Logic - kept simple for now)
-            const perfectSquares = [4, 9, 16, 25, 36, 49, 64, 81, 100];
-            const square = perfectSquares[Math.floor(Math.random() * perfectSquares.length)];
-            const remainders = [2, 3, 5, 6, 7];
-            const remainder = remainders[Math.floor(Math.random() * remainders.length)];
-            const number = square * remainder;
-            const root = Math.sqrt(square);
-            const answer = `${root}√${remainder}`;
-            return {
-                id: Math.random().toString(36).substring(2, 9),
-                factor1: null,
-                factor2: number,
-                answer: answer,
-                options: [answer],
-                operator: "√" as const
-            };
-        }
+
 
         // Generate Multiplication/Division with Adaptive Logic
         // Select Factors
@@ -276,7 +259,6 @@ export function useGameLogic(
 
     // Update Mastery Helper
     const updateMastery = (question: Question, correct: boolean) => {
-        if (question.operator === "√") return; // Skip radicals for now
 
         let f1, f2;
         if (question.operator === "÷") {
@@ -318,9 +300,8 @@ export function useGameLogic(
         let isCorrect = false;
 
         // Validation Logic
-        if (mode === "radicals") {
-            if (input === currentQuestion.answer) isCorrect = true;
-        } else {
+        // Validation Logic
+        {
             const val = parseInt(input);
             if (!isNaN(val) && val === currentQuestion.answer) isCorrect = true;
         }
@@ -426,9 +407,7 @@ export function useGameLogic(
             }
 
             // Typing Mode Logic
-            if (mode === "radicals") {
-                if (val === currentQuestion.answer) handleAnswer(val);
-            } else {
+            {
                 const answerStr = currentQuestion.answer.toString();
 
                 // Check for immediate correctness
@@ -461,7 +440,7 @@ export function useGameLogic(
         if (gameState === "waiting") {
             let delay = 5000;
             if (isMultipleChoice) delay = 3000; // 3 seconds for MC
-            if (mode === "radicals") delay = 30000; // Long timer for radicals
+
 
             if (isTimerEnabled) {
                 revealTimerRef.current = setTimeout(() => {

@@ -7,7 +7,7 @@ import { useSoundEffects } from "@/hooks/useSoundEffects";
 import { cn } from "@/lib/utils";
 import { Play, Loader2, ToggleLeft, ToggleRight, Delete } from "lucide-react";
 
-import { FactorTree } from "./FactorTree";
+
 import { Confetti } from "./Confetti";
 import { getFeedback } from "@/lib/assessment";
 
@@ -251,11 +251,11 @@ export function PracticeMode({ isRunning, studentId, setIsRunning }: PracticeMod
     // Keep focus
     useEffect(() => {
         if (!isRunning || sessionComplete) return;
-        if (mode !== "radicals" && !isMultipleChoice) {
+        if (!isMultipleChoice) {
             inputRef.current?.focus();
         }
         const handleBlur = () => {
-            if (mode !== "radicals" && !isMultipleChoice && !sessionComplete) inputRef.current?.focus();
+            if (!isMultipleChoice && !sessionComplete) inputRef.current?.focus();
         };
         // Use a slight delay or check activeElement to improve UX, but simple is fine for now
         // actually clicking buttons (like mode toggle) might steal focus. 
@@ -401,8 +401,8 @@ export function PracticeMode({ isRunning, studentId, setIsRunning }: PracticeMod
                         </div>
                     </div>
 
-                    {/* Input Mode Toggle - Hidden for Radicals only */}
-                    {mode !== "radicals" && (
+                    {/* Input Mode Toggle */}
+                    {(
                         <div className="flex gap-2 w-full max-w-xs">
                             <div className="flex flex-col items-center gap-2 flex-1 cursor-pointer hover:opacity-80 transition-opacity p-3 rounded-xl bg-white/5 border border-white/5" onClick={() => setIsMultipleChoice(!isMultipleChoice)}>
                                 <span className="text-[10px] sm:text-xs font-medium uppercase tracking-widest text-muted-foreground whitespace-nowrap">
@@ -609,8 +609,8 @@ export function PracticeMode({ isRunning, studentId, setIsRunning }: PracticeMod
                 )}
             </div>
 
-            {/* Question Display - Only show if NOT Radicals mode (Radicals handles its own display in FactorTree) OR if state is Correct */}
-            {mode !== "radicals" && (
+            {/* Question Display - Only show if state is Correct */}
+            {(
                 <div className="mb-2 flex flex-col items-center space-y-2">
                     {isRunning && currentQuestion ? (
                         <AnimatePresence mode="wait">
@@ -635,92 +635,88 @@ export function PracticeMode({ isRunning, studentId, setIsRunning }: PracticeMod
             <div className="relative w-full flex justify-center min-h-[128px]">
                 {isRunning && currentQuestion && (
                     gameState === "waiting" || gameState === "correct" ? (
-                        mode === "radicals" ? (
-                            <FactorTree key={currentQuestion.id} initialNumber={currentQuestion.factor2} onComplete={(res) => setInput(res)} />
-                        ) : (
-                            isMultipleChoice ? (
-                                <div className="grid grid-cols-2 gap-4 w-full max-w-sm">
-                                    {currentQuestion?.options.map((opt) => (
-                                        <motion.button
-                                            key={opt}
-                                            initial={{ opacity: 0, scale: 0.9 }}
-                                            animate={isWrong && userInput === opt.toString() ? { x: [0, -10, 10, -10, 10, 0], backgroundColor: "rgba(239, 68, 68, 0.2)", borderColor: "rgba(239, 68, 68, 0.5)" } : { opacity: 1, scale: 1, backgroundColor: "rgba(255,255,255,0.05)", borderColor: "rgba(255,255,255,0.1)" }}
-                                            whileHover={{ scale: 1.05, backgroundColor: "rgba(255,255,255,0.1)" }}
-                                            whileTap={{ scale: 0.95 }}
-                                            onClick={() => handleOptionClick(opt)}
-                                            onMouseEnter={() => playHover()}
-                                            className={cn(
-                                                "h-16 rounded-xl border text-xl sm:text-2xl font-bold text-white transition-colors hover:border-indigo-500/50",
-                                                /* Show red/wrong styling in all modes */
-                                                isWrong && userInput === opt.toString() ? "!border-red-600 !bg-red-600 !text-white" : "border-white/10 bg-white/5"
-                                            )}
-                                        >
-                                            {opt}
-                                        </motion.button>
-                                    ))}
-                                </div>
-                            ) : (
-                                <div className="flex flex-col items-center gap-2 w-full">
-                                    <input
-                                        ref={inputRef}
-                                        type="text"
-                                        value={userInput}
-                                        readOnly
+                        isMultipleChoice ? (
+                            <div className="grid grid-cols-2 gap-4 w-full max-w-sm">
+                                {currentQuestion?.options.map((opt) => (
+                                    <motion.button
+                                        key={opt}
+                                        initial={{ opacity: 0, scale: 0.9 }}
+                                        animate={isWrong && userInput === opt.toString() ? { x: [0, -10, 10, -10, 10, 0], backgroundColor: "rgba(239, 68, 68, 0.2)", borderColor: "rgba(239, 68, 68, 0.5)" } : { opacity: 1, scale: 1, backgroundColor: "rgba(255,255,255,0.05)", borderColor: "rgba(255,255,255,0.1)" }}
+                                        whileHover={{ scale: 1.05, backgroundColor: "rgba(255,255,255,0.1)" }}
+                                        whileTap={{ scale: 0.95 }}
+                                        onClick={() => handleOptionClick(opt)}
+                                        onMouseEnter={() => playHover()}
                                         className={cn(
-                                            "w-full max-w-[200px] border-b-4 bg-transparent text-center text-6xl font-bold outline-none placeholder:text-white/10 focus:border-indigo-500 transition-all caret-transparent cursor-default",
+                                            "h-16 rounded-xl border text-xl sm:text-2xl font-bold text-white transition-colors hover:border-indigo-500/50",
                                             /* Show red/wrong styling in all modes */
-                                            isWrong ? "!border-red-600 !bg-red-600 !text-white" :
-                                                gameState === "correct" ? "!border-emerald-500 !text-emerald-400 scale-110 duration-300" : "border-white/20 text-white"
+                                            isWrong && userInput === opt.toString() ? "!border-red-600 !bg-red-600 !text-white" : "border-white/10 bg-white/5"
                                         )}
-                                        placeholder="?"
-                                    />
+                                    >
+                                        {opt}
+                                    </motion.button>
+                                ))}
+                            </div>
+                        ) : (
+                            <div className="flex flex-col items-center gap-2 w-full">
+                                <input
+                                    ref={inputRef}
+                                    type="text"
+                                    value={userInput}
+                                    readOnly
+                                    className={cn(
+                                        "w-full max-w-[200px] border-b-4 bg-transparent text-center text-6xl font-bold outline-none placeholder:text-white/10 focus:border-indigo-500 transition-all caret-transparent cursor-default",
+                                        /* Show red/wrong styling in all modes */
+                                        isWrong ? "!border-red-600 !bg-red-600 !text-white" :
+                                            gameState === "correct" ? "!border-emerald-500 !text-emerald-400 scale-110 duration-300" : "border-white/20 text-white"
+                                    )}
+                                    placeholder="?"
+                                />
 
-                                    <div className="grid grid-cols-3 gap-2 w-full max-w-[280px]">
-                                        {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((num) => (
-                                            <motion.button
-                                                key={num}
-                                                whileHover={{ scale: 1.05, backgroundColor: "rgba(255,255,255,0.15)" }}
-                                                whileTap={{ scale: 0.95 }}
-                                                onClick={() => setInput(userInput + num)}
-                                                className="h-14 rounded-full bg-white/10 border border-white/5 text-xl font-bold text-white flex items-center justify-center transition-colors"
-                                            >
-                                                {num}
-                                            </motion.button>
-                                        ))}
-
-                                        {/* Bottom row: Juice/Flair, 0, Backspace */}
-                                        <div className="flex items-center justify-center overflow-visible z-20">
-                                            {streak > 1 && !isMultipleChoice && (
-                                                <motion.div
-                                                    animate={{ scale: comboScale }}
-                                                    className={cn(
-                                                        "font-black italic transition-colors text-center whitespace-nowrap",
-                                                        streak > 5 ? "text-yellow-400 text-xs drop-shadow-[0_0_2px_rgba(250,204,21,0.5)]" : "text-emerald-400 text-[10px]"
-                                                    )}
-                                                >
-                                                    {streak > 5 ? "ON FIRE!" : `${streak}x`}
-                                                </motion.div>
-                                            )}
-                                        </div>
+                                <div className="grid grid-cols-3 gap-2 w-full max-w-[280px]">
+                                    {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((num) => (
                                         <motion.button
+                                            key={num}
                                             whileHover={{ scale: 1.05, backgroundColor: "rgba(255,255,255,0.15)" }}
                                             whileTap={{ scale: 0.95 }}
-                                            onClick={() => setInput(userInput + "0")}
+                                            onClick={() => setInput(userInput + num)}
                                             className="h-14 rounded-full bg-white/10 border border-white/5 text-xl font-bold text-white flex items-center justify-center transition-colors"
                                         >
-                                            0
+                                            {num}
                                         </motion.button>
-                                        <motion.button
-                                            whileHover={{ scale: 1.05, backgroundColor: "rgba(255,50,50,0.2)" }}
-                                            whileTap={{ scale: 0.95 }}
-                                            onClick={() => setInput(userInput.slice(0, -1))}
-                                            className="h-14 rounded-full bg-white/5 border border-white/5 text-white flex items-center justify-center transition-colors hover:bg-red-500/20 group"
-                                        >
-                                            <Delete className="w-5 h-5 text-muted-foreground group-hover:text-red-400" />
-                                        </motion.button>
+                                    ))}
+
+                                    {/* Bottom row: Juice/Flair, 0, Backspace */}
+                                    <div className="flex items-center justify-center overflow-visible z-20">
+                                        {streak > 1 && !isMultipleChoice && (
+                                            <motion.div
+                                                animate={{ scale: comboScale }}
+                                                className={cn(
+                                                    "font-black italic transition-colors text-center whitespace-nowrap",
+                                                    streak > 5 ? "text-yellow-400 text-xs drop-shadow-[0_0_2px_rgba(250,204,21,0.5)]" : "text-emerald-400 text-[10px]"
+                                                )}
+                                            >
+                                                {streak > 5 ? "ON FIRE!" : `${streak}x`}
+                                            </motion.div>
+                                        )}
                                     </div>
+                                    <motion.button
+                                        whileHover={{ scale: 1.05, backgroundColor: "rgba(255,255,255,0.15)" }}
+                                        whileTap={{ scale: 0.95 }}
+                                        onClick={() => setInput(userInput + "0")}
+                                        className="h-14 rounded-full bg-white/10 border border-white/5 text-xl font-bold text-white flex items-center justify-center transition-colors"
+                                    >
+                                        0
+                                    </motion.button>
+                                    <motion.button
+                                        whileHover={{ scale: 1.05, backgroundColor: "rgba(255,50,50,0.2)" }}
+                                        whileTap={{ scale: 0.95 }}
+                                        onClick={() => setInput(userInput.slice(0, -1))}
+                                        className="h-14 rounded-full bg-white/5 border border-white/5 text-white flex items-center justify-center transition-colors hover:bg-red-500/20 group"
+                                    >
+                                        <Delete className="w-5 h-5 text-muted-foreground group-hover:text-red-400" />
+                                    </motion.button>
                                 </div>
-                            )
+                            </div>
                         )
                     ) : (
                         <motion.div
