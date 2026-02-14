@@ -398,7 +398,7 @@ export function useGameLogic(
                 }
 
                 // If not correct, check if we should submit anyway (e.g. length limit reached)
-                if (val.length >= answerStr.length) {
+                if (val.length === answerStr.length && answerStr.length > 0) {
                     // It's wrong, but we have enough digits. Submit to trigger "Wrong" feedback.
                     setTimeout(() => handleAnswer(val), 0);
                 }
@@ -423,7 +423,11 @@ export function useGameLogic(
 
 
             if (isTimerEnabled) {
+                const timerQId = currentQuestion?.id;
                 revealTimerRef.current = setTimeout(() => {
+                    // Guard against stale timer firing for a different question
+                    if (currentQuestion?.id !== timerQId) return;
+
                     // Timeout Logic
                     if (isMultipleChoice) {
                         // Treat validation timeout as WRONG + RETRY

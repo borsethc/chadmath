@@ -610,21 +610,13 @@ export function PracticeMode({ isRunning, studentId, setIsRunning }: PracticeMod
                 <div className="mb-2 flex flex-col items-center space-y-2">
                     {isRunning && currentQuestion ? (
                         <div className="flex items-center text-7xl sm:text-9xl font-light tracking-tighter text-white">
-                            <motion.span
-                                key={`${currentQuestion.id}-f1`}
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                            >
+                            <span>
                                 {currentQuestion.factor1}
-                            </motion.span>
+                            </span>
                             <span className="mx-4 sm:mx-6 text-muted-foreground">{currentQuestion.operator}</span>
-                            <motion.span
-                                key={`${currentQuestion.id}-f2`}
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                            >
+                            <span>
                                 {currentQuestion.factor2}
-                            </motion.span>
+                            </span>
                         </div>
                     ) : null}
                 </div>
