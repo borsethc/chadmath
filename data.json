@@ -1121,7 +1121,33 @@
     },
     "TEST014": {
       "id": "TEST014",
-      "lastSeen": "2026-02-14T02:06:31.767Z",
+      "lastSeen": "2026-02-14T02:07:42.454Z",
+      "loginCount": 3,
+      "sessions": [
+        {
+          "score": 0,
+          "total": 8,
+          "gameType": "multiplication",
+          "wrong": 0,
+          "isMultipleChoice": false,
+          "selectedFactors": [
+            "2-4",
+            "5-7",
+            "8-9"
+          ],
+          "id": "um3qtsa",
+          "timestamp": "2026-02-14T02:07:42.454Z"
+        }
+      ],
+      "xp": 50,
+      "level": 1,
+      "dailyStreak": 0,
+      "lastStreakUpdate": "",
+      "factMastery": {}
+    },
+    "TEST015": {
+      "id": "TEST015",
+      "lastSeen": "2026-02-14T02:15:36.551Z",
       "loginCount": 3,
       "sessions": [],
       "xp": 0,

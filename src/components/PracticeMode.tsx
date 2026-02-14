@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { GameInstructions } from "./GameInstructions";
 import { useGameLogic, GameMode } from "@/hooks/useGameLogic";
 import { useSoundEffects } from "@/hooks/useSoundEffects";
 import { cn } from "@/lib/utils";
@@ -518,6 +519,8 @@ export function PracticeMode({ isRunning, studentId, setIsRunning }: PracticeMod
                         <Play className="w-10 h-10 ml-1 fill-current" />
                         <span className="absolute -bottom-6 text-xs font-bold uppercase tracking-widest text-indigo-300 opacity-0 group-hover:opacity-100 transition-opacity">Start</span>
                     </button>
+
+                    <GameInstructions />
 
                 </div>
             );
