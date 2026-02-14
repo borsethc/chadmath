@@ -24,7 +24,7 @@ export function GameInstructions() {
                         exit={{ opacity: 0, height: 0 }}
                         className="overflow-hidden"
                     >
-                        <div className="bg-black/40 backdrop-blur-md rounded-2xl border border-white/10 p-6 space-y-6 text-left">
+                        <div className="bg-black/40 backdrop-blur-md rounded-2xl border border-white/10 p-6 space-y-6 text-left max-h-[50vh] overflow-y-auto custom-scrollbar">
 
                             {/* Input Methods & Timer */}
                             <div className="space-y-4">
@@ -110,6 +110,6 @@ export function GameInstructions() {
                     </motion.div>
                 )}
             </AnimatePresence>
-        </div>
+        </div >
     );
 }

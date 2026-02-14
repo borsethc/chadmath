@@ -456,34 +456,9 @@ export function PracticeMode({ isRunning, studentId, setIsRunning }: PracticeMod
                         </button>
                     </div>
 
-                    {/* Factor Group Selection - Hide for Assessment AND Tables */}
-                    {mode !== "assessment" && mode !== "tables" && (
-                        <div className="flex flex-col items-center gap-3 w-full max-w-xs">
-                            <span className="text-[10px] sm:text-xs font-medium uppercase tracking-widest text-muted-foreground">
-                                Factor Focus
-                            </span>
-                            <div className="flex flex-wrap justify-center gap-2 w-full">
-                                {(["2-4", "5-7", "8-9"] as const).map(group => (
-                                    <button
-                                        key={group}
-                                        onClick={() => toggleGroup(group)}
-                                        className={cn(
-                                            "px-4 py-2 rounded-lg text-sm font-bold transition-all border flex-1 min-w-[30%]",
-                                            selectedGroups.includes(group)
-                                                ? "bg-indigo-500/20 border-indigo-500 text-indigo-300"
-                                                : "bg-white/5 border-white/10 text-muted-foreground hover:bg-white/10"
-                                        )}
-                                    >
-                                        {group}
-                                    </button>
-                                ))}
-                            </div>
-                        </div>
-                    )}
-
                     {/* Operator Toggle (Only for Practice Mode) */}
                     {(mode === "multiplication" || mode === "division") && (
-                        <div className="flex flex-col items-center gap-2 w-full max-w-xs mt-2">
+                        <div className="flex flex-col items-center gap-2 w-full max-w-xs mb-4">
                             <span className="text-[10px] sm:text-xs font-medium uppercase tracking-widest text-muted-foreground">
                                 Operation
                             </span>
@@ -506,6 +481,31 @@ export function PracticeMode({ isRunning, studentId, setIsRunning }: PracticeMod
                                 >
                                     ÷ Divide
                                 </button>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Factor Group Selection - Hide for Assessment AND Tables */}
+                    {mode !== "assessment" && mode !== "tables" && (
+                        <div className="flex flex-col items-center gap-3 w-full max-w-xs">
+                            <span className="text-[10px] sm:text-xs font-medium uppercase tracking-widest text-muted-foreground">
+                                Factor Focus
+                            </span>
+                            <div className="flex flex-wrap justify-center gap-2 w-full">
+                                {(["2-4", "5-7", "8-9"] as const).map(group => (
+                                    <button
+                                        key={group}
+                                        onClick={() => toggleGroup(group)}
+                                        className={cn(
+                                            "px-4 py-2 rounded-lg text-sm font-bold transition-all border flex-1 min-w-[30%]",
+                                            selectedGroups.includes(group)
+                                                ? "bg-indigo-500/20 border-indigo-500 text-indigo-300"
+                                                : "bg-white/5 border-white/10 text-muted-foreground hover:bg-white/10"
+                                        )}
+                                    >
+                                        {group}
+                                    </button>
+                                ))}
                             </div>
                         </div>
                     )}
@@ -607,16 +607,15 @@ export function PracticeMode({ isRunning, studentId, setIsRunning }: PracticeMod
                 </div>
             )}
 
-            {/* Streak Counter - TOP RIGHT for counter only */}
             <div className="absolute top-4 right-4 sm:top-8 sm:right-8 flex flex-col items-end z-20">
                 <span className="text-[10px] sm:text-xs font-medium uppercase tracking-widest text-muted-foreground">
-                    Streak
+                    Score
                 </span>
                 <span className={cn(
                     "text-xl sm:text-2xl font-bold transition-colors",
                     streak > 5 ? "text-emerald-400 drop-shadow-[0_0_10px_rgba(52,211,153,0.5)]" : "text-white"
                 )}>
-                    {streak}
+                    {stats.correct}
                 </span>
             </div>
 
