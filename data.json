@@ -1066,6 +1066,17 @@
       "dailyStreak": 0,
       "lastStreakUpdate": "",
       "factMastery": {}
+    },
+    "TEST012": {
+      "id": "TEST012",
+      "lastSeen": "2026-02-14T02:01:05.090Z",
+      "loginCount": 18,
+      "sessions": [],
+      "xp": 0,
+      "level": 1,
+      "dailyStreak": 0,
+      "lastStreakUpdate": "",
+      "factMastery": {}
     }
   }
 }

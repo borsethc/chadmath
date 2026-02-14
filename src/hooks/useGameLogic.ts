@@ -281,6 +281,9 @@ export function useGameLogic(
         }
 
         if (isCorrect) {
+            // Stop the Smart Timer immediately
+            if (revealTimerRef.current) clearTimeout(revealTimerRef.current);
+
             setGameState("correct");
             setStreak((s) => s + 1);
             updateMastery(currentQuestion, true);
