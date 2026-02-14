@@ -724,8 +724,8 @@
     },
     "TEST004": {
       "id": "TEST004",
-      "lastSeen": "2026-02-14T00:44:37.239Z",
-      "loginCount": 3,
+      "lastSeen": "2026-02-14T02:06:10.005Z",
+      "loginCount": 4,
       "sessions": [
         {
           "score": 0,
@@ -961,8 +961,8 @@
     },
     "TEST010": {
       "id": "TEST010",
-      "lastSeen": "2026-02-14T01:30:22.872Z",
-      "loginCount": 3,
+      "lastSeen": "2026-02-14T02:06:09.990Z",
+      "loginCount": 4,
       "sessions": [
         {
           "score": 0,
@@ -1001,8 +1001,8 @@
     },
     "TEST011": {
       "id": "TEST011",
-      "lastSeen": "2026-02-14T01:41:14.237Z",
-      "loginCount": 3,
+      "lastSeen": "2026-02-14T02:06:10.017Z",
+      "loginCount": 4,
       "sessions": [
         {
           "score": 0,
@@ -1069,8 +1069,60 @@
     },
     "TEST012": {
       "id": "TEST012",
-      "lastSeen": "2026-02-14T02:01:05.090Z",
+      "lastSeen": "2026-02-14T02:02:19.488Z",
       "loginCount": 18,
+      "sessions": [
+        {
+          "score": 0,
+          "total": 6,
+          "gameType": "multiplication",
+          "wrong": 0,
+          "isMultipleChoice": false,
+          "selectedFactors": [
+            "2-4",
+            "5-7",
+            "8-9"
+          ],
+          "id": "dz1sj9r",
+          "timestamp": "2026-02-14T02:02:19.488Z"
+        }
+      ],
+      "xp": 50,
+      "level": 1,
+      "dailyStreak": 0,
+      "lastStreakUpdate": "",
+      "factMastery": {}
+    },
+    "TEST013": {
+      "id": "TEST013",
+      "lastSeen": "2026-02-14T02:06:01.566Z",
+      "loginCount": 3,
+      "sessions": [
+        {
+          "score": 0,
+          "total": 8,
+          "gameType": "multiplication",
+          "wrong": 0,
+          "isMultipleChoice": false,
+          "selectedFactors": [
+            "2-4",
+            "5-7",
+            "8-9"
+          ],
+          "id": "z6u5mv8",
+          "timestamp": "2026-02-14T02:06:01.566Z"
+        }
+      ],
+      "xp": 50,
+      "level": 1,
+      "dailyStreak": 0,
+      "lastStreakUpdate": "",
+      "factMastery": {}
+    },
+    "TEST014": {
+      "id": "TEST014",
+      "lastSeen": "2026-02-14T02:06:31.767Z",
+      "loginCount": 3,
       "sessions": [],
       "xp": 0,
       "level": 1,

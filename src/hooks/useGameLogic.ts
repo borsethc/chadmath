@@ -461,8 +461,12 @@ export function useGameLogic(
     }, [gameState, nextQuestion, isRunning, mode, currentQuestion, isMultipleChoice, isTimerEnabled]);
 
     // Reset stats and Start Game Loop when isRunning becomes true
+    const hasStartedRef = useRef(false);
+
     useEffect(() => {
-        if (isRunning) {
+        if (isRunning && !hasStartedRef.current) {
+            hasStartedRef.current = true;
+
             setStats({ correct: 0, wrongAttempts: 0, total: 0, startTime: Date.now(), history: [] });
             setStreak(0);
             setIsWrong(false);
@@ -473,6 +477,8 @@ export function useGameLogic(
 
             // Generate first question
             nextQuestion();
+        } else if (!isRunning) {
+            hasStartedRef.current = false;
         }
     }, [isRunning, nextQuestion]);
 
