@@ -392,8 +392,8 @@ export function useGameLogic(
 
                 // Check for immediate correctness
                 if (val === answerStr) {
-                    // Small delay to allow UI to update with full number before locking state
-                    setTimeout(() => handleAnswer(val), 0);
+                    // Slight delay to ensure the UI updates with the full number before processing
+                    setTimeout(() => handleAnswer(val), 100);
                     return;
                 }
 

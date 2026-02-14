@@ -747,6 +747,72 @@
       "dailyStreak": 0,
       "lastStreakUpdate": "",
       "factMastery": {}
+    },
+    "TEST005": {
+      "id": "TEST005",
+      "lastSeen": "2026-02-14T01:03:58.518Z",
+      "loginCount": 6,
+      "sessions": [
+        {
+          "score": 0,
+          "total": 6,
+          "gameType": "multiplication",
+          "wrong": 0,
+          "isMultipleChoice": false,
+          "selectedFactors": [
+            "2-4",
+            "5-7",
+            "8-9"
+          ],
+          "id": "cqqkcak",
+          "timestamp": "2026-02-14T01:02:49.757Z"
+        },
+        {
+          "score": 0,
+          "total": 7,
+          "gameType": "multiplication",
+          "wrong": 0,
+          "isMultipleChoice": false,
+          "selectedFactors": [
+            "2-4",
+            "5-7",
+            "8-9"
+          ],
+          "id": "x63nl68",
+          "timestamp": "2026-02-14T01:03:58.518Z"
+        }
+      ],
+      "xp": 100,
+      "level": 1,
+      "dailyStreak": 0,
+      "lastStreakUpdate": "",
+      "factMastery": {}
+    },
+    "TEST005\\n": {
+      "id": "TEST005\\n",
+      "lastSeen": "2026-02-14T01:00:53.981Z",
+      "loginCount": 3,
+      "sessions": [
+        {
+          "score": 0,
+          "total": 8,
+          "gameType": "multiplication",
+          "wrong": 0,
+          "isMultipleChoice": false,
+          "selectedFactors": [
+            "2-4",
+            "5-7",
+            "8-9"
+          ],
+          "id": "4et27kk",
+          "timestamp": "2026-02-14T01:00:53.981Z"
+        }
+      ],
+      "xp": 50,
+      "level": 1,
+      "dailyStreak": 0,
+      "lastStreakUpdate": "",
+      "factMastery": {}
     }
   }
 }

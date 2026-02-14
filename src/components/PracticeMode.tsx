@@ -660,8 +660,8 @@ export function PracticeMode({ isRunning, studentId, setIsRunning }: PracticeMod
                         ) : (
                             <div className="flex flex-col items-center gap-2 w-full">
                                 <motion.div
-                                    key={isWrong ? "shake" : "idle"}
-                                    animate={isWrong ? { x: [0, -10, 10, -10, 10, 0] } : { x: 0 }}
+                                    key="input-container"
+                                    animate={{}}
                                     transition={{ duration: 0.4 }}
                                     className="w-full max-w-[200px]"
                                 >
@@ -673,7 +673,11 @@ export function PracticeMode({ isRunning, studentId, setIsRunning }: PracticeMod
                                         className={cn(
                                             "w-full border-b-4 bg-transparent text-center text-6xl font-bold outline-none placeholder:text-white/20 focus:border-indigo-500 transition-all caret-transparent cursor-default",
                                             /* Standard styling */
-                                            gameState === "correct" ? "!border-emerald-500 !text-emerald-400 scale-110 duration-300" : "border-white/20 text-white"
+                                            gameState === "correct"
+                                                ? "!border-emerald-500 !text-emerald-400 scale-110 duration-300"
+                                                : isWrong
+                                                    ? "border-red-500 text-red-500 bg-red-500/10 shadow-[0_0_20px_rgba(239,68,68,0.3)]"
+                                                    : "border-white/20 text-white"
                                         )}
                                         placeholder="?"
                                     />
