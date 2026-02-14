@@ -26,6 +26,36 @@ export function GameInstructions() {
                     >
                         <div className="bg-black/40 backdrop-blur-md rounded-2xl border border-white/10 p-6 space-y-6 text-left">
 
+                            {/* Input Methods & Timer */}
+                            <div className="space-y-4">
+                                <h3 className="flex items-center gap-2 text-indigo-400 font-bold text-lg">
+                                    <MousePointerClick size={20} />
+                                    How to Setup Your Session
+                                </h3>
+
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <div className="space-y-1">
+                                        <span className="text-white font-bold text-sm">⌨️ Input Method</span>
+                                        <p className="text-white/70 text-xs leading-relaxed">
+                                            <strong>Multiple Choice:</strong> Best for recognizing patterns and building early confidence.
+                                            <br />
+                                            <strong>Typing:</strong> Best for mastery! Forces you to recall the answer from memory.
+                                        </p>
+                                    </div>
+
+                                    <div className="space-y-1">
+                                        <span className="text-emerald-400 font-bold text-sm">⏱️ Timer Mode</span>
+                                        <p className="text-white/70 text-xs leading-relaxed">
+                                            <strong>Off:</strong> Stress-free practice. Focus on accuracy.
+                                            <br />
+                                            <strong>On:</strong> Builds speed and fluency for tests.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="w-full h-px bg-white/10" />
+
                             {/* Beginners Section */}
                             <div className="space-y-2">
                                 <h3 className="flex items-center gap-2 text-indigo-400 font-bold text-lg">
@@ -56,6 +86,8 @@ export function GameInstructions() {
                                 <div className="bg-white/5 rounded-lg p-3 text-xs text-white/60">
                                     <span className="text-emerald-300 font-bold">How to select:</span> Tap one or more group buttons (e.g., "2-4") to mix them together.
                                     Click the <span className="inline-block border border-white/20 rounded px-1 mx-1">×</span> to remove a selection.
+                                    <br /><br />
+                                    <span className="text-emerald-300 font-bold">Operation:</span> Choose between <strong>Multiply</strong> or <strong>Divide</strong> using the toggle below the groups.
                                 </div>
                             </div>
 

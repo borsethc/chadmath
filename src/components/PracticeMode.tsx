@@ -423,20 +423,37 @@ export function PracticeMode({ isRunning, studentId, setIsRunning }: PracticeMod
                         </div>
                     </div>
 
-                    {/* Game Mode Toggle */}
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-1 w-full max-w-sm bg-black/40 p-1 rounded-xl">
-                        {(["multiplication", "division", "tables", "assessment"] as const).map((m) => (
-                            <button
-                                key={m}
-                                onClick={() => setMode(m)}
-                                className={cn(
-                                    "flex items-center justify-center py-2 px-2 rounded-lg text-xs font-bold capitalize transition-all",
-                                    mode === m ? "bg-indigo-600 text-white shadow-lg" : "text-gray-400 hover:text-white"
-                                )}
-                            >
-                                {m}
-                            </button>
-                        ))}
+                    {/* Top Level Mode Toggle */}
+                    <div className="grid grid-cols-3 gap-1 w-full max-w-sm bg-black/40 p-1 rounded-xl mb-4">
+                        <button
+                            onClick={() => setMode("tables")}
+                            className={cn(
+                                "flex items-center justify-center py-2 px-2 rounded-lg text-xs font-bold transition-all",
+                                mode === "tables" ? "bg-indigo-600 text-white shadow-lg" : "text-gray-400 hover:text-white"
+                            )}
+                        >
+                            Tables
+                        </button>
+                        <button
+                            onClick={() => {
+                                if (mode !== "multiplication" && mode !== "division") setMode("multiplication");
+                            }}
+                            className={cn(
+                                "flex items-center justify-center py-2 px-2 rounded-lg text-xs font-bold transition-all",
+                                (mode === "multiplication" || mode === "division") ? "bg-indigo-600 text-white shadow-lg" : "text-gray-400 hover:text-white"
+                            )}
+                        >
+                            Practice
+                        </button>
+                        <button
+                            onClick={() => setMode("assessment")}
+                            className={cn(
+                                "flex items-center justify-center py-2 px-2 rounded-lg text-xs font-bold transition-all",
+                                mode === "assessment" ? "bg-indigo-600 text-white shadow-lg" : "text-gray-400 hover:text-white"
+                            )}
+                        >
+                            Assessment
+                        </button>
                     </div>
 
                     {/* Factor Group Selection - Hide for Assessment AND Tables */}
@@ -460,6 +477,35 @@ export function PracticeMode({ isRunning, studentId, setIsRunning }: PracticeMod
                                         {group}
                                     </button>
                                 ))}
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Operator Toggle (Only for Practice Mode) */}
+                    {(mode === "multiplication" || mode === "division") && (
+                        <div className="flex flex-col items-center gap-2 w-full max-w-xs mt-2">
+                            <span className="text-[10px] sm:text-xs font-medium uppercase tracking-widest text-muted-foreground">
+                                Operation
+                            </span>
+                            <div className="flex gap-2 w-full bg-black/20 p-1 rounded-xl">
+                                <button
+                                    onClick={() => setMode("multiplication")}
+                                    className={cn(
+                                        "flex-1 py-1.5 rounded-lg text-xs font-bold transition-all",
+                                        mode === "multiplication" ? "bg-white/10 text-white border border-white/20" : "text-gray-500 hover:text-gray-300"
+                                    )}
+                                >
+                                    × Multiply
+                                </button>
+                                <button
+                                    onClick={() => setMode("division")}
+                                    className={cn(
+                                        "flex-1 py-1.5 rounded-lg text-xs font-bold transition-all",
+                                        mode === "division" ? "bg-white/10 text-white border border-white/20" : "text-gray-500 hover:text-gray-300"
+                                    )}
+                                >
+                                    ÷ Divide
+                                </button>
                             </div>
                         </div>
                     )}
