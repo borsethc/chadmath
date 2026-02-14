@@ -664,9 +664,9 @@ export function PracticeMode({ isRunning, studentId, setIsRunning }: PracticeMod
                                     value={userInput}
                                     readOnly
                                     className={cn(
-                                        "w-full max-w-[200px] border-b-4 bg-transparent text-center text-6xl font-bold outline-none placeholder:text-white/10 focus:border-indigo-500 transition-all caret-transparent cursor-default",
+                                        "w-full max-w-[200px] border-b-4 bg-transparent text-center text-6xl font-bold outline-none placeholder:text-white/20 focus:border-indigo-500 transition-all caret-transparent cursor-default",
                                         /* Show red/wrong styling in all modes */
-                                        isWrong ? "!border-red-600 !bg-red-600 !text-white" :
+                                        isWrong ? "!border-red-600 !text-red-500" :
                                             gameState === "correct" ? "!border-emerald-500 !text-emerald-400 scale-110 duration-300" : "border-white/20 text-white"
                                     )}
                                     placeholder="?"
