@@ -641,7 +641,8 @@ export function PracticeMode({ isRunning, studentId, setIsRunning }: PracticeMod
                                     <motion.button
                                         key={opt}
                                         initial={{ opacity: 0, scale: 0.9 }}
-                                        animate={isWrong && userInput === opt.toString() ? { x: [0, -10, 10, -10, 10, 0], backgroundColor: "rgba(239, 68, 68, 0.2)", borderColor: "rgba(239, 68, 68, 0.5)" } : { opacity: 1, scale: 1, backgroundColor: "rgba(255,255,255,0.05)", borderColor: "rgba(255,255,255,0.1)" }}
+                                        animate={isWrong && userInput === opt.toString() ? { x: [0, -10, 10, -10, 10, 0] } : { opacity: 1, scale: 1, x: 0 }}
+                                        transition={{ duration: 0.4 }}
                                         whileHover={{ scale: 1.05, backgroundColor: "rgba(255,255,255,0.1)" }}
                                         whileTap={{ scale: 0.95 }}
                                         onClick={() => handleOptionClick(opt)}
@@ -658,18 +659,24 @@ export function PracticeMode({ isRunning, studentId, setIsRunning }: PracticeMod
                             </div>
                         ) : (
                             <div className="flex flex-col items-center gap-2 w-full">
-                                <input
-                                    ref={inputRef}
-                                    type="text"
-                                    value={userInput}
-                                    readOnly
-                                    className={cn(
-                                        "w-full max-w-[200px] border-b-4 bg-transparent text-center text-6xl font-bold outline-none placeholder:text-white/20 focus:border-indigo-500 transition-all caret-transparent cursor-default",
-                                        /* Standard styling */
-                                        gameState === "correct" ? "!border-emerald-500 !text-emerald-400 scale-110 duration-300" : "border-white/20 text-white"
-                                    )}
-                                    placeholder="?"
-                                />
+                                <motion.div
+                                    animate={isWrong ? { x: [0, -10, 10, -10, 10, 0] } : { x: 0 }}
+                                    transition={{ duration: 0.4 }}
+                                    className="w-full max-w-[200px]"
+                                >
+                                    <input
+                                        ref={inputRef}
+                                        type="text"
+                                        value={userInput}
+                                        readOnly
+                                        className={cn(
+                                            "w-full border-b-4 bg-transparent text-center text-6xl font-bold outline-none placeholder:text-white/20 focus:border-indigo-500 transition-all caret-transparent cursor-default",
+                                            /* Standard styling */
+                                            gameState === "correct" ? "!border-emerald-500 !text-emerald-400 scale-110 duration-300" : "border-white/20 text-white"
+                                        )}
+                                        placeholder="?"
+                                    />
+                                </motion.div>
 
                                 <div className="grid grid-cols-3 gap-2 w-full max-w-[280px]">
                                     {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((num) => (
