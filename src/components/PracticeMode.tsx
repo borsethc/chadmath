@@ -648,8 +648,8 @@ export function PracticeMode({ isRunning, studentId, setIsRunning }: PracticeMod
                                         onMouseEnter={() => playHover()}
                                         className={cn(
                                             "h-16 rounded-xl border text-xl sm:text-2xl font-bold text-white transition-colors hover:border-indigo-500/50",
-                                            /* Show red/wrong styling in all modes */
-                                            isWrong && userInput === opt.toString() ? "!border-red-600 !bg-red-600 !text-white" : "border-white/10 bg-white/5"
+                                            /* Standard styling */
+                                            "border-white/10 bg-white/5"
                                         )}
                                     >
                                         {opt}
@@ -665,9 +665,8 @@ export function PracticeMode({ isRunning, studentId, setIsRunning }: PracticeMod
                                     readOnly
                                     className={cn(
                                         "w-full max-w-[200px] border-b-4 bg-transparent text-center text-6xl font-bold outline-none placeholder:text-white/20 focus:border-indigo-500 transition-all caret-transparent cursor-default",
-                                        /* Show red/wrong styling in all modes */
-                                        isWrong ? "!border-red-600 !text-red-500" :
-                                            gameState === "correct" ? "!border-emerald-500 !text-emerald-400 scale-110 duration-300" : "border-white/20 text-white"
+                                        /* Standard styling */
+                                        gameState === "correct" ? "!border-emerald-500 !text-emerald-400 scale-110 duration-300" : "border-white/20 text-white"
                                     )}
                                     placeholder="?"
                                 />
@@ -733,19 +732,21 @@ export function PracticeMode({ isRunning, studentId, setIsRunning }: PracticeMod
             </div>
 
             {/* Visual Flair (Combo Text) - Showing here for Multiple Choice Mode ONLY */}
-            {streak > 1 && isMultipleChoice && (
-                <div className="absolute bottom-6 right-6 z-10 pointer-events-none">
-                    <motion.div
-                        animate={{ scale: comboScale }}
-                        className={cn(
-                            "font-black italic transition-colors text-right",
-                            streak > 5 ? "text-yellow-400 text-xl drop-shadow-[0_0_5px_rgba(250,204,21,0.6)]" : "text-emerald-400 text-lg"
-                        )}
-                    >
-                        {streak > 5 ? "ON FIRE!" : `${streak}x COMBO!`}
-                    </motion.div>
-                </div>
-            )}
+            {
+                streak > 1 && isMultipleChoice && (
+                    <div className="absolute bottom-6 right-6 z-10 pointer-events-none">
+                        <motion.div
+                            animate={{ scale: comboScale }}
+                            className={cn(
+                                "font-black italic transition-colors text-right",
+                                streak > 5 ? "text-yellow-400 text-xl drop-shadow-[0_0_5px_rgba(250,204,21,0.6)]" : "text-emerald-400 text-lg"
+                            )}
+                        >
+                            {streak > 5 ? "ON FIRE!" : `${streak}x COMBO!`}
+                        </motion.div>
+                    </div>
+                )
+            }
             {/* Status Message (Centered) */}
             <div className="mt-8 text-center h-6 w-full pointer-events-none">
                 {gameState === "revealed" && (
@@ -774,6 +775,6 @@ export function PracticeMode({ isRunning, studentId, setIsRunning }: PracticeMod
             <div className="absolute top-0 right-0 p-2 text-[10px] text-white/50 bg-black/50 pointer-events-none">
                 Debug: Wrong={isWrong.toString()} Input="{userInput}" Mode={mode} MC={isMultipleChoice.toString()} State={gameState}
             </div>
-        </div>
+        </div >
     );
 }
