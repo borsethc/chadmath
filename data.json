@@ -30,7 +30,7 @@
     },
     "TEST001": {
       "id": "TEST001",
-      "lastSeen": "2026-01-14T16:07:55.676Z",
+      "lastSeen": "2026-02-14T00:36:35.999Z",
       "sessions": [
         {
           "score": 0,
@@ -45,8 +45,68 @@
           "gameType": "practice",
           "id": "ibw8ny0",
           "timestamp": "2026-01-14T16:07:55.676Z"
+        },
+        {
+          "score": 0,
+          "total": 2,
+          "gameType": "multiplication",
+          "wrong": 0,
+          "isMultipleChoice": false,
+          "selectedFactors": [
+            "2-4",
+            "5-7",
+            "8-9"
+          ],
+          "id": "cbux3su",
+          "timestamp": "2026-02-14T00:31:25.510Z"
+        },
+        {
+          "score": 0,
+          "total": 0,
+          "gameType": "multiplication",
+          "wrong": 0,
+          "isMultipleChoice": true,
+          "selectedFactors": [
+            "2-4",
+            "5-7",
+            "8-9"
+          ],
+          "id": "9n2p7o0",
+          "timestamp": "2026-02-14T00:32:56.574Z"
+        },
+        {
+          "score": 0,
+          "total": 0,
+          "gameType": "multiplication",
+          "wrong": 0,
+          "isMultipleChoice": true,
+          "selectedFactors": [
+            "2-4",
+            "5-7",
+            "8-9"
+          ],
+          "id": "urf3i4z",
+          "timestamp": "2026-02-14T00:35:22.699Z"
+        },
+        {
+          "score": 0,
+          "total": 0,
+          "gameType": "multiplication",
+          "wrong": 0,
+          "isMultipleChoice": true,
+          "selectedFactors": [
+            "2-4",
+            "5-7",
+            "8-9"
+          ],
+          "id": "oshesz9",
+          "timestamp": "2026-02-14T00:36:35.999Z"
         }
-      ]
+      ],
+      "loginCount": 12,
+      "xp": 200,
+      "level": 1,
+      "factMastery": {}
     },
     "chad": {
       "id": "chad",
@@ -621,6 +681,72 @@
       ],
       "xp": 510,
       "level": 1
+    },
+    "TEST002": {
+      "id": "TEST002",
+      "lastSeen": "2026-02-14T00:39:43.567Z",
+      "loginCount": 6,
+      "sessions": [
+        {
+          "score": 0,
+          "total": 0,
+          "gameType": "multiplication",
+          "wrong": 0,
+          "isMultipleChoice": true,
+          "selectedFactors": [
+            "2-4",
+            "5-7",
+            "8-9"
+          ],
+          "id": "jfyhq2l",
+          "timestamp": "2026-02-14T00:38:11.947Z"
+        },
+        {
+          "score": 0,
+          "total": 0,
+          "gameType": "multiplication",
+          "wrong": 0,
+          "isMultipleChoice": true,
+          "selectedFactors": [
+            "2-4",
+            "5-7",
+            "8-9"
+          ],
+          "id": "65h25cg",
+          "timestamp": "2026-02-14T00:39:43.567Z"
+        }
+      ],
+      "xp": 100,
+      "level": 1,
+      "dailyStreak": 0,
+      "lastStreakUpdate": "",
+      "factMastery": {}
+    },
+    "TEST004": {
+      "id": "TEST004",
+      "lastSeen": "2026-02-14T00:44:37.239Z",
+      "loginCount": 3,
+      "sessions": [
+        {
+          "score": 0,
+          "total": 0,
+          "gameType": "multiplication",
+          "wrong": 0,
+          "isMultipleChoice": true,
+          "selectedFactors": [
+            "2-4",
+            "5-7",
+            "8-9"
+          ],
+          "id": "owct3rp",
+          "timestamp": "2026-02-14T00:44:37.239Z"
+        }
+      ],
+      "xp": 50,
+      "level": 1,
+      "dailyStreak": 0,
+      "lastStreakUpdate": "",
+      "factMastery": {}
     }
   }
 }

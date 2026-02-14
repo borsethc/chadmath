@@ -168,29 +168,8 @@ export function useGameLogic(
 
             f1 = selected.f1;
             f2 = selected.f2;
-
-            // 5. Build Mini-Cluster (Fact Clusters)
-            // If we picked a "hard" fact (low mastery), queue up related facts.
-            // Only do this occasionally or if mastery is low to avoid predictability overload.
-            const key = getFactKey(f1, f2, "×");
-            if ((mastery[key] || 0) < 0.6) {
-                // Create Cluster: Commutative property + Neighbors
-                // e.g. 6x7 -> Queue 7x6, maybe 6x8
-                if (f1 !== f2) {
-                    // Add Commutative (BxA)
-                    // Determine structure for next Q
-                    // For Division, it would be Product / f2 = f1
-                    // For now let's just stick to the current mode's logic for the queued item
-                    // We construct "Virtual Questions" to push to queue.
-                    // IMPORTANT: We need full question generation logic for queued items.
-                    // Let's simplify: Just Push DATA to queue, and let logic below handle formatting?
-                    // No, queue stores full Question objects.
-
-                    // We need a helper to format a question from f1, f2.
-                    // Defining helper inside or outside... let's do inline for now.
-                }
-            }
         }
+
 
         // Determine Question Values based on Mode
         let qFactor1, qFactor2, qAnswer: number | string, qOperator: "×" | "÷";
@@ -211,28 +190,23 @@ export function useGameLogic(
         const sortedOptions = (() => {
             const numOptions = 4;
             const answer = typeof qAnswer === 'number' ? qAnswer : 0;
-            const ansVal = answer;
-            const maxPossibleSmaller = Math.max(0, ansVal - 1);
-            const maxAllowedSmaller = Math.min(numOptions - 1, maxPossibleSmaller);
-            const targetSmallerCount = Math.floor(Math.random() * (maxAllowedSmaller + 1));
             const optionsSet = new Set<number>();
             optionsSet.add(answer);
-            while (optionsSet.size < 1 + targetSmallerCount) {
-                const range = 10;
-                const minVal = Math.max(1, ansVal - range);
-                const maxVal = ansVal - 1;
-                const val = Math.floor(Math.random() * (maxVal - minVal + 1)) + minVal;
-                optionsSet.add(val);
-            }
+
             while (optionsSet.size < numOptions) {
                 const range = 10;
-                const minVal = ansVal + 1;
-                const maxVal = ansVal + range;
-                const val = Math.floor(Math.random() * (maxVal - minVal + 1)) + minVal;
-                optionsSet.add(val);
+                // Generate a random number around the answer
+                const offset = Math.floor(Math.random() * (range * 2 + 1)) - range; // -10 to +10
+                const val = Math.max(1, answer + offset); // Ensure positive
+
+                if (val !== answer) {
+                    optionsSet.add(val);
+                }
             }
             return Array.from(optionsSet).sort((a, b) => a - b);
         })();
+
+
 
         return {
             id: Math.random().toString(36).substring(2, 9),
@@ -242,7 +216,7 @@ export function useGameLogic(
             options: sortedOptions,
             operator: qOperator
         };
-    }, [selectedGroups, mode, mastery, selectedTables]); // Added selectedTables dependency
+    }, [selectedGroups, mode, mastery, selectedTables]);
 
     const toggleGroup = useCallback((group: FactorGroup) => {
         setSelectedGroups(prev => {
@@ -399,9 +373,15 @@ export function useGameLogic(
         setUserInput(val);
         if (currentQuestion) {
 
-            // Multiple Choice: Always submit immediately
+            // Multiple Choice: Wait for user to click button!
             if (isMultipleChoice) {
-                console.log("MC Mode: Auto-submitting", val);
+                // Verify value matches an option? No, handleAnswer does check.
+                // But we shouldn't auto-permit unless it's from a button click (which calls setInput).
+                // The button click calls setInput.
+                // So we SHOULD call handleAnswer here IF it came from a button.
+                // But setInput is also called by typing?
+                // In MC mode, typing is disabled (input readonly).
+                // So setInput ONLY comes from buttons.
                 handleAnswer(val);
                 return;
             }

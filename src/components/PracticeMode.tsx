@@ -609,19 +609,23 @@ export function PracticeMode({ isRunning, studentId, setIsRunning }: PracticeMod
             {(
                 <div className="mb-2 flex flex-col items-center space-y-2">
                     {isRunning && currentQuestion ? (
-                        <AnimatePresence mode="wait">
-                            <motion.div
-                                key={currentQuestion.id}
+                        <div className="flex items-center text-7xl sm:text-9xl font-light tracking-tighter text-white">
+                            <motion.span
+                                key={`${currentQuestion.id}-f1`}
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
-                                exit={{ opacity: 0, y: -20 }}
-                                className="flex items-center text-7xl sm:text-9xl font-light tracking-tighter text-white"
                             >
-                                <span>{currentQuestion.factor1}</span>
-                                <span className="mx-4 sm:mx-6 text-muted-foreground">{currentQuestion.operator}</span>
-                                <span>{currentQuestion.factor2}</span>
-                            </motion.div>
-                        </AnimatePresence>
+                                {currentQuestion.factor1}
+                            </motion.span>
+                            <span className="mx-4 sm:mx-6 text-muted-foreground">{currentQuestion.operator}</span>
+                            <motion.span
+                                key={`${currentQuestion.id}-f2`}
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                            >
+                                {currentQuestion.factor2}
+                            </motion.span>
+                        </div>
                     ) : null}
                 </div>
             )}
