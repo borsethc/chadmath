@@ -369,7 +369,10 @@ export function PracticeMode({ isRunning, studentId, setIsRunning }: PracticeMod
 
                 <div className="flex gap-4">
                     <button
-                        onClick={() => window.location.reload()}
+                        onClick={() => {
+                            setSessionComplete(false);
+                            setIsRunning(false);
+                        }}
                         className="mt-4 px-8 py-3 bg-white/10 hover:bg-white/20 text-white font-bold rounded-xl transition-all"
                     >
                         Menu
