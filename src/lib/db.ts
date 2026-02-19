@@ -43,7 +43,7 @@ try {
         pool = new Pool({
             connectionString: process.env.DATABASE_URL,
             ssl: { rejectUnauthorized: false }, // Required for Railway
-            connectionTimeoutMillis: 5000, // 5s timeout for connection
+            connectionTimeoutMillis: 10000, // 10s timeout for connection
             idleTimeoutMillis: 30000, // Close idle clients after 30s
         });
     }

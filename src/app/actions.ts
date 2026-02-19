@@ -7,15 +7,20 @@ export async function loginAction(studentId: string) {
     if (!studentId || studentId.trim() === "") {
         return { success: false, message: "Invalid Student ID" };
     }
-    const student = await createOrUpdateStudent(studentId);
-    return {
-        success: true,
-        allTimeHigh: student.allTimeHigh,
-        xp: student.xp || 0,
-        level: student.level || 1,
-        dailyStreak: student.dailyStreak || 0,
-        factMastery: student.factMastery || {}
-    };
+    try {
+        const student = await createOrUpdateStudent(studentId);
+        return {
+            success: true,
+            allTimeHigh: student.allTimeHigh,
+            xp: student.xp || 0,
+            level: student.level || 1,
+            dailyStreak: student.dailyStreak || 0,
+            factMastery: student.factMastery || {}
+        };
+    } catch (error) {
+        console.error("Login failed:", error);
+        return { success: false, message: "System Error: Could not connect to database." };
+    }
 }
 
 export async function checkDailyStats(studentId: string) {
