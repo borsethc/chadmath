@@ -664,26 +664,44 @@ export function PracticeMode({ isRunning, studentId, setIsRunning }: PracticeMod
                 {isRunning && currentQuestion && (
                     gameState === "waiting" || gameState === "correct" ? (
                         isMultipleChoice ? (
-                            <div className="grid grid-cols-2 gap-4 w-full max-w-sm">
-                                {currentQuestion?.options.map((opt) => (
-                                    <motion.button
-                                        key={opt}
-                                        initial={{ opacity: 0, scale: 0.9 }}
-                                        animate={isWrong && userInput === opt.toString() ? { x: [0, -10, 10, -10, 10, 0] } : { opacity: 1, scale: 1, x: 0 }}
-                                        transition={{ duration: 0.4 }}
-                                        whileHover={{ scale: 1.05, backgroundColor: "rgba(255,255,255,0.1)" }}
-                                        whileTap={{ scale: 0.95 }}
-                                        onClick={() => handleOptionClick(opt)}
-                                        onMouseEnter={() => playHover()}
-                                        className={cn(
-                                            "h-16 rounded-xl border text-xl sm:text-2xl font-bold text-white transition-colors hover:border-indigo-500/50",
-                                            /* Standard styling */
-                                            "border-white/10 bg-white/5"
-                                        )}
-                                    >
-                                        {opt}
-                                    </motion.button>
-                                ))}
+                            <div className="flex flex-col items-center gap-4 w-full">
+                                <div className="grid grid-cols-2 gap-4 w-full max-w-sm">
+                                    {currentQuestion?.options.map((opt) => (
+                                        <motion.button
+                                            key={opt}
+                                            initial={{ opacity: 0, scale: 0.9 }}
+                                            animate={isWrong && userInput === opt.toString() ? { x: [0, -10, 10, -10, 10, 0] } : { opacity: 1, scale: 1, x: 0 }}
+                                            transition={{ duration: 0.4 }}
+                                            whileHover={{ scale: 1.05, backgroundColor: "rgba(255,255,255,0.1)" }}
+                                            whileTap={{ scale: 0.95 }}
+                                            onClick={() => handleOptionClick(opt)}
+                                            onMouseEnter={() => playHover()}
+                                            className={cn(
+                                                "h-16 rounded-xl border text-xl sm:text-2xl font-bold text-white transition-colors hover:border-indigo-500/50",
+                                                /* Standard styling */
+                                                "border-white/10 bg-white/5"
+                                            )}
+                                        >
+                                            {opt}
+                                        </motion.button>
+                                    ))}
+                                </div>
+                                {!isTimerEnabled && (
+                                    <div className="flex justify-center gap-4 w-full max-w-sm mt-2">
+                                        <button
+                                            onClick={() => setIsRunning(false)}
+                                            className="px-6 py-2.5 bg-white/5 hover:bg-white/10 text-white/70 border border-white/10 rounded-xl text-sm font-bold uppercase tracking-widest transition-colors flex-1"
+                                        >
+                                            Menu
+                                        </button>
+                                        <button
+                                            onClick={() => handleSessionComplete()}
+                                            className="px-6 py-2.5 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 rounded-xl text-sm font-bold uppercase tracking-widest transition-colors flex-1"
+                                        >
+                                            Finish
+                                        </button>
+                                    </div>
+                                )}
                             </div>
                         ) : (
                             <div className="flex flex-col items-center gap-2 w-full">
@@ -754,6 +772,24 @@ export function PracticeMode({ isRunning, studentId, setIsRunning }: PracticeMod
                                     >
                                         <Delete className="w-5 h-5 text-muted-foreground group-hover:text-red-400" />
                                     </motion.button>
+
+                                    {/* End Session Controls (Manual Finish / Menu) placed directly in the keypad grid */}
+                                    {!isTimerEnabled && (
+                                        <div className="col-span-3 flex justify-center gap-2 w-full mt-2">
+                                            <button
+                                                onClick={() => setIsRunning(false)}
+                                                className="px-4 py-3 bg-white/5 hover:bg-white/10 text-white/70 border border-white/10 rounded-2xl text-xs font-bold uppercase tracking-widest transition-colors flex-1"
+                                            >
+                                                Menu
+                                            </button>
+                                            <button
+                                                onClick={() => handleSessionComplete()}
+                                                className="px-4 py-3 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 rounded-2xl text-xs font-bold uppercase tracking-widest transition-colors flex-1"
+                                            >
+                                                Finish
+                                            </button>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         )
@@ -788,23 +824,7 @@ export function PracticeMode({ isRunning, studentId, setIsRunning }: PracticeMod
                 )
             }
 
-            {/* End Session Controls (Manual Finish / Menu) - Moved to bottom to prevent overlap */}
-            {!isTimerEnabled && (
-                <div className="mt-8 flex justify-center gap-4 w-full z-20">
-                    <button
-                        onClick={() => setIsRunning(false)}
-                        className="px-6 py-2.5 bg-white/5 hover:bg-white/10 text-white/70 border border-white/10 rounded-xl text-sm font-bold uppercase tracking-widest transition-colors"
-                    >
-                        Menu
-                    </button>
-                    <button
-                        onClick={() => handleSessionComplete()}
-                        className="px-6 py-2.5 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 rounded-xl text-sm font-bold uppercase tracking-widest transition-colors"
-                    >
-                        Finish
-                    </button>
-                </div>
-            )}
+
             {/* Status Message (Centered) */}
             <div className="mt-8 text-center h-6 w-full pointer-events-none">
                 {gameState === "revealed" && (
