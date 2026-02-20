@@ -446,7 +446,7 @@ export function PracticeMode({ isRunning, studentId, setIsRunning }: PracticeMod
                                 (mode === "multiplication" || mode === "division") ? "bg-indigo-600 text-white shadow-lg" : "text-gray-400 hover:text-white"
                             )}
                         >
-                            Practice
+                            Factor Focus
                         </button>
                         <button
                             onClick={() => setMode("assessment")}
@@ -490,10 +490,7 @@ export function PracticeMode({ isRunning, studentId, setIsRunning }: PracticeMod
 
                     {/* Factor Group Selection - Hide for Assessment AND Tables */}
                     {mode !== "assessment" && mode !== "tables" && (
-                        <div className="flex flex-col items-center gap-3 w-full max-w-xs">
-                            <span className="text-[10px] sm:text-xs font-medium uppercase tracking-widest text-muted-foreground">
-                                Factor Focus
-                            </span>
+                        <div className="flex flex-col items-center gap-3 w-full max-w-xs pt-2">
                             <div className="flex flex-wrap justify-center gap-2 w-full">
                                 {(["2-4", "5-7", "8-9"] as const).map(group => (
                                     <button
@@ -586,27 +583,15 @@ export function PracticeMode({ isRunning, studentId, setIsRunning }: PracticeMod
         <div
             className="relative flex min-h-[50vh] w-full max-w-md sm:max-w-2xl flex-col items-center rounded-3xl border border-white/5 bg-white/5 p-6 sm:p-8 shadow-2xl backdrop-blur-3xl mx-4 sm:mx-0 mb-8 overflow-hidden">
 
-            {/* Timer and Daily Count - Only show if enabled */}
+            {/* Top Center Controls (Timer) */}
             {isTimerEnabled && (
-                <div className="w-full flex justify-center items-center gap-4 z-20 mb-4 sm:mb-8">
+                <div className="w-full flex justify-center items-center gap-4 z-20 mb-4 sm:mb-8 min-h-[32px]">
                     <div className={cn(
                         "px-4 py-1.5 rounded-full border text-sm font-mono font-bold transition-all",
                         timeLeft <= 10 ? "bg-red-500/20 border-red-500 text-red-400 animate-pulse" : "bg-white/5 border-white/10 text-white"
                     )}>
                         {Math.floor(timeLeft / 60)}:{(timeLeft % 60).toString().padStart(2, '0')}
                     </div>
-                </div>
-            )}
-
-            {/* Manual Finish Button if Timer Disabled */}
-            {!isTimerEnabled && (
-                <div className="absolute top-4 left-4 z-30">
-                    <button
-                        onClick={() => handleSessionComplete()}
-                        className="px-3 py-1 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 rounded-lg text-xs font-bold uppercase tracking-widest transition-colors"
-                    >
-                        Finish
-                    </button>
                 </div>
             )}
 
@@ -802,6 +787,24 @@ export function PracticeMode({ isRunning, studentId, setIsRunning }: PracticeMod
                     </div>
                 )
             }
+
+            {/* End Session Controls (Manual Finish / Menu) - Moved to bottom to prevent overlap */}
+            {!isTimerEnabled && (
+                <div className="mt-8 flex justify-center gap-4 w-full z-20">
+                    <button
+                        onClick={() => setIsRunning(false)}
+                        className="px-6 py-2.5 bg-white/5 hover:bg-white/10 text-white/70 border border-white/10 rounded-xl text-sm font-bold uppercase tracking-widest transition-colors"
+                    >
+                        Menu
+                    </button>
+                    <button
+                        onClick={() => handleSessionComplete()}
+                        className="px-6 py-2.5 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 rounded-xl text-sm font-bold uppercase tracking-widest transition-colors"
+                    >
+                        Finish
+                    </button>
+                </div>
+            )}
             {/* Status Message (Centered) */}
             <div className="mt-8 text-center h-6 w-full pointer-events-none">
                 {gameState === "revealed" && (

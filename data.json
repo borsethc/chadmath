@@ -1199,6 +1199,43 @@
       "dailyStreak": 0,
       "lastStreakUpdate": "",
       "factMastery": {}
+    },
+    "TEST020": {
+      "id": "TEST020",
+      "lastSeen": "2026-02-14T02:50:09.460Z",
+      "loginCount": 3,
+      "sessions": [],
+      "xp": 0,
+      "level": 1,
+      "dailyStreak": 0,
+      "lastStreakUpdate": "",
+      "factMastery": {}
+    },
+    "test": {
+      "id": "test",
+      "lastSeen": "2026-02-19T18:25:47.052Z",
+      "loginCount": 3,
+      "sessions": [
+        {
+          "score": 0,
+          "total": 0,
+          "gameType": "multiplication",
+          "wrong": 0,
+          "isMultipleChoice": false,
+          "selectedFactors": [
+            "2-4",
+            "5-7",
+            "8-9"
+          ],
+          "id": "0vk8xtz",
+          "timestamp": "2026-02-19T18:25:47.052Z"
+        }
+      ],
+      "xp": 50,
+      "level": 1,
+      "dailyStreak": 0,
+      "lastStreakUpdate": "",
+      "factMastery": {}
     }
   }
 }
