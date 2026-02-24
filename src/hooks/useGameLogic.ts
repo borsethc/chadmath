@@ -308,6 +308,7 @@ export function useGameLogic(
         } else {
             // Wrong Answer
             updateMastery(currentQuestion, false);
+            setStreak(0); // Reset streak to correct sound pitch logic
 
             if (mode === "assessment") {
                 // Assessment: faster, no retry

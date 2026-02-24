@@ -742,18 +742,29 @@ export function PracticeMode({ isRunning, studentId, setIsRunning }: PracticeMod
                                         </motion.button>
                                     ))}
 
-                                    {/* Bottom row: Juice/Flair, 0, Backspace */}
-                                    <div className="flex items-center justify-center overflow-visible z-20">
+                                    {/* Bottom row: Menu/Flair, 0, Backspace */}
+                                    <div className="flex items-center justify-center relative w-full overflow-visible z-20">
                                         {streak > 1 && !isMultipleChoice && (
                                             <motion.div
                                                 animate={{ scale: comboScale }}
                                                 className={cn(
-                                                    "font-black italic transition-colors text-center whitespace-nowrap",
+                                                    "absolute font-black italic transition-colors text-center whitespace-nowrap",
+                                                    (isTimerEnabled && mode !== "assessment") ? "-top-6" : "",
                                                     streak > 5 ? "text-yellow-400 text-xs drop-shadow-[0_0_2px_rgba(250,204,21,0.5)]" : "text-emerald-400 text-[10px]"
                                                 )}
                                             >
                                                 {streak > 5 ? "ON FIRE!" : `${streak}x`}
                                             </motion.div>
+                                        )}
+                                        {isTimerEnabled && mode !== "assessment" && (
+                                            <motion.button
+                                                whileHover={{ scale: 1.05, backgroundColor: "rgba(255,255,255,0.15)" }}
+                                                whileTap={{ scale: 0.95 }}
+                                                onClick={() => setIsRunning(false)}
+                                                className="h-14 w-full rounded-full bg-white/5 hover:bg-white/10 border border-white/5 text-xs font-bold text-white/50 hover:text-white flex items-center justify-center transition-colors"
+                                            >
+                                                Menu
+                                            </motion.button>
                                         )}
                                     </div>
                                     <motion.button
