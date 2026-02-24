@@ -758,10 +758,10 @@ export function PracticeMode({ isRunning, studentId, setIsRunning }: PracticeMod
                                         )}
                                         {isTimerEnabled && mode !== "assessment" && (
                                             <motion.button
-                                                whileHover={{ scale: 1.05, backgroundColor: "rgba(255,255,255,0.15)" }}
+                                                whileHover={{ scale: 1.05, backgroundColor: "rgba(16, 185, 129, 0.2)" }}
                                                 whileTap={{ scale: 0.95 }}
                                                 onClick={() => setIsRunning(false)}
-                                                className="h-14 w-full rounded-full bg-white/5 hover:bg-white/10 border border-white/5 text-xs font-bold text-white/50 hover:text-white flex items-center justify-center transition-colors"
+                                                className="h-14 w-full rounded-full bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 text-xs font-bold text-emerald-400 hover:text-emerald-300 flex items-center justify-center transition-colors"
                                             >
                                                 Menu
                                             </motion.button>
