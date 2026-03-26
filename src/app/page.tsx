@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import { PracticeMode } from "@/components/PracticeMode";
+import { StudentDashboard } from "@/components/StudentDashboard";
 import { cn } from "@/lib/utils";
 import { loginAction } from "./actions";
 
@@ -103,7 +103,7 @@ export default function Home() {
             </button>
           </form>
         ) : (
-          <PracticeMode isRunning={isRunning} setIsRunning={setIsRunning} studentId={studentId} />
+          <StudentDashboard isRunning={isRunning} setIsRunning={setIsRunning} studentId={studentId} />
         )}
       </div>
 

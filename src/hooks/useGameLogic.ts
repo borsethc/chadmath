@@ -47,10 +47,12 @@ export function useGameLogic(
     mode: GameMode = "multiplication",
     isTimerEnabled: boolean = true,
     isMultipleChoice: boolean = false,
-    initialMastery: FactMastery = {}
+    initialMastery: FactMastery = {},
+    initialGroups: FactorGroup[] = ["2-4", "5-7", "8-9"],
+    initialTables: number[] = [2]
 ) {
-    const [selectedGroups, setSelectedGroups] = useState<FactorGroup[]>(["2-4", "5-7", "8-9"]);
-    const [selectedTables, setSelectedTables] = useState<number[]>([2]); // Default to x2 table array
+    const [selectedGroups, setSelectedGroups] = useState<FactorGroup[]>(initialGroups);
+    const [selectedTables, setSelectedTables] = useState<number[]>(initialTables);
     const [currentQuestion, setCurrentQuestion] = useState<Question | null>(null);
     const [userInput, setUserInput] = useState("");
     const [gameState, setGameState] = useState<GameState>("waiting");

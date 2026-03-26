@@ -61,3 +61,25 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Custom Themes */
+.theme-neon {
+  --background: 280 50% 10%;
+  --foreground: 0 0% 100%;
+  --primary: 310 100% 50%; /* Neon Pink */
+  --ring: 310 100% 50%;
+}
+
+.theme-matrix {
+  --background: 120 100% 5%;
+  --foreground: 120 100% 50%;
+  --primary: 120 100% 50%; /* Hacker Green */
+  --ring: 120 100% 50%;
+}
+
+.theme-sunset {
+  --background: 20 80% 20%;
+  --foreground: 0 0% 100%;
+  --primary: 40 100% 50%; /* Orange/Yellow */
+  --ring: 40 100% 50%;
+}

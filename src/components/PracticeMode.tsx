@@ -12,16 +12,19 @@ import { Play, Loader2, ToggleLeft, ToggleRight, Delete } from "lucide-react";
 import { Confetti } from "./Confetti";
 import { getFeedback } from "@/lib/assessment";
 
+import { PracticeConfig } from "./StudentDashboard";
+
 interface PracticeModeProps {
     isRunning: boolean;
     studentId: string;
     setIsRunning: (isRunning: boolean) => void;
+    initialConfig?: PracticeConfig | null;
 }
 
-export function PracticeMode({ isRunning, studentId, setIsRunning }: PracticeModeProps) {
-    const [mode, setMode] = useState<GameMode>("multiplication");
-    const [isTimerEnabled, setIsTimerEnabled] = useState(true);
-    const [isMultipleChoice, setIsMultipleChoice] = useState(false);
+export function PracticeMode({ isRunning, studentId, setIsRunning, initialConfig }: PracticeModeProps) {
+    const [mode, setMode] = useState<GameMode>(initialConfig?.mode ?? "multiplication");
+    const [isTimerEnabled, setIsTimerEnabled] = useState(initialConfig?.isTimerEnabled ?? true);
+    const [isMultipleChoice, setIsMultipleChoice] = useState(initialConfig?.isMultipleChoice ?? false);
 
     // We lift factMastery state up slightly to pass it down, but useGameLogic manages its internal copy
     // We need a ref to hold initial mastery because we don't want to reset logic on state update?
@@ -76,7 +79,10 @@ export function PracticeMode({ isRunning, studentId, setIsRunning }: PracticeMod
     const [factMastery, setFactMastery] = useState<Record<string, number>>({});
 
     // Hooks - Must be called before effects that use them
-    const { currentQuestion, userInput, setInput, gameState, streak, selectedGroups, toggleGroup, stats, isWrong, sessionMasteryUpdates, selectedTables, setSelectedTables } = useGameLogic(isRunning, mode, isTimerEnabled, isMultipleChoice, factMastery);
+    const { currentQuestion, userInput, setInput, gameState, streak, selectedGroups, toggleGroup, stats, isWrong, sessionMasteryUpdates, selectedTables, setSelectedTables } = useGameLogic(
+        isRunning, mode, isTimerEnabled, isMultipleChoice, factMastery,
+        initialConfig?.selectedGroups as any, initialConfig?.selectedTables
+    );
 
     // Check daily limit and all time high on mount
     useEffect(() => {
