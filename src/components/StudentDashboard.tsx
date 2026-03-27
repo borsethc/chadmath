@@ -88,7 +88,7 @@ export function StudentDashboard({ studentId, isRunning, setIsRunning }: Student
         let levelToFocus: SkillLevel = "Level 1";
         let minAvg = Math.min(avg2to4, avg5to7, avg8to9);
 
-        if (minAvg < 5) needsFocus = true;
+        if (minAvg < 0.8) needsFocus = true;
 
         if (minAvg === avg8to9) levelToFocus = "Level 3";
         else if (minAvg === avg5to7) levelToFocus = "Level 2";
@@ -146,9 +146,9 @@ export function StudentDashboard({ studentId, isRunning, setIsRunning }: Student
                         const avg = keys.length ? keys.reduce((s, k) => s + factMastery[k], 0) / keys.length : 0;
 
                         let color = "bg-white/10"; // unplayed
-                        if (avg > 0 && avg < 3) color = "bg-red-500/50";
-                        else if (avg >= 3 && avg < 7) color = "bg-yellow-500/50";
-                        else if (avg >= 7) color = "bg-emerald-500/50 shadow-[0_0_10px_rgba(16,185,129,0.3)]";
+                        if (avg > 0 && avg < 0.4) color = "bg-red-500/50";
+                        else if (avg >= 0.4 && avg < 0.8) color = "bg-yellow-500/50";
+                        else if (avg >= 0.8) color = "bg-emerald-500/50 shadow-[0_0_10px_rgba(16,185,129,0.3)]";
 
                         return (
                             <div key={factor} className="flex flex-col items-center gap-1">
