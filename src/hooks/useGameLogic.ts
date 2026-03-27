@@ -59,11 +59,13 @@ export function useGameLogic(
     const [streak, setStreak] = useState(0);
     const [isWrong, setIsWrong] = useState(false);
     const [stats, setStats] = useState<SessionStats>(() => ({ correct: 0, wrongAttempts: 0, total: 0, startTime: Date.now(), history: [] }));
+    const [questionStartTime, setQuestionStartTime] = useState(Date.now());
 
     // Adaptive Learning State
     const [mastery, setMastery] = useState<FactMastery>(initialMastery);
     const retryQueue = useRef<Question[]>([]);
     const clusterQueue = useRef<Question[]>([]);
+    const missCounter = useRef<Record<string, number>>({});
     const [sessionMasteryUpdates, setSessionMasteryUpdates] = useState<FactMastery>({}); // Track session changes to sync back
 
     // Timer for auto-reveal (Smart Timer)
@@ -123,53 +125,39 @@ export function useGameLogic(
                 [f1, f2] = [f2, f1];
             }
         } else {
-            // 4. Adaptive Selection (Smart Repetition)
-            // Instead of pure random, we weight by (1.0 - mastery). Lower mastery = Higher chance.
+            // 4. Adaptive Selection using User's Percentage-Based Logic
+            const POOL_A = [2, 3, 4];
+            const POOL_B = [5, 6, 7];
+            const POOL_C = [8, 9];
+            
+            const roll = Math.random() * 100;
 
-            // Gather all candidate pairs based on selected level
-            const candidates: { f1: number, f2: number, weight: number }[] = [];
-
-            const validFactors = new Set<number>();
-            if (selectedLevel === "Level 1") [2, 3, 4].forEach(n => validFactors.add(n));
-            else if (selectedLevel === "Level 2") [5, 6, 7].forEach(n => validFactors.add(n));
-            else if (selectedLevel === "Level 3") [8, 9].forEach(n => validFactors.add(n));
-
-            // If nothing selected (shouldn't happen due to UI), fallback to all
-            const fOptions = validFactors.size > 0 ? Array.from(validFactors) : [2, 3, 4, 5, 6, 7, 8, 9];
-
-            // Loop through all f1 and f2 from valid options ONLY
-            for (const cf1 of fOptions) {
-                for (const cf2 of fOptions) {
-                    const key = getFactKey(cf1, cf2, "×"); // Use mult key for core mastery
-                    const m = mastery[key] || 0;
-                    // Weight: If mastery is 0, weight is 1. If mastery is 1, weight is 0.1 (small chance).
-                    // Add slight base weight so perfected facts still appear occasionally.
-                    const weight = Math.max(0.1, 1.0 - m);
-                    candidates.push({ f1: cf1, f2: cf2, weight });
+            if (selectedLevel === "Level 1") {
+                f1 = POOL_A[Math.floor(Math.random() * POOL_A.length)];
+                f2 = POOL_A[Math.floor(Math.random() * POOL_A.length)];
+            } else if (selectedLevel === "Level 2") {
+                if (roll <= 60) {
+                    f1 = POOL_B[Math.floor(Math.random() * POOL_B.length)];
+                    f2 = POOL_B[Math.floor(Math.random() * POOL_B.length)];
+                } else {
+                    f1 = POOL_B[Math.floor(Math.random() * POOL_B.length)];
+                    f2 = POOL_A[Math.floor(Math.random() * POOL_A.length)];
+                }
+            } else {
+                if (roll <= 40) {
+                    f1 = POOL_C[Math.floor(Math.random() * POOL_C.length)];
+                    f2 = POOL_C[Math.floor(Math.random() * POOL_C.length)];
+                } else {
+                    f1 = POOL_C[Math.floor(Math.random() * POOL_C.length)];
+                    const poolAB = [...POOL_A, ...POOL_B];
+                    f2 = poolAB[Math.floor(Math.random() * poolAB.length)];
                 }
             }
 
-            // Safety check: ensure candidates is not empty
-            if (candidates.length === 0) {
-                candidates.push({ f1: 2, f2: 2, weight: 1 });
+            // Commutative Flip
+            if (Math.random() > 0.5) {
+                [f1, f2] = [f2, f1];
             }
-
-            // Weighted Random Selection
-            const totalWeight = candidates.reduce((sum, c) => sum + c.weight, 0);
-            let r = Math.random() * totalWeight;
-            let selected = candidates[0];
-            for (const c of candidates) {
-                r -= c.weight;
-                if (r <= 0) {
-                    selected = c;
-                    break;
-                }
-            }
-            // Fallback if float math weirdness (r > 0 at end)
-            if (!selected && candidates.length > 0) selected = candidates[0];
-
-            f1 = selected.f1;
-            f2 = selected.f2;
         }
 
 
@@ -228,10 +216,11 @@ export function useGameLogic(
         setUserInput("");
         setGameState("waiting");
         setCurrentQuestion(generateQuestion());
+        setQuestionStartTime(Date.now());
     }, [generateQuestion]);
 
     // Update Mastery Helper
-    const updateMastery = (question: Question, correct: boolean) => {
+    const updateMastery = (question: Question, correct: boolean, isFast: boolean = true) => {
 
         let f1, f2;
         if (question.operator === "÷") {
@@ -250,9 +239,9 @@ export function useGameLogic(
             const current = prev[key] || 0;
             // Increase on success, Decrease on failure
             // Adaptive rates:
-            // Success: +0.1
+            // Success: +0.1 (only if fast)
             // Failure: -0.2 (Punish mistakes more to force repetition)
-            let change = correct ? 0.1 : -0.2;
+            let change = correct ? (isFast ? 0.1 : 0) : -0.2;
 
             // Cap between 0 and 1
             const newVal = Math.max(0, Math.min(1, current + change));
@@ -285,7 +274,8 @@ export function useGameLogic(
 
             setGameState("correct");
             setStreak((s) => s + 1);
-            updateMastery(currentQuestion, true);
+            const isFast = Date.now() - questionStartTime <= 3000;
+            updateMastery(currentQuestion, true, isFast);
 
             setStats((prev) => ({
                 ...prev,
@@ -308,6 +298,18 @@ export function useGameLogic(
             // Wrong Answer
             updateMastery(currentQuestion, false);
             setStreak(0); // Reset streak to correct sound pitch logic
+            
+            // Struggle Tracker
+            const key = getFactKey(currentQuestion.factor1 as number, currentQuestion.factor2 as number, currentQuestion.operator);
+            missCounter.current[key] = (missCounter.current[key] || 0) + 1;
+            
+            if (missCounter.current[key] > 2) {
+                // Inject into next 10 questions roughly
+                for (let i = 0; i < 5; i++) {
+                    retryQueue.current.push(currentQuestion);
+                }
+                missCounter.current[key] = 0; // reset
+            }
 
             if (mode === "assessment") {
                 // Assessment: faster, no retry
@@ -473,10 +475,12 @@ export function useGameLogic(
             setGameState("waiting");
             retryQueue.current = [];
             clusterQueue.current = [];
+            missCounter.current = {};
             setSessionMasteryUpdates({});
 
             // Generate first question
             nextQuestion();
+            setQuestionStartTime(Date.now());
         } else if (!isRunning) {
             hasStartedRef.current = false;
         }
