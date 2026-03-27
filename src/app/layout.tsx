@@ -30,7 +30,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="dark">
-      <body className={cn(inter.className, "bg-gray-950 text-gray-50 antialiased")}>
+      <body className={cn(inter.className, "antialiased")}>
         {children}
       </body>
     </html>

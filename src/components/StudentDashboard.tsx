@@ -33,7 +33,7 @@ export function StudentDashboard({ studentId, isRunning, setIsRunning }: Student
     useEffect(() => {
         // Apply theme to document element
         if (typeof window !== "undefined") {
-            document.documentElement.className = theme === "classic" ? "" : `theme-${theme}`;
+            document.documentElement.className = theme === "classic" ? "dark" : `dark theme-${theme}`;
         }
     }, [theme]);
 

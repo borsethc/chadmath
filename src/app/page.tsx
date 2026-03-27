@@ -45,7 +45,7 @@ export default function Home() {
 
   return (
     <main className={cn(
-      "fixed inset-0 flex flex-col items-center justify-center p-4 bg-gradient-to-b from-black to-red-950/20",
+      "fixed inset-0 flex flex-col items-center justify-center p-4 bg-background text-foreground transition-colors duration-500",
       isRunning ? "overflow-hidden touch-none" : "overflow-y-auto"
     )}>
       {/* Background Ambience */}
