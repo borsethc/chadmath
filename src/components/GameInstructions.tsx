@@ -81,11 +81,10 @@ export function GameInstructions() {
                                 </h3>
                                 <p className="text-white/80 text-sm leading-relaxed">
                                     <strong>Best for reinforcement!</strong> Mixes numbers from different groups to test your memory.
-                                    Choose from Small (2-4), Medium (5-7), or Large (8-9) groups.
+                                    Choose a Skill Level (Level 1, Level 2, or Level 3) depending on your assessment score.
                                 </p>
                                 <div className="bg-white/5 rounded-lg p-3 text-xs text-white/60">
-                                    <span className="text-emerald-300 font-bold">How to select:</span> Tap one or more group buttons (e.g., "2-4") to mix them together.
-                                    Click the <span className="inline-block border border-white/20 rounded px-1 mx-1">×</span> to remove a selection.
+                                    <span className="text-emerald-300 font-bold">How to select:</span> Tap a Skill Level button to practice factors appropriate for your speed.
                                     <br /><br />
                                     <span className="text-emerald-300 font-bold">Operation:</span> Choose between <strong>Multiply</strong> or <strong>Divide</strong> using the toggle below the groups.
                                 </div>

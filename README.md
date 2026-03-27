@@ -20,6 +20,20 @@ You can start editing the page by modifying `app/page.tsx`. The page auto-update
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
+## Using Themes
+
+Math Mastery includes a progression-based theme system to keep students engaged. As students practice and level up, they unlock new visual themes for their dashboard and practice modes:
+
+- **Classic Theme**: Default starting theme
+- **Neon Theme**: Unlocks at Level 2
+- **Matrix Theme**: Unlocks at Level 5
+- **Sunset Theme**: Unlocks at Level 10
+
+**How to change themes:**
+1. Start the application and log in with your Student ID.
+2. On the main **Student Dashboard**, look for the dropdown menu at the bottom next to the "**Custom Mode**" button.
+3. Click the dropdown to select any theme you have unlocked. The application's visuals will instantly update to match your selection!
+
 ## Learn More
 
 To learn more about Next.js, take a look at the following resources:

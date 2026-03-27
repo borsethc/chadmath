@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import { PracticeMode } from "./PracticeMode";
 import { cn } from "@/lib/utils";
 import { Play, Flame, Trophy, TrendingUp, Settings } from "lucide-react";
-import { GameMode } from "@/hooks/useGameLogic";
+import { GameMode, SkillLevel } from "@/hooks/useGameLogic";
 
 interface StudentDashboardProps {
     studentId: string;
@@ -17,7 +17,7 @@ export interface PracticeConfig {
     mode: GameMode;
     isTimerEnabled: boolean;
     isMultipleChoice: boolean;
-    selectedGroups: string[];
+    selectedLevel: SkillLevel;
     selectedTables: number[];
 }
 
@@ -60,7 +60,7 @@ export function StudentDashboard({ studentId, isRunning, setIsRunning }: Student
                         mode: "multiplication",
                         isTimerEnabled: true,
                         isMultipleChoice: false,
-                        selectedGroups: ["2-4"],
+                        selectedLevel: "Level 1",
                         selectedTables: []
                     });
                 }
@@ -85,20 +85,20 @@ export function StudentDashboard({ studentId, isRunning, setIsRunning }: Student
         const avg5to7 = Object.entries(mastery).filter(([k]) => { const f = parseInt(k.split('x')[0]); return f >= 5 && f <= 7 }).reduce((sum, [, v]) => sum + v, 0) / 3 || 0;
         const avg8to9 = Object.entries(mastery).filter(([k]) => { const f = parseInt(k.split('x')[0]); return f >= 8 }).reduce((sum, [, v]) => sum + v, 0) / 2 || 0;
 
-        let groupToFocus = "2-4";
+        let levelToFocus: SkillLevel = "Level 1";
         let minAvg = Math.min(avg2to4, avg5to7, avg8to9);
 
         if (minAvg < 5) needsFocus = true;
 
-        if (minAvg === avg8to9) groupToFocus = "8-9";
-        else if (minAvg === avg5to7) groupToFocus = "5-7";
+        if (minAvg === avg8to9) levelToFocus = "Level 3";
+        else if (minAvg === avg5to7) levelToFocus = "Level 2";
 
         if (needsFocus) {
             setConfig({
                 mode: "multiplication",
                 isTimerEnabled: false, // Less pressure
                 isMultipleChoice: true, // Lower cognitive load
-                selectedGroups: [groupToFocus],
+                selectedLevel: levelToFocus,
                 selectedTables: []
             });
         } else {
@@ -107,7 +107,7 @@ export function StudentDashboard({ studentId, isRunning, setIsRunning }: Student
                 mode: "tables",
                 isTimerEnabled: true,
                 isMultipleChoice: false,
-                selectedGroups: [],
+                selectedLevel: "Level 3",
                 selectedTables: [2, 3, 4, 5, 6, 7, 8, 9] // All tables
             });
         }

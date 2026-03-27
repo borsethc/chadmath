@@ -79,9 +79,9 @@ export function PracticeMode({ isRunning, studentId, setIsRunning, initialConfig
     const [factMastery, setFactMastery] = useState<Record<string, number>>({});
 
     // Hooks - Must be called before effects that use them
-    const { currentQuestion, userInput, setInput, gameState, streak, selectedGroups, toggleGroup, stats, isWrong, sessionMasteryUpdates, selectedTables, setSelectedTables } = useGameLogic(
+    const { currentQuestion, userInput, setInput, gameState, streak, selectedLevel, selectLevel, stats, isWrong, sessionMasteryUpdates, selectedTables, setSelectedTables } = useGameLogic(
         isRunning, mode, isTimerEnabled, isMultipleChoice, factMastery,
-        initialConfig?.selectedGroups as any, initialConfig?.selectedTables
+        initialConfig?.selectedLevel as any, initialConfig?.selectedTables
     );
 
     // Check daily limit and all time high on mount
@@ -191,7 +191,7 @@ export function PracticeMode({ isRunning, studentId, setIsRunning, initialConfig
                 mode,
                 wrong,
                 isMultipleChoice,
-                selectedGroups as string[],
+                [selectedLevel],
                 assessmentTier,
                 sessionMasteryUpdates // Pass the mastery updates
             );
@@ -452,7 +452,7 @@ export function PracticeMode({ isRunning, studentId, setIsRunning, initialConfig
                                 (mode === "multiplication" || mode === "division") ? "bg-indigo-600 text-white shadow-lg" : "text-gray-400 hover:text-white"
                             )}
                         >
-                            Factor Focus
+                            Skill Level
                         </button>
                         <button
                             onClick={() => setMode("assessment")}
@@ -494,24 +494,36 @@ export function PracticeMode({ isRunning, studentId, setIsRunning, initialConfig
                         </div>
                     )}
 
-                    {/* Factor Group Selection - Hide for Assessment AND Tables */}
+                    {/* Skill Level Selection - Hide for Assessment AND Tables */}
                     {mode !== "assessment" && mode !== "tables" && (
                         <div className="flex flex-col items-center gap-3 w-full max-w-xs pt-2">
-                            <div className="flex flex-wrap justify-center gap-2 w-full">
-                                {(["2-4", "5-7", "8-9"] as const).map(group => (
-                                    <button
-                                        key={group}
-                                        onClick={() => toggleGroup(group)}
-                                        className={cn(
-                                            "px-4 py-2 rounded-lg text-sm font-bold transition-all border flex-1 min-w-[30%]",
-                                            selectedGroups.includes(group)
-                                                ? "bg-indigo-500/20 border-indigo-500 text-indigo-300"
-                                                : "bg-white/5 border-white/10 text-muted-foreground hover:bg-white/10"
-                                        )}
-                                    >
-                                        {group}
-                                    </button>
-                                ))}
+                            <span className="text-[10px] sm:text-xs font-medium uppercase tracking-widest text-muted-foreground">
+                                Select Skill Level
+                            </span>
+                            <div className="flex flex-col gap-2 w-full">
+                                {(["Level 1", "Level 2", "Level 3"] as const).map(level => {
+                                    // Set tooltips based on level
+                                    let tooltip = "";
+                                    if (level === "Level 1") tooltip = "< 10 answers/min in Assessment";
+                                    else if (level === "Level 2") tooltip = "< 20 answers/min in Assessment";
+                                    else if (level === "Level 3") tooltip = "< 30 answers/min in Assessment";
+
+                                    return (
+                                        <button
+                                            key={level}
+                                            onClick={() => selectLevel(level)}
+                                            className={cn(
+                                                "px-4 py-3 rounded-lg text-sm font-bold transition-all border w-full flex flex-col items-center justify-center",
+                                                selectedLevel === level
+                                                    ? "bg-indigo-500/20 border-indigo-500 text-indigo-300"
+                                                    : "bg-white/5 border-white/10 text-muted-foreground hover:bg-white/10"
+                                            )}
+                                        >
+                                            <span>{level}</span>
+                                            <span className="text-[10px] font-normal opacity-70 mt-1">{tooltip}</span>
+                                        </button>
+                                    );
+                                })}
                             </div>
                         </div>
                     )}

@@ -5,7 +5,7 @@ import { useState, useEffect, useCallback, useRef } from "react";
 
 
 export type GameState = "waiting" | "revealed" | "correct";
-export type FactorGroup = "2-4" | "5-7" | "8-9";
+export type SkillLevel = "Level 1" | "Level 2" | "Level 3";
 export type GameMode = "multiplication" | "division" | "assessment" | "tables";
 
 interface SessionStats {
@@ -48,10 +48,10 @@ export function useGameLogic(
     isTimerEnabled: boolean = true,
     isMultipleChoice: boolean = false,
     initialMastery: FactMastery = {},
-    initialGroups: FactorGroup[] = ["2-4", "5-7", "8-9"],
+    initialLevel: SkillLevel = "Level 1",
     initialTables: number[] = [2]
 ) {
-    const [selectedGroups, setSelectedGroups] = useState<FactorGroup[]>(initialGroups);
+    const [selectedLevel, setSelectedLevel] = useState<SkillLevel>(initialLevel);
     const [selectedTables, setSelectedTables] = useState<number[]>(initialTables);
     const [currentQuestion, setCurrentQuestion] = useState<Question | null>(null);
     const [userInput, setUserInput] = useState("");
@@ -126,13 +126,13 @@ export function useGameLogic(
             // 4. Adaptive Selection (Smart Repetition)
             // Instead of pure random, we weight by (1.0 - mastery). Lower mastery = Higher chance.
 
-            // Gather all candidate pairs based on selected groups
+            // Gather all candidate pairs based on selected level
             const candidates: { f1: number, f2: number, weight: number }[] = [];
 
             const validFactors = new Set<number>();
-            if (selectedGroups.includes("2-4")) [2, 3, 4].forEach(n => validFactors.add(n));
-            if (selectedGroups.includes("5-7")) [5, 6, 7].forEach(n => validFactors.add(n));
-            if (selectedGroups.includes("8-9")) [8, 9].forEach(n => validFactors.add(n));
+            if (selectedLevel === "Level 1") [2, 3, 4].forEach(n => validFactors.add(n));
+            else if (selectedLevel === "Level 2") [5, 6, 7].forEach(n => validFactors.add(n));
+            else if (selectedLevel === "Level 3") [8, 9].forEach(n => validFactors.add(n));
 
             // If nothing selected (shouldn't happen due to UI), fallback to all
             const fOptions = validFactors.size > 0 ? Array.from(validFactors) : [2, 3, 4, 5, 6, 7, 8, 9];
@@ -218,13 +218,10 @@ export function useGameLogic(
             options: sortedOptions,
             operator: qOperator
         };
-    }, [selectedGroups, mode, mastery, selectedTables]);
+    }, [selectedLevel, mode, mastery, selectedTables]);
 
-    const toggleGroup = useCallback((group: FactorGroup) => {
-        setSelectedGroups(prev => {
-            if (prev.includes(group) && prev.length === 1) return prev;
-            return prev.includes(group) ? prev.filter(g => g !== group) : [...prev, group];
-        });
+    const selectLevel = useCallback((level: SkillLevel) => {
+        setSelectedLevel(level);
     }, []);
 
     const nextQuestion = useCallback(() => {
@@ -493,8 +490,8 @@ export function useGameLogic(
         streak,
         isWrong,
         stats,
-        selectedGroups,
-        toggleGroup,
+        selectedLevel,
+        selectLevel,
         selectedTables,
         setSelectedTables,
         sessionMasteryUpdates // Export this so PracticeMode can save it
