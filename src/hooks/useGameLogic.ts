@@ -244,7 +244,10 @@ export function useGameLogic(
             let change = correct ? (isFast ? 0.1 : 0) : -0.2;
 
             // Cap between 0 and 1
-            const newVal = Math.max(0, Math.min(1, current + change));
+            // User request: Multiple Choice ("Choice") mode can only reach Yellow (cap at 0.79).
+            // Typing ("Type") mode can reach Green (1.0).
+            const maxMastery = isMultipleChoice ? 0.79 : 1.0;
+            const newVal = Math.max(0, Math.min(maxMastery, current + change));
 
             const newMastery = { ...prev, [key]: newVal };
 
