@@ -427,7 +427,7 @@ export function PracticeMode({ isRunning, studentId, setIsRunning, initialConfig
         // Show Start Button if not running (and allowed)
         if (!isRunning) {
             return (
-                <div className="flex flex-col min-h-[50vh] w-full max-w-md items-center justify-center space-y-4 rounded-3xl border border-white/5 bg-white/5 p-8 shadow-2xl backdrop-blur-3xl">
+                <div className="flex flex-col w-full max-w-md items-center justify-start space-y-5 rounded-3xl border border-white/5 bg-white/5 p-6 sm:p-8 shadow-2xl backdrop-blur-3xl shrink-0 my-4">
                     <div className="flex flex-col items-center space-y-2">
                         <div className="px-4 py-2 rounded-full bg-white/5 border border-white/10 text-sm font-medium text-muted-foreground uppercase tracking-widest flex gap-4">
                             <span>Goal: <span className="text-white font-bold">{dailySessions.count} / 5</span></span>

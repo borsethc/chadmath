@@ -45,17 +45,17 @@ export default function Home() {
 
   return (
     <main className={cn(
-      "fixed inset-0 flex flex-col items-center justify-center p-4 bg-background text-foreground transition-colors duration-500",
-      isRunning ? "overflow-hidden touch-none" : "overflow-y-auto"
+      "flex flex-col items-center p-4 bg-background text-foreground transition-colors duration-500",
+      isRunning ? "fixed inset-0 justify-center overflow-hidden touch-none" : "min-h-screen justify-start overflow-x-hidden relative py-8 sm:py-16"
     )}>
       {/* Background Ambience */}
       <div className="absolute inset-0 bg-[linear-gradient(to_right,#4f4f4f2e_1px,transparent_1px),linear-gradient(to_bottom,#4f4f4f2e_1px,transparent_1px)] bg-[size:14px_24px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] pointer-events-none" />
 
-      <div className="z-10 w-full flex flex-col items-center h-full justify-center">
+      <div className={cn("z-10 w-full flex flex-col items-center", isRunning ? "h-full justify-center" : "justify-start")}>
         {/* Header - Shrink or Hide on Mobile when Running */}
         <header className={cn(
-          "text-center flex flex-col items-center transition-all duration-500 ease-in-out",
-          isRunning ? "absolute top-4 scale-75 opacity-50 hover:opacity-100 z-50 origin-top" : "mb-8 relative"
+          "text-center flex flex-col items-center shrink-0 transition-all duration-500 ease-in-out",
+          isRunning ? "absolute top-4 scale-75 opacity-50 hover:opacity-100 z-50 origin-top" : "mb-6 sm:mb-8 relative"
         )}>
           <div className="flex items-center gap-4 mb-2">
             <div className={cn("relative transition-all", isRunning ? "w-12 h-12" : "w-16 h-16 sm:w-24 sm:h-24")}>
