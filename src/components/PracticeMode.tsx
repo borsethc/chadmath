@@ -66,6 +66,7 @@ export function PracticeMode({ isRunning, studentId, setIsRunning, initialConfig
     const [allTimeHigh, setAllTimeHigh] = useState<number | undefined>(undefined);
     const [isCheckingLimit, setIsCheckingLimit] = useState(true);
     const [sessionComplete, setSessionComplete] = useState(false);
+    const [showSplashScore, setShowSplashScore] = useState(false);
 
     // Gamification State
     const [xp, setXp] = useState(0);
@@ -172,8 +173,18 @@ export function PracticeMode({ isRunning, studentId, setIsRunning, initialConfig
     }, [timeLeft, sessionComplete, isRunning, mode, stats.total, isTimerEnabled]);
 
     const handleSessionComplete = async () => {
-        setSessionComplete(true);
         setIsRunning(false); // Stop running
+
+        if (mode === "assessment") {
+            setShowSplashScore(true);
+            setTimeout(() => {
+                setShowSplashScore(false);
+                setSessionComplete(true);
+            }, 3000);
+        } else {
+            setSessionComplete(true);
+        }
+
         // Log the session using the stats from useGameLogic
         const finalScore = stats.correct; // accessing stats from hook
         const totalAttempts = stats.total;
@@ -301,10 +312,24 @@ export function PracticeMode({ isRunning, studentId, setIsRunning, initialConfig
         );
     }
 
-
-
-
-
+    if (showSplashScore) {
+        return (
+            <div className="flex flex-col h-[80vh] w-full max-w-md items-center justify-center text-center p-8 space-y-8 rounded-3xl border border-white/5 bg-white/5 backdrop-blur-3xl overflow-hidden relative">
+                <motion.div
+                    initial={{ scale: 0.5, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    transition={{ type: "spring", duration: 0.6 }}
+                    className="flex flex-col items-center"
+                >
+                    <h2 className="text-4xl font-black uppercase tracking-widest mb-2 text-indigo-400 animate-pulse">Time's Up!</h2>
+                    <span className="text-sm font-bold text-muted-foreground uppercase tracking-widest mb-4">Final Score</span>
+                    <div className="text-9xl font-black text-white drop-shadow-[0_0_30px_rgba(79,70,229,0.5)]">
+                        {stats.correct}
+                    </div>
+                </motion.div>
+            </div>
+        );
+    }
 
     if (sessionComplete) {
         const feedback = mode === "assessment" ? getFeedback(stats.correct) : null;
