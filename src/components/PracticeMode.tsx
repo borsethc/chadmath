@@ -717,7 +717,7 @@ export function PracticeMode({ isRunning, studentId, setIsRunning, initialConfig
                                             transition={{ duration: 0.4 }}
                                             whileHover={{ scale: 1.05, backgroundColor: "rgba(255,255,255,0.1)" }}
                                             whileTap={{ scale: 0.95 }}
-                                            onClick={() => handleOptionClick(opt)}
+                                            onPointerDown={() => handleOptionClick(opt)}
                                             onMouseEnter={() => playHover()}
                                             className={cn(
                                                 "h-16 rounded-xl border text-xl sm:text-2xl font-bold text-white transition-colors hover:border-indigo-500/50",
@@ -778,8 +778,8 @@ export function PracticeMode({ isRunning, studentId, setIsRunning, initialConfig
                                             key={num}
                                             whileHover={{ scale: 1.05, backgroundColor: "rgba(255,255,255,0.15)" }}
                                             whileTap={{ scale: 0.95 }}
-                                            onClick={() => setInput(userInput + num)}
-                                            className="h-14 rounded-full bg-white/10 border border-white/5 text-xl font-bold text-white flex items-center justify-center transition-colors"
+                                            onPointerDown={() => setInput(userInput + num)}
+                                            className="h-14 rounded-full bg-white/10 border border-white/5 text-xl font-bold text-white flex items-center justify-center transition-colors touch-manipulation"
                                         >
                                             {num}
                                         </motion.button>
@@ -813,16 +813,16 @@ export function PracticeMode({ isRunning, studentId, setIsRunning, initialConfig
                                     <motion.button
                                         whileHover={{ scale: 1.05, backgroundColor: "rgba(255,255,255,0.15)" }}
                                         whileTap={{ scale: 0.95 }}
-                                        onClick={() => setInput(userInput + "0")}
-                                        className="h-14 rounded-full bg-white/10 border border-white/5 text-xl font-bold text-white flex items-center justify-center transition-colors"
+                                        onPointerDown={() => setInput(userInput + "0")}
+                                        className="h-14 rounded-full bg-white/10 border border-white/5 text-xl font-bold text-white flex items-center justify-center transition-colors touch-manipulation"
                                     >
                                         0
                                     </motion.button>
                                     <motion.button
                                         whileHover={{ scale: 1.05, backgroundColor: "rgba(255,50,50,0.2)" }}
                                         whileTap={{ scale: 0.95 }}
-                                        onClick={() => setInput(userInput.slice(0, -1))}
-                                        className="h-14 rounded-full bg-white/5 border border-white/5 text-white flex items-center justify-center transition-colors hover:bg-red-500/20 group"
+                                        onPointerDown={() => setInput(userInput.slice(0, -1))}
+                                        className="h-14 rounded-full bg-white/5 border border-white/5 text-white flex items-center justify-center transition-colors hover:bg-red-500/20 group touch-manipulation"
                                     >
                                         <Delete className="w-5 h-5 text-muted-foreground group-hover:text-red-400" />
                                     </motion.button>
