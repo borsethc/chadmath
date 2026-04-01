@@ -71,18 +71,16 @@ export default function Dashboard() {
                             <th className="p-4 font-semibold text-gray-300">Student ID</th>
                             <th className="p-4 font-semibold text-gray-300">Last Seen</th>
                             <th className="p-4 font-semibold text-gray-300">Total Sessions</th>
-                            <th className="p-4 font-semibold text-gray-300">Total Logins</th>
-                            <th className="p-4 font-semibold text-gray-300">Total Practice Time</th>
-                            <th className="p-4 font-semibold text-gray-300">Last Mode</th>
-                            <th className="p-4 font-semibold text-gray-300">Last Factors</th>
-                            <th className="p-4 font-semibold text-gray-300">Last Score</th>
-                            <th className="p-4 font-semibold text-gray-300">Last Wrong</th>
+                            <th className="p-4 font-semibold text-gray-300">Practice Time</th>
+                            <th className="p-4 font-semibold text-red-400">Red Factors</th>
+                            <th className="p-4 font-semibold text-yellow-400">Yellow Factors</th>
+                            <th className="p-4 font-semibold text-emerald-400">Green Factors</th>
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-white/5">
                         {students.length === 0 ? (
                             <tr>
-                                <td colSpan={9} className="p-8 text-center text-muted-foreground">
+                                <td colSpan={7} className="p-8 text-center text-muted-foreground">
                                     No student data recorded yet.
                                 </td>
                             </tr>
@@ -96,6 +94,21 @@ export default function Dashboard() {
                                 // Calculate total time (each session is 1 min)
                                 const totalMinutes = student.sessions.length;
 
+                                // Calculate Red, Yellow, Green factors
+                                const factMastery = student.factMastery || {};
+                                const redFactors: number[] = [];
+                                const yellowFactors: number[] = [];
+                                const greenFactors: number[] = [];
+
+                                [2, 3, 4, 5, 6, 7, 8, 9].forEach(factor => {
+                                    const keys = Object.keys(factMastery).filter(k => k.startsWith(`${factor}x`) || k.endsWith(`x${factor}`));
+                                    const avg = keys.length ? keys.reduce((s, k) => s + factMastery[k], 0) / keys.length : 0;
+                                    
+                                    if (avg >= 0.8) greenFactors.push(factor);
+                                    else if (avg >= 0.4) yellowFactors.push(factor);
+                                    else redFactors.push(factor); // Includes unplayed (0)
+                                });
+
                                 return (
                                     <tr key={student.id} className="hover:bg-white/5 transition-colors">
                                         <td className="p-4 font-mono font-medium text-indigo-300">
@@ -107,41 +120,19 @@ export default function Dashboard() {
                                             {new Date(student.lastSeen).toLocaleString("en-US", { timeZone: "America/Chicago" })}
                                         </td>
                                         <td className="p-4 text-gray-300">
-                                            {student.sessions.length} <span className="text-gray-500 text-xs ml-1">(Avg: {averageScore})</span>
-                                        </td>
-                                        <td className="p-4 text-gray-300">
-                                            {student.loginCount ?? (student.sessions.length > 0 ? "~" + student.sessions.length : 1)}
+                                            {student.sessions.length}
                                         </td>
                                         <td className="p-4 text-gray-300">
                                             {totalMinutes} min
                                         </td>
-                                        <td className="p-4 text-gray-300">
-                                            {lastSession ? (
-                                                <span className="px-2 py-1 rounded-md bg-white/10 text-xs text-white">
-                                                    {lastSession.isMultipleChoice ? "Choice" : "Typing"}
-                                                </span>
-                                            ) : "-"}
+                                        <td className="p-4 text-red-300 font-bold tracking-widest">
+                                            {redFactors.length > 0 ? redFactors.join(", ") : "-"}
                                         </td>
-                                        <td className="p-4 text-gray-300">
-                                            {lastSession?.selectedFactors ? (
-                                                <span className="text-xs font-mono text-gray-400">
-                                                    {lastSession.selectedFactors.join(", ")}
-                                                </span>
-                                            ) : "-"}
+                                        <td className="p-4 text-yellow-300 font-bold tracking-widest">
+                                            {yellowFactors.length > 0 ? yellowFactors.join(", ") : "-"}
                                         </td>
-                                        <td className="p-4 text-gray-300">
-                                            {lastSession ? (
-                                                <span className="font-bold text-emerald-400">
-                                                    {lastSession.score ?? 0}/{lastSession.total ?? 0}
-                                                </span>
-                                            ) : "-"}
-                                        </td>
-                                        <td className="p-4 text-gray-300">
-                                            {lastSession ? (
-                                                <span className="font-bold text-rose-400">
-                                                    {lastSession.wrong ?? 0}
-                                                </span>
-                                            ) : "-"}
+                                        <td className="p-4 text-emerald-300 font-bold tracking-widest">
+                                            {greenFactors.length > 0 ? greenFactors.join(", ") : "-"}
                                         </td>
                                     </tr>
                                 );
