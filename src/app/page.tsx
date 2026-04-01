@@ -11,6 +11,7 @@ export default function Home() {
   const [studentId, setStudentId] = useState("");
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [pin, setPin] = useState("");
 
 
   // Import dynamically manually or just use fetch/server action
@@ -18,6 +19,11 @@ export default function Home() {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!studentId.trim()) return;
+
+    if (pin !== "5566") {
+        alert("Incorrect PIN. Access Denied.");
+        return;
+    }
 
     setIsLoading(true);
     try {
@@ -89,14 +95,28 @@ export default function Home() {
                 type="text"
                 value={studentId}
                 onChange={(e) => setStudentId(e.target.value)}
-                className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-center text-xl font-bold text-white placeholder:text-white/20 focus:outline-none focus:border-indigo-500 transition-all"
+                className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-center text-xl font-bold text-white placeholder:text-white/20 focus:outline-none focus:border-indigo-500 transition-all font-mono"
                 placeholder="Enter ID"
-              // autoFocus removed for better mobile stability
+              />
+            </div>
+            <div className="flex flex-col gap-2 w-full mt-2">
+              <label htmlFor="pin" className="text-xs font-medium uppercase tracking-widest text-muted-foreground text-center">
+                Class PIN
+              </label>
+              <input
+                id="pin"
+                type="password"
+                inputMode="numeric"
+                pattern="[0-9]*"
+                value={pin}
+                onChange={(e) => setPin(e.target.value)}
+                className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-center text-xl font-bold text-white placeholder:text-white/20 focus:outline-none focus:border-indigo-500 transition-all tracking-widest"
+                placeholder="****"
               />
             </div>
             <button
               type="submit"
-              disabled={isLoading || !studentId.trim()}
+              disabled={isLoading || !studentId.trim() || !pin.trim()}
               className="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 px-6 rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer active:scale-95 touch-manipulation"
             >
               {isLoading ? "Loading..." : "Enter Class"}
