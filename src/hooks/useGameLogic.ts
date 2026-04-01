@@ -66,7 +66,9 @@ export function useGameLogic(
     const retryQueue = useRef<Question[]>([]);
     const clusterQueue = useRef<Question[]>([]);
     const missCounter = useRef<Record<string, number>>({});
+    const sessionMasteryUpdatesRef = useRef<FactMastery>({}); // Keep track
     const [sessionMasteryUpdates, setSessionMasteryUpdates] = useState<FactMastery>({}); // Track session changes to sync back
+    const lastQuestionKey = useRef<string | null>(null);
 
     // Timer for auto-reveal (Smart Timer)
     const revealTimerRef = useRef<NodeJS.Timeout | null>(null);
@@ -106,58 +108,66 @@ export function useGameLogic(
 
         // Generate Multiplication/Division with Adaptive Logic
         // Select Factors
-        let f1, f2;
+        let f1 = 2, f2 = 2;
+        let attempts = 0;
 
-        if (mode === "assessment") {
-            f1 = Math.floor(Math.random() * 8) + 2;
-            f2 = Math.floor(Math.random() * 8) + 2;
-        } else if (mode === "tables") {
-            // Table Mode: Randomly select one of the active tables
-            // If none selected (should be blocked by UI), default to 2
-            const activeTables = selectedTables.length > 0 ? selectedTables : [2];
-            const table = activeTables[Math.floor(Math.random() * activeTables.length)];
+        do {
+            if (mode === "assessment") {
+                f1 = Math.floor(Math.random() * 8) + 2;
+                f2 = Math.floor(Math.random() * 8) + 2;
+            } else if (mode === "tables") {
+                // Table Mode: Randomly select one of the active tables
+                // If none selected (should be blocked by UI), default to 2
+                const activeTables = selectedTables.length > 0 ? selectedTables : [2];
+                const table = activeTables[Math.floor(Math.random() * activeTables.length)];
 
-            f1 = table;
-            f2 = Math.floor(Math.random() * 9) + 1; // 1 to 9
+                f1 = table;
+                f2 = Math.floor(Math.random() * 9) + 1; // 1 to 9
 
-            // Randomly swap for display variety? User said "Occasionally flip"
-            if (Math.random() > 0.5) {
-                [f1, f2] = [f2, f1];
-            }
-        } else {
-            // 4. Adaptive Selection using User's Percentage-Based Logic
-            const POOL_A = [2, 3, 4];
-            const POOL_B = [5, 6, 7];
-            const POOL_C = [8, 9];
-            
-            const roll = Math.random() * 100;
-
-            if (selectedLevel === "Level 1") {
-                f1 = POOL_A[Math.floor(Math.random() * POOL_A.length)];
-                f2 = POOL_A[Math.floor(Math.random() * POOL_A.length)];
-            } else if (selectedLevel === "Level 2") {
-                if (roll <= 60) {
-                    f1 = POOL_B[Math.floor(Math.random() * POOL_B.length)];
-                    f2 = POOL_B[Math.floor(Math.random() * POOL_B.length)];
-                } else {
-                    f1 = POOL_B[Math.floor(Math.random() * POOL_B.length)];
-                    f2 = POOL_A[Math.floor(Math.random() * POOL_A.length)];
+                // Randomly swap for display variety? User said "Occasionally flip"
+                if (Math.random() > 0.5) {
+                    [f1, f2] = [f2, f1];
                 }
             } else {
-                if (roll <= 40) {
-                    f1 = POOL_C[Math.floor(Math.random() * POOL_C.length)];
-                    f2 = POOL_C[Math.floor(Math.random() * POOL_C.length)];
+                // 4. Adaptive Selection using User's Percentage-Based Logic
+                const POOL_A = [2, 3, 4];
+                const POOL_B = [5, 6, 7];
+                const POOL_C = [8, 9];
+                
+                const roll = Math.random() * 100;
+
+                if (selectedLevel === "Level 1") {
+                    f1 = POOL_A[Math.floor(Math.random() * POOL_A.length)];
+                    f2 = POOL_A[Math.floor(Math.random() * POOL_A.length)];
+                } else if (selectedLevel === "Level 2") {
+                    if (roll <= 60) {
+                        f1 = POOL_B[Math.floor(Math.random() * POOL_B.length)];
+                        f2 = POOL_B[Math.floor(Math.random() * POOL_B.length)];
+                    } else {
+                        f1 = POOL_B[Math.floor(Math.random() * POOL_B.length)];
+                        f2 = POOL_A[Math.floor(Math.random() * POOL_A.length)];
+                    }
                 } else {
-                    f1 = POOL_C[Math.floor(Math.random() * POOL_C.length)];
-                    const poolAB = [...POOL_A, ...POOL_B];
-                    f2 = poolAB[Math.floor(Math.random() * poolAB.length)];
+                    if (roll <= 40) {
+                        f1 = POOL_C[Math.floor(Math.random() * POOL_C.length)];
+                        f2 = POOL_C[Math.floor(Math.random() * POOL_C.length)];
+                    } else {
+                        f1 = POOL_C[Math.floor(Math.random() * POOL_C.length)];
+                        const poolAB = [...POOL_A, ...POOL_B];
+                        f2 = poolAB[Math.floor(Math.random() * poolAB.length)];
+                    }
+                }
+
+                // Commutative Flip
+                if (Math.random() > 0.5) {
+                    [f1, f2] = [f2, f1];
                 }
             }
+            attempts++;
+        } while (mode === "assessment" && attempts < 5 && getFactKey(f1, f2, "×") === lastQuestionKey.current);
 
-            // Commutative Flip
-            if (Math.random() > 0.5) {
-                [f1, f2] = [f2, f1];
-            }
+        if (mode === "assessment") {
+            lastQuestionKey.current = getFactKey(f1, f2, "×");
         }
 
 

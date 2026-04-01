@@ -117,12 +117,10 @@ export function StudentDashboard({ studentId, isRunning, setIsRunning }: Student
         return (
             <PracticeMode
                 isRunning={isRunning}
-                setIsRunning={(r) => {
-                    setIsRunning(r);
-                    if (!r && config) setShowPractice(false);
-                }}
+                setIsRunning={setIsRunning}
                 studentId={studentId}
                 initialConfig={config}
+                onClose={() => setShowPractice(false)}
             />
         );
     }
