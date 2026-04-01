@@ -1,10 +1,57 @@
+"use client";
+
 import { getDashboardData } from "../actions";
 import Link from 'next/link';
+import { useState } from "react";
 
-export const dynamic = 'force-dynamic';
+export default function Dashboard() {
+    const [pin, setPin] = useState("");
+    const [isAuthenticated, setIsAuthenticated] = useState(false);
+    const [students, setStudents] = useState<any[]>([]);
+    const [isLoading, setIsLoading] = useState(false);
 
-export default async function Dashboard() {
-    const students = await getDashboardData();
+    const handleLogin = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (pin === "5566") {
+            setIsLoading(true);
+            try {
+                const data = await getDashboardData();
+                setStudents(data);
+                setIsAuthenticated(true);
+            } catch (error) {
+                console.error("Failed to load dashboard data.", error);
+                alert("Failed to load database. Please try again.");
+            } finally {
+                setIsLoading(false);
+            }
+        } else {
+            alert("Incorrect PIN.");
+        }
+    };
+
+    if (!isAuthenticated) {
+        return (
+            <div className="min-h-screen bg-black flex items-center justify-center p-4 font-sans text-white">
+                <form onSubmit={handleLogin} className="flex flex-col items-center gap-4 w-full max-w-xs p-8 rounded-3xl border border-white/5 bg-white/5 backdrop-blur-sm shadow-2xl">
+                    <h2 className="text-xl font-bold mb-4 tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-400">Teacher Access</h2>
+                    <input
+                        type="password"
+                        inputMode="numeric"
+                        pattern="[0-9]*"
+                        autoFocus
+                        value={pin}
+                        onChange={(e) => setPin(e.target.value)}
+                        className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-center text-3xl font-mono tracking-[0.5em] text-white focus:outline-none focus:border-indigo-500 transition-colors"
+                        placeholder="PIN"
+                    />
+                    <button type="submit" disabled={isLoading || !pin.trim()} className="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 px-6 rounded-xl transition-all disabled:opacity-50">
+                        {isLoading ? "Loading Data..." : "Access Dashboard"}
+                    </button>
+                    <a href="/" className="text-sm mt-4 text-gray-500 hover:text-white transition-colors">Back to Math Game</a>
+                </form>
+            </div>
+        );
+    }
 
     return (
         <div className="min-h-screen bg-black text-white p-8 font-sans">
@@ -43,7 +90,7 @@ export default async function Dashboard() {
                             students.map((student) => {
                                 const lastSession = student.sessions[student.sessions.length - 1];
                                 const averageScore = student.sessions.length > 0
-                                    ? (student.sessions.reduce((acc, s) => acc + s.score, 0) / student.sessions.length).toFixed(1)
+                                    ? (student.sessions.reduce((acc: any, s: any) => acc + s.score, 0) / student.sessions.length).toFixed(1)
                                     : "N/A";
 
                                 // Calculate total time (each session is 1 min)
