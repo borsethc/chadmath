@@ -1,5 +1,5 @@
 import React from 'react';
-import { Info, BookOpen, BrainCircuit, MousePointerClick } from 'lucide-react';
+import { Info, BookOpen, BrainCircuit, MousePointerClick, TrendingUp } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState } from 'react';
 
@@ -49,6 +49,40 @@ export function GameInstructions() {
                                             <strong>Off:</strong> Stress-free practice. Focus on accuracy.
                                             <br />
                                             <strong>On:</strong> Builds speed and fluency for tests.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="w-full h-px bg-white/10" />
+
+                            {/* Mastery & Heatmap Section */}
+                            <div className="space-y-4">
+                                <h3 className="flex items-center gap-2 text-rose-400 font-bold text-lg">
+                                    <TrendingUp size={20} />
+                                    Tracking Your Mastery
+                                </h3>
+                                <p className="text-white/80 text-sm leading-relaxed">
+                                    On your dashboard, you will see a color-coded grid representing your fluency for each number factor.
+                                </p>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-2">
+                                    <div className="space-y-1 bg-white/5 p-3 rounded-xl border border-white/5">
+                                        <div className="flex items-center gap-2 mb-1">
+                                            <div className="w-4 h-4 rounded-sm bg-yellow-500/50 border border-yellow-500/20" />
+                                            <span className="text-yellow-400 font-bold text-sm">Yellow (Basic Recall)</span>
+                                        </div>
+                                        <p className="text-white/70 text-xs leading-relaxed">
+                                            <strong>Multiple Choice mode</strong> builds your score up to Yellow. Because Multiple Choice only proves you can recognize an answer, your progress for that number will cap out here.
+                                        </p>
+                                    </div>
+
+                                    <div className="space-y-1 bg-white/5 p-3 rounded-xl border border-emerald-500/20 shadow-[0_0_10px_rgba(16,185,129,0.1)]">
+                                        <div className="flex items-center gap-2 mb-1">
+                                            <div className="w-4 h-4 rounded-sm bg-emerald-500/50 shadow-[0_0_10px_rgba(16,185,129,0.3)]" />
+                                            <span className="text-emerald-400 font-bold text-sm">Green (True Mastery)</span>
+                                        </div>
+                                        <p className="text-white/70 text-xs leading-relaxed">
+                                            To achieve Green status, you MUST correctly answer questions using exactly <strong>Typing input</strong>. This proves you have committed the math fact to memory!
                                         </p>
                                     </div>
                                 </div>
