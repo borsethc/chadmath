@@ -221,20 +221,14 @@ export function StudentDashboard({ studentId, isRunning, setIsRunning }: Student
                         <span className="text-[10px] uppercase tracking-widest text-indigo-200 font-bold flex items-center gap-1">
                             <TrendingUp className="w-3 h-3" /> Recommended For You
                         </span>
-                        <span className="text-lg font-black">Play Daily Practice</span>
+                        <span className="text-lg font-black">Daily Practice</span>
                     </div>
                     <Play className="w-8 h-8 fill-current opacity-80 group-hover:opacity-100 transition-opacity" />
                 </div>
             </button>
 
-            {/* Custom Mode & Themes row */}
+            {/* Themes row */}
             <div className="flex w-full gap-2 mt-4">
-                <button
-                    onClick={() => { setConfig(null); setShowPractice(true); }}
-                    className="flex-1 bg-white/5 hover:bg-white/10 text-white/70 py-3 rounded-xl border border-white/10 text-xs font-bold uppercase tracking-widest transition-colors flex items-center justify-center gap-2"
-                >
-                    <Settings className="w-4 h-4" /> Custom Mode
-                </button>
 
                 {level >= 2 && (
                     <select
