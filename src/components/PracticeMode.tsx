@@ -148,7 +148,7 @@ export function PracticeMode({ isRunning, studentId, setIsRunning, initialConfig
     // Force strict options during Assessment
     useEffect(() => {
         if (mode === "assessment") {
-            setIsMultipleChoice(true);
+            setIsMultipleChoice(false);
             setIsTimerEnabled(true);
         }
     }, [mode]);
