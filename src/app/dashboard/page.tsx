@@ -29,6 +29,51 @@ export default function Dashboard() {
         }
     };
 
+    const handleExportCSV = () => {
+        if (students.length === 0) return;
+
+        const headers = ["Student ID", "Last Seen", "Total Sessions", "Practice Time (min)", "Red Factors", "Yellow Factors", "Green Factors"];
+
+        const rows = students.map(student => {
+            const factMastery = student.factMastery || {};
+            const redFactors: number[] = [];
+            const yellowFactors: number[] = [];
+            const greenFactors: number[] = [];
+
+            [2, 3, 4, 5, 6, 7, 8, 9].forEach(factor => {
+                const keys = Object.keys(factMastery).filter(k => k.startsWith(`${factor}x`) || k.endsWith(`x${factor}`));
+                const avg = keys.length ? keys.reduce((s, k) => s + factMastery[k], 0) / keys.length : 0;
+                
+                if (avg >= 0.8) greenFactors.push(factor);
+                else if (avg >= 0.4) yellowFactors.push(factor);
+                else redFactors.push(factor);
+            });
+
+            // Format date carefully to avoid CSV cell breaking
+            const lastSeenStr = new Date(student.lastSeen).toLocaleString("en-US", { timeZone: "America/Chicago" }).replace(/,/g, '');
+
+            return [
+                student.id,
+                lastSeenStr,
+                student.sessions.length,
+                student.sessions.length, // total minutes = 1 min per session
+                `"${redFactors.join(", ")}"`,
+                `"${yellowFactors.join(", ")}"`,
+                `"${greenFactors.join(", ")}"`
+            ].join(",");
+        });
+
+        const csvContent = [headers.join(","), ...rows].join("\n");
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.setAttribute("href", url);
+        link.setAttribute("download", `chadmath_export_${new Date().toISOString().split('T')[0]}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    };
+
     if (!isAuthenticated) {
         return (
             <div className="min-h-screen bg-black flex items-center justify-center p-4 font-sans text-white">
@@ -59,9 +104,17 @@ export default function Dashboard() {
                 <h1 className="text-3xl font-bold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-400">
                     Student Progress Dashboard
                 </h1>
-                <a href="/" className="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg text-sm font-medium transition-colors">
-                    Back to Game
-                </a>
+                <div className="flex gap-4">
+                    <button 
+                        onClick={handleExportCSV} 
+                        className="px-4 py-2 bg-indigo-600/20 hover:bg-indigo-600/40 text-indigo-300 border border-indigo-500/30 rounded-lg text-sm font-medium transition-colors"
+                    >
+                        Export CSV
+                    </button>
+                    <a href="/" className="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg text-sm font-medium transition-colors">
+                        Back to Game
+                    </a>
+                </div>
             </header>
 
             <div className="overflow-x-auto rounded-xl border border-white/10 bg-white/5 backdrop-blur-sm">
