@@ -32,7 +32,7 @@ export default function Dashboard() {
     const handleExportCSV = () => {
         if (students.length === 0) return;
 
-        const headers = ["Student ID", "Last Seen", "Total Sessions", "Practice Time (min)", "Red Factors", "Yellow Factors", "Green Factors"];
+        const headers = ["Student ID", "Last Seen", "Total Sessions", "Practice Time (min)", "All-Time High", "Red Factors", "Yellow Factors", "Green Factors"];
 
         const rows = students.map(student => {
             const factMastery = student.factMastery || {};
@@ -57,6 +57,7 @@ export default function Dashboard() {
                 lastSeenStr,
                 student.sessions.length,
                 student.sessions.length, // total minutes = 1 min per session
+                student.allTimeHigh || "-",
                 `"${redFactors.join(", ")}"`,
                 `"${yellowFactors.join(", ")}"`,
                 `"${greenFactors.join(", ")}"`
@@ -125,6 +126,7 @@ export default function Dashboard() {
                             <th className="p-4 font-semibold text-gray-300">Last Seen</th>
                             <th className="p-4 font-semibold text-gray-300">Total Sessions</th>
                             <th className="p-4 font-semibold text-gray-300">Practice Time</th>
+                            <th className="p-4 font-semibold text-purple-400">All-Time High</th>
                             <th className="p-4 font-semibold text-red-400">Red Factors</th>
                             <th className="p-4 font-semibold text-yellow-400">Yellow Factors</th>
                             <th className="p-4 font-semibold text-emerald-400">Green Factors</th>
@@ -177,6 +179,9 @@ export default function Dashboard() {
                                         </td>
                                         <td className="p-4 text-gray-300">
                                             {totalMinutes} min
+                                        </td>
+                                        <td className="p-4 text-purple-300 font-bold">
+                                            {student.allTimeHigh || "-"}
                                         </td>
                                         <td className="p-4 text-red-300 font-bold tracking-widest">
                                             {redFactors.length > 0 ? redFactors.join(", ") : "-"}

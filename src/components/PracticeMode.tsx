@@ -145,6 +145,14 @@ export function PracticeMode({ isRunning, studentId, setIsRunning, initialConfig
         }
     }, [isRunning, sessionComplete]);
 
+    // Force strict options during Assessment
+    useEffect(() => {
+        if (mode === "assessment") {
+            setIsMultipleChoice(true);
+            setIsTimerEnabled(true);
+        }
+    }, [mode]);
+
     useEffect(() => {
         if (!isRunning || sessionComplete || !isTimerEnabled) return;
 
@@ -442,27 +450,29 @@ export function PracticeMode({ isRunning, studentId, setIsRunning, initialConfig
                     </div>
 
                     {/* Input Mode Toggle */}
-                    <div className="flex gap-2 w-full max-w-xs">
-                        <div className="flex flex-col items-center gap-2 flex-1 cursor-pointer hover:opacity-80 transition-opacity p-3 rounded-xl bg-white/5 border border-white/5" onClick={() => setIsMultipleChoice(!isMultipleChoice)}>
-                            <span className="text-[10px] sm:text-xs font-medium uppercase tracking-widest text-muted-foreground whitespace-nowrap">
-                                Input Method
-                            </span>
-                            <div className="flex items-center gap-2 text-white">
-                                {isMultipleChoice ? <ToggleRight className="w-6 h-6 text-indigo-400" /> : <ToggleLeft className="w-6 h-6 text-gray-400" />}
-                                <span className="text-xs font-bold">{isMultipleChoice ? "Choice" : "Type"}</span>
+                    {mode !== "assessment" && (
+                        <div className="flex gap-2 w-full max-w-xs">
+                            <div className="flex flex-col items-center gap-2 flex-1 cursor-pointer hover:opacity-80 transition-opacity p-3 rounded-xl bg-white/5 border border-white/5" onClick={() => setIsMultipleChoice(!isMultipleChoice)}>
+                                <span className="text-[10px] sm:text-xs font-medium uppercase tracking-widest text-muted-foreground whitespace-nowrap">
+                                    Input Method
+                                </span>
+                                <div className="flex items-center gap-2 text-white">
+                                    {isMultipleChoice ? <ToggleRight className="w-6 h-6 text-indigo-400" /> : <ToggleLeft className="w-6 h-6 text-gray-400" />}
+                                    <span className="text-xs font-bold">{isMultipleChoice ? "Choice" : "Type"}</span>
+                                </div>
                             </div>
-                        </div>
 
-                        <div className="flex flex-col items-center gap-2 flex-1 cursor-pointer hover:opacity-80 transition-opacity p-3 rounded-xl bg-white/5 border border-white/5" onClick={() => setIsTimerEnabled(!isTimerEnabled)}>
-                            <span className="text-[10px] sm:text-xs font-medium uppercase tracking-widest text-muted-foreground whitespace-nowrap">
-                                Timer
-                            </span>
-                            <div className="flex items-center gap-2 text-white">
-                                {isTimerEnabled ? <ToggleRight className="w-6 h-6 text-emerald-400" /> : <ToggleLeft className="w-6 h-6 text-gray-400" />}
-                                <span className="text-xs font-bold">{isTimerEnabled ? "On" : "Off"}</span>
+                            <div className="flex flex-col items-center gap-2 flex-1 cursor-pointer hover:opacity-80 transition-opacity p-3 rounded-xl bg-white/5 border border-white/5" onClick={() => setIsTimerEnabled(!isTimerEnabled)}>
+                                <span className="text-[10px] sm:text-xs font-medium uppercase tracking-widest text-muted-foreground whitespace-nowrap">
+                                    Timer
+                                </span>
+                                <div className="flex items-center gap-2 text-white">
+                                    {isTimerEnabled ? <ToggleRight className="w-6 h-6 text-emerald-400" /> : <ToggleLeft className="w-6 h-6 text-gray-400" />}
+                                    <span className="text-xs font-bold">{isTimerEnabled ? "On" : "Off"}</span>
+                                </div>
                             </div>
                         </div>
-                    </div>
+                    )}
 
                     {/* Top Level Mode Toggle */}
                     <div className="grid grid-cols-3 gap-1 w-full max-w-sm bg-black/40 p-1 rounded-xl mb-4">
