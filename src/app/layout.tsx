@@ -21,6 +21,7 @@ export const viewport = {
   maximumScale: 1,
   userScalable: false, // Prevents zooming which feels more "app-like"
   themeColor: "#000000",
+  viewportFit: "cover",
 };
 
 export default function RootLayout({
