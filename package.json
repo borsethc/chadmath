@@ -9,6 +9,8 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@capacitor/core": "^8.3.0",
+    "@capacitor/ios": "^8.3.0",
     "clsx": "^2.1.1",
     "framer-motion": "^12.26.1",
     "lucide-react": "^0.562.0",
@@ -20,6 +22,7 @@
     "tailwind-merge": "^3.4.0"
   },
   "devDependencies": {
+    "@capacitor/cli": "^8.3.0",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/pg": "^8.16.0",
