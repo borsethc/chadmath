@@ -57,16 +57,7 @@ export default function Home() {
           "text-center flex flex-col items-center shrink-0 transition-all duration-500 ease-in-out",
           isRunning ? "absolute top-4 scale-75 opacity-50 hover:opacity-100 z-50 origin-top" : "mb-6 sm:mb-8 relative"
         )}>
-          <div className="flex items-center gap-4 mb-2">
-            <div className={cn("relative transition-all", isRunning ? "w-12 h-12" : "w-16 h-16 sm:w-24 sm:h-24")}>
-              <Image
-                src="/school-logo.jpg"
-                alt="St. Paul Central High School Logo"
-                fill
-                className="object-contain"
-                priority
-              />
-            </div>
+          <div className="flex items-center justify-center gap-4 mb-2">
             <h1 className={cn("font-black tracking-tighter text-transparent bg-clip-text bg-gradient-to-br from-white to-white/50 transition-all", isRunning ? "text-2xl" : "text-4xl sm:text-6xl")}>
               ChadMath
             </h1>
