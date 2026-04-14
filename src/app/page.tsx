@@ -87,6 +87,9 @@ export default function Home() {
               <p className="text-[10px] text-white/40 text-center leading-tight mt-1 px-2">
                 New player? Invent a unique, easy-to-remember username to track your progress!
               </p>
+              <p className="text-[10px] text-amber-500/70 text-center leading-tight mt-1 px-2 font-medium">
+                Note: Avoid common names (like "John") to prevent mixing your stats with other players!
+              </p>
             </div>
             <button
               type="submit"
