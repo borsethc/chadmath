@@ -84,13 +84,16 @@ export default function Home() {
                 placeholder="Enter Username"
               // autoFocus removed for better mobile stability
               />
+              <p className="text-[10px] text-white/40 text-center leading-tight mt-1 px-2">
+                New player? Just invent a unique username to create your account!
+              </p>
             </div>
             <button
               type="submit"
               disabled={isLoading || !studentId.trim()}
               className="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 px-6 rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer active:scale-95 touch-manipulation"
             >
-              {isLoading ? "Loading..." : "Enter Class"}
+              {isLoading ? "Loading..." : "Start Playing"}
             </button>
           </form>
         ) : (
