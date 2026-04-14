@@ -90,6 +90,31 @@ export function useGameLogic(
         return `${f1}${op}${f2}`;
     };
 
+    const getWeightedRandomFact = useCallback((validFactors1: number[], validFactors2: number[], currentMastery: FactMastery): [number, number] => {
+        let totalWeight = 0;
+        const pairs: {f1: number, f2: number, weight: number}[] = [];
+        
+        for(const i of validFactors1) {
+            for(const j of validFactors2) {
+                const key = getFactKey(i, j, "×");
+                const m = currentMastery[key] ?? 0;
+                // SR Weight Formula: (1.1 - M)^2
+                const weight = Math.pow(1.1 - m, 2);
+                pairs.push({ f1: i, f2: j, weight });
+                totalWeight += weight;
+            }
+        }
+
+        let roll = Math.random() * totalWeight;
+        for(const p of pairs) {
+            if (roll < p.weight) return [p.f1, p.f2];
+            roll -= p.weight;
+        }
+        
+        const last = pairs[pairs.length - 1];
+        return [last.f1, last.f2];
+    }, []);
+
     const generateQuestion = useCallback(() => {
         // 1. Priority: Retry Queue (Missed questions)
         if (retryQueue.current.length > 0) {
@@ -107,29 +132,25 @@ export function useGameLogic(
 
 
         // Generate Multiplication/Division with Adaptive Logic
-        // Select Factors
         let f1 = 2, f2 = 2;
         let attempts = 0;
 
         do {
             if (mode === "assessment") {
+                // Pure random for standardized assessment (no SR bias)
                 f1 = Math.floor(Math.random() * 8) + 2;
                 f2 = Math.floor(Math.random() * 8) + 2;
             } else if (mode === "tables") {
-                // Table Mode: Randomly select one of the active tables
-                // If none selected (should be blocked by UI), default to 2
+                // SR based Tables Mode
                 const activeTables = selectedTables.length > 0 ? selectedTables : [2];
-                const table = activeTables[Math.floor(Math.random() * activeTables.length)];
+                const secondFactors = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+                const [rF1, rF2] = getWeightedRandomFact(activeTables, secondFactors, mastery);
+                f1 = rF1;
+                f2 = rF2;
 
-                f1 = table;
-                f2 = Math.floor(Math.random() * 9) + 1; // 1 to 9
-
-                // Randomly swap for display variety? User said "Occasionally flip"
-                if (Math.random() > 0.5) {
-                    [f1, f2] = [f2, f1];
-                }
+                if (Math.random() > 0.5) [f1, f2] = [f2, f1];
             } else {
-                // 4. Adaptive Selection using User's Percentage-Based Logic
+                // 4. Adaptive Selection using Spaced Repetition (SR) within valid Pools
                 const POOL_A = [2, 3, 4];
                 const POOL_B = [5, 6, 7];
                 const POOL_C = [8, 9];
@@ -137,31 +158,24 @@ export function useGameLogic(
                 const roll = Math.random() * 100;
 
                 if (selectedLevel === "Level 1") {
-                    f1 = POOL_A[Math.floor(Math.random() * POOL_A.length)];
-                    f2 = POOL_A[Math.floor(Math.random() * POOL_A.length)];
+                    [f1, f2] = getWeightedRandomFact(POOL_A, POOL_A, mastery);
                 } else if (selectedLevel === "Level 2") {
                     if (roll <= 60) {
-                        f1 = POOL_B[Math.floor(Math.random() * POOL_B.length)];
-                        f2 = POOL_B[Math.floor(Math.random() * POOL_B.length)];
+                        [f1, f2] = getWeightedRandomFact(POOL_B, POOL_B, mastery);
                     } else {
-                        f1 = POOL_B[Math.floor(Math.random() * POOL_B.length)];
-                        f2 = POOL_A[Math.floor(Math.random() * POOL_A.length)];
+                        [f1, f2] = getWeightedRandomFact(POOL_B, POOL_A, mastery);
                     }
                 } else {
                     if (roll <= 40) {
-                        f1 = POOL_C[Math.floor(Math.random() * POOL_C.length)];
-                        f2 = POOL_C[Math.floor(Math.random() * POOL_C.length)];
+                        [f1, f2] = getWeightedRandomFact(POOL_C, POOL_C, mastery);
                     } else {
-                        f1 = POOL_C[Math.floor(Math.random() * POOL_C.length)];
                         const poolAB = [...POOL_A, ...POOL_B];
-                        f2 = poolAB[Math.floor(Math.random() * poolAB.length)];
+                        [f1, f2] = getWeightedRandomFact(POOL_C, poolAB, mastery);
                     }
                 }
 
-                // Commutative Flip
-                if (Math.random() > 0.5) {
-                    [f1, f2] = [f2, f1];
-                }
+                // Commutative Flip for display variety
+                if (Math.random() > 0.5) [f1, f2] = [f2, f1];
             }
             attempts++;
         } while (mode === "assessment" && attempts < 5 && getFactKey(f1, f2, "×") === lastQuestionKey.current);
