@@ -24,6 +24,7 @@ export interface PracticeConfig {
 export function StudentDashboard({ studentId, isRunning, setIsRunning }: StudentDashboardProps) {
     const [showPractice, setShowPractice] = useState(false);
     const [showReceipt, setShowReceipt] = useState(false);
+    const [newThemeUnlocked, setNewThemeUnlocked] = useState<{name: string, value: string} | null>(null);
     const [stats, setStats] = useState<any>(null);
     const [loading, setLoading] = useState(true);
     const [config, setConfig] = useState<PracticeConfig | null>(null);
@@ -38,7 +39,26 @@ export function StudentDashboard({ studentId, isRunning, setIsRunning }: Student
         }
     }, [theme]);
 
-    // Apply default root styles based on theme directly? No, we will use globals.css
+    // Check for new theme unlocks
+    useEffect(() => {
+        if (!stats?.level || typeof window === "undefined" || newThemeUnlocked) return;
+
+        const checkUnlock = (thresh: number, name: string, value: string) => {
+            const key = `chadmath_unlocked_${studentId}_${thresh}`;
+            if (stats.level >= thresh && !localStorage.getItem(key)) {
+                localStorage.setItem(key, "true");
+                setNewThemeUnlocked({ name, value });
+                return true;
+            }
+            return false;
+        };
+
+        // Standard sequential checking order
+        if (checkUnlock(2, "Neon Theme", "neon")) return;
+        if (checkUnlock(5, "Matrix Theme", "matrix")) return;
+        if (checkUnlock(10, "Sunset Theme", "sunset")) return;
+
+    }, [stats?.level, studentId, newThemeUnlocked]);
 
     useEffect(() => {
         const fetchStats = async () => {
@@ -113,6 +133,36 @@ export function StudentDashboard({ studentId, isRunning, setIsRunning }: Student
             });
         }
     };
+
+    if (newThemeUnlocked) {
+        return (
+            <div className="flex flex-col items-center justify-center w-full min-h-[80vh] animate-in fade-in zoom-in duration-500 z-50 fixed inset-0 bg-black/80 backdrop-blur-sm">
+                <div className="bg-indigo-900/40 border border-indigo-500/50 p-8 rounded-3xl w-full max-w-sm text-center shadow-[0_0_80px_rgba(79,70,229,0.4)] transform-gpu hover:scale-105 transition-all">
+                    <div className="text-6xl mb-4 animate-bounce">🎉</div>
+                    <h2 className="text-xl font-black text-indigo-400 mb-1 tracking-widest uppercase">Reward Unlocked!</h2>
+                    <h3 className="text-4xl font-black text-white mb-6 bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-indigo-400">
+                        {newThemeUnlocked.name}
+                    </h3>
+                    <p className="text-indigo-200 text-sm mb-8 px-4 leading-relaxed">
+                        Incredible work reaching Level {stats?.level}! You've completely mastered enough math facts to permanently unlock a brand new visual theme!
+                    </p>
+                    <button 
+                        onClick={() => {
+                            setTheme(newThemeUnlocked.value); // Auto-equip it for them
+                            setNewThemeUnlocked(null);
+                        }}
+                        className="w-full py-4 bg-indigo-600 hover:bg-indigo-500 rounded-2xl text-white font-black tracking-wider uppercase transition-all shadow-xl active:scale-95 touch-manipulation">
+                        Equip Theme Now
+                    </button>
+                    <button 
+                        onClick={() => setNewThemeUnlocked(null)}
+                        className="w-full py-3 mt-2 bg-transparent hover:bg-white/5 rounded-xl text-indigo-400 text-xs font-bold uppercase transition-all touch-manipulation">
+                        Keep current theme
+                    </button>
+                </div>
+            </div>
+        );
+    }
 
     if (showReceipt) {
         return (
