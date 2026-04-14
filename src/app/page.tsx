@@ -73,7 +73,7 @@ export default function Home() {
           <form onSubmit={handleLogin} className="flex flex-col items-center gap-4 w-full max-w-xs p-8 rounded-3xl border border-white/5 bg-white/5 backdrop-blur-3xl shadow-2xl isolate transform-gpu">
             <div className="flex flex-col gap-2 w-full">
               <label htmlFor="studentId" className="text-xs font-medium uppercase tracking-widest text-muted-foreground text-center">
-                Student ID
+                Username
               </label>
               <input
                 id="studentId"
@@ -81,7 +81,7 @@ export default function Home() {
                 value={studentId}
                 onChange={(e) => setStudentId(e.target.value)}
                 className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-center text-xl font-bold text-white placeholder:text-white/20 focus:outline-none focus:border-indigo-500 transition-all"
-                placeholder="Enter ID"
+                placeholder="Enter Username"
               // autoFocus removed for better mobile stability
               />
             </div>

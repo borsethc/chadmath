@@ -25,7 +25,7 @@ export default function PrivacyPolicy() {
                             ChadMath is designed with student privacy as a priority. We deliberately minimize the amount of data we collect:
                         </p>
                         <ul className="list-disc pl-6 mt-2 space-y-2">
-                            <li><strong>Anonymized Identifiers:</strong> We strictly prohibit the collection of student names, email addresses, or personal contact information. Students log in using a generic "Student ID" (typically an alphanumeric code) assigned by their teacher or school.</li>
+                            <li><strong>Anonymized Identifiers:</strong> We strictly prohibit the collection of student names, email addresses, or personal contact information. Users log in using a generic "Username" or alphanumeric code assigned by their teacher.</li>
                             <li><strong>Performance Data:</strong> We collect mathematical performance metrics, including timestamps of sessions, factors practiced, correct/incorrect response rates, and calculated mastery tiers.</li>
                             <li><strong>Usage Data:</strong> We track total practice time, daily login streaks, and gamification points (XP/Levels) purely to facilitate the learning systems.</li>
                         </ul>

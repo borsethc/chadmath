@@ -10,10 +10,19 @@
     - [x] Refactor `db.ts` to support Postgres <!-- id: 7 -->
     - [x] Add database initialization logic <!-- id: 8 -->
     - [x] Create `RAILWAY_GUIDE.md` <!-- id: 9 -->
-- [ ] Debug Railway Deployment <!-- id: 10 -->
+- [x] Debug Railway Deployment <!-- id: 10 -->
     - [x] Check local build status <!-- id: 11 -->
     - [x] Create diagnostics page (`/admin/health`) <!-- id: 12 -->
     - [x] Analyze error: `ENOTFOUND Postgres.railway.internal` <!-- id: 13 -->
-    - [ ] Create Web Service (User Action) <!-- id: 14 -->
-    - [ ] Create Database Service (User Action) <!-- id: 15 -->
-    - [ ] Link Variables (User Action) <!-- id: 16 -->
+    - [x] Create Web Service (User Action) <!-- id: 14 -->
+    - [x] Create Database Service (User Action) <!-- id: 15 -->
+    - [x] Link Variables (User Action) <!-- id: 16 -->
+- [/] App Store Deployment <!-- id: 17 -->
+    - [x] Create Implementation Plan <!-- id: 18 -->
+    - [x] Verify Privacy Policy exists <!-- id: 19 -->
+    - [x] Open Xcode workspace for User (`open ios/App/App.xcodeproj`) <!-- id: 20 -->
+    - [x] Finalize App Signing Details (User Action) <!-- id: 21 -->
+    - [x] Archive the App in Xcode (User Action) <!-- id: 22 -->
+    - [/] Upload to App Store Connect (User Action) <!-- id: 23 -->
+    - [ ] Create App Record in App Store Connect (User Action) <!-- id: 24 -->
+    - [ ] Submit for review (User Action) <!-- id: 25 -->
