@@ -85,7 +85,7 @@ export default function Home() {
               // autoFocus removed for better mobile stability
               />
               <p className="text-[10px] text-white/40 text-center leading-tight mt-1 px-2">
-                New player? Just invent a unique username to create your account!
+                New player? Invent a unique, easy-to-remember username to track your progress!
               </p>
             </div>
             <button
