@@ -152,7 +152,7 @@ export function StudentDashboard({ studentId, isRunning, setIsRunning }: Student
                             setNewThemeUnlocked(null);
                         }}
                         className="w-full py-4 bg-indigo-600 hover:bg-indigo-500 rounded-2xl text-white font-black tracking-wider uppercase transition-all shadow-xl active:scale-95 touch-manipulation">
-                        Equip Theme Now
+                        Try out New Theme
                     </button>
                     <button 
                         onClick={() => setNewThemeUnlocked(null)}
