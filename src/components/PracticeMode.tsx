@@ -750,8 +750,8 @@ export function PracticeMode({ isRunning, studentId, setIsRunning, initialConfig
                                     <div className="flex justify-center gap-4 w-full max-w-sm mt-2">
                                         <button
                                             onClick={() => {
+                                                setIsRunning(false);
                                                 if (onClose) onClose();
-                                                else setIsRunning(false);
                                             }}
                                             className="px-6 py-2.5 bg-white/5 hover:bg-white/10 text-white/70 border border-white/10 rounded-xl text-sm font-bold uppercase tracking-widest transition-colors flex-1"
                                         >
@@ -824,8 +824,8 @@ export function PracticeMode({ isRunning, studentId, setIsRunning, initialConfig
                                                 whileHover={{ scale: 1.05, backgroundColor: "rgba(16, 185, 129, 0.2)" }}
                                                 whileTap={{ scale: 0.95 }}
                                                 onClick={() => {
+                                                    setIsRunning(false);
                                                     if (onClose) onClose();
-                                                    else setIsRunning(false);
                                                 }}
                                                 className="h-14 w-full rounded-full bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 text-xs font-bold text-emerald-400 hover:text-emerald-300 flex items-center justify-center transition-colors"
                                             >
@@ -855,8 +855,8 @@ export function PracticeMode({ isRunning, studentId, setIsRunning, initialConfig
                                         <div className="col-span-3 flex justify-center gap-2 w-full mt-2">
                                             <button
                                                 onClick={() => {
+                                                    setIsRunning(false);
                                                     if (onClose) onClose();
-                                                    else setIsRunning(false);
                                                 }}
                                                 className="px-4 py-3 bg-white/5 hover:bg-white/10 text-white/70 border border-white/10 rounded-2xl text-xs font-bold uppercase tracking-widest transition-colors flex-1"
                                             >
