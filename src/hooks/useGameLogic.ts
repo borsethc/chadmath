@@ -58,6 +58,7 @@ export function useGameLogic(
     const [gameState, setGameState] = useState<GameState>("waiting");
     const [streak, setStreak] = useState(0);
     const [isWrong, setIsWrong] = useState(false);
+    const [isLocked, setIsLocked] = useState(false);
     const [stats, setStats] = useState<SessionStats>(() => ({ correct: 0, wrongAttempts: 0, total: 0, startTime: Date.now(), history: [] }));
     const [questionStartTime, setQuestionStartTime] = useState(Date.now());
 
@@ -374,25 +375,25 @@ export function useGameLogic(
                     // We DO NOT set "revealed" immediately, because that hides the buttons!
                     // We keep it in "waiting" state but with isWrong=true.
 
-                    // Add to Retry Queue!
-                    // Insert at front (Next) or slightly delayed?
-                    // User asked: "Repeat it again soon"
-                    // Let's insert at index 1 (after next question) so it's not immediate?
-                    // Or retryQueue is a FIFO. unshift puts it at front.
+                    // Add to Retry Queue
                     retryQueue.current.unshift(currentQuestion);
 
+                    setIsLocked(true);
                     setTimeout(() => {
+                        setIsLocked(false);
                         setIsWrong(false);
                         setUserInput(""); // Clear input so red highlight goes away
                         nextQuestion();
-                    }, NEXT_QUESTION_DELAY_MS);
+                    }, 2000); // 2-second anti-mashing lockout
 
                 } else {
-                    // Typing mode: Standard shake and retry immediately
+                    // Typing mode: Freeze and shake for 2 seconds
+                    setIsLocked(true);
                     setTimeout(() => {
+                        setIsLocked(false);
                         setIsWrong(false);
                         setUserInput("");
-                    }, 500);
+                    }, 2000);
                 }
             }
         }
@@ -400,6 +401,7 @@ export function useGameLogic(
 
     // Formatting input (unchanged logic mostly)
     const setInput = (val: string) => {
+        if (isLocked) return; // Completely ignore input if engine is locked
         console.log("setInput called with:", val, "MC:", isMultipleChoice, "State:", gameState);
         if (gameState !== "waiting") return;
         setUserInput(val);
@@ -499,6 +501,7 @@ export function useGameLogic(
             setStats({ correct: 0, wrongAttempts: 0, total: 0, startTime: Date.now(), history: [] });
             setStreak(0);
             setIsWrong(false);
+            setIsLocked(false);
             setGameState("waiting");
             retryQueue.current = [];
             clusterQueue.current = [];
@@ -520,6 +523,7 @@ export function useGameLogic(
         gameState,
         streak,
         isWrong,
+        isLocked,
         stats,
         selectedLevel,
         selectLevel,

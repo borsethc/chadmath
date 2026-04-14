@@ -23,6 +23,7 @@ export interface PracticeConfig {
 
 export function StudentDashboard({ studentId, isRunning, setIsRunning }: StudentDashboardProps) {
     const [showPractice, setShowPractice] = useState(false);
+    const [showReceipt, setShowReceipt] = useState(false);
     const [stats, setStats] = useState<any>(null);
     const [loading, setLoading] = useState(true);
     const [config, setConfig] = useState<PracticeConfig | null>(null);
@@ -112,6 +113,27 @@ export function StudentDashboard({ studentId, isRunning, setIsRunning }: Student
             });
         }
     };
+
+    if (showReceipt) {
+        return (
+            <div className="flex flex-col items-center justify-center w-full min-h-[80vh] animate-in fade-in zoom-in duration-500">
+                <div className="bg-emerald-900/40 border border-emerald-500/50 p-8 rounded-3xl w-full max-w-sm text-center shadow-[0_0_50px_rgba(16,185,129,0.2)]">
+                    <div className="text-6xl mb-4">✅</div>
+                    <h2 className="text-2xl font-black text-white mb-2 tracking-widest uppercase">Verified!</h2>
+                    <div className="w-full h-px bg-white/20 my-4"></div>
+                    <p className="text-emerald-400 font-mono text-sm mb-1">{studentId}</p>
+                    <p className="text-white text-lg font-bold">5/5 Sessions Complete</p>
+                    <p className="text-gray-400 text-xs mt-2">{new Date().toLocaleDateString()}</p>
+                    <div className="w-full h-px bg-white/20 my-4"></div>
+                    <button 
+                        onClick={() => setShowReceipt(false)}
+                        className="w-full py-3 bg-white/10 hover:bg-white/20 rounded-xl text-white font-bold transition-all touch-manipulation">
+                        Close Receipt
+                    </button>
+                </div>
+            </div>
+        );
+    }
 
     if (showPractice) {
         return (
@@ -204,6 +226,16 @@ export function StudentDashboard({ studentId, isRunning, setIsRunning }: Student
                     <span className="absolute text-sm font-bold text-white">{daily?.count || 0}/5</span>
                 </div>
             </div>
+
+            {/* View Receipt Button */}
+            {progressPercent === 100 && (
+                <button 
+                    onClick={() => setShowReceipt(true)}
+                    className="w-full bg-emerald-600 hover:bg-emerald-500 text-white rounded-2xl p-4 mb-6 font-bold flex items-center justify-center gap-2 animate-[pulse_2s_ease-in-out_infinite] shadow-[0_0_20px_rgba(16,185,129,0.3)] transition-all touch-manipulation"
+                >
+                    <span className="text-xl">✅</span> View Daily Receipt
+                </button>
+            )}
 
             {/* Mastery Heatmap */}
             {renderHeatmap()}
