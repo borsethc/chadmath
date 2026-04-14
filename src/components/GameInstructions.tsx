@@ -48,7 +48,7 @@ export function GameInstructions() {
                                         <p className="text-white/70 text-xs leading-relaxed">
                                             <strong>Off:</strong> Stress-free practice. Focus on accuracy.
                                             <br />
-                                            <strong>On:</strong> Builds speed and fluency for tests.
+                                            <strong>On:</strong> Builds the rapid automaticity needed to free up your working memory for harder math concepts.
                                         </p>
                                     </div>
                                 </div>
@@ -82,7 +82,7 @@ export function GameInstructions() {
                                             <span className="text-emerald-400 font-bold text-sm">Green (True Mastery)</span>
                                         </div>
                                         <p className="text-white/70 text-xs leading-relaxed">
-                                            To achieve Green status, you MUST correctly answer questions using exactly <strong>Typing input</strong>. This proves you have committed the math fact to memory!
+                                            To achieve Green status, you MUST correctly answer questions using exactly <strong>Typing input</strong>. This proves you have achieved <strong>automaticity</strong> and committed the math fact to your long-term memory!
                                         </p>
                                     </div>
                                 </div>
