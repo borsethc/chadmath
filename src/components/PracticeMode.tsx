@@ -381,7 +381,7 @@ export function PracticeMode({ isRunning, studentId, setIsRunning, initialConfig
 
                 {/* Session History List */}
                 {mode === "assessment" && stats.history && stats.history.length > 0 && (
-                    <div className="w-full max-w-md bg-white/5 rounded-xl border border-white/10 p-4 mt-6 max-h-[60vh] overflow-y-auto">
+                    <div className="w-full max-w-md bg-white/5 rounded-xl border border-white/10 p-4 mt-6">
                         <h4 className="text-white font-bold mb-3 border-b border-white/10 pb-2">Session History</h4>
                         <div className="space-y-2">
                             {stats.history.map((item, idx) => (
