@@ -26,6 +26,19 @@ export function GameInstructions() {
                     >
                         <div className="bg-black/40 backdrop-blur-md rounded-2xl border border-white/10 p-6 space-y-6 text-left max-h-[50vh] overflow-y-auto custom-scrollbar">
 
+                            {/* The 5-Minute Habit */}
+                            <div className="space-y-2">
+                                <h3 className="flex items-center gap-2 text-yellow-400 font-bold text-lg">
+                                    <BrainCircuit size={20} />
+                                    The 5-Minute Daily Habit
+                                </h3>
+                                <p className="text-white/80 text-sm leading-relaxed">
+                                    <strong>Why only 5 minutes?</strong> Cognitive science proves that <strong>short, frequent bursts</strong> of practice build long-term memory far better than long, exhausting study grinds. Your goal is simply to complete five 1-minute sprints per day to establish automaticity and earn your daily streak!
+                                </p>
+                            </div>
+
+                            <div className="w-full h-px bg-white/10 my-6" />
+
                             {/* Input Methods & Timer */}
                             <div className="space-y-4">
                                 <h3 className="flex items-center gap-2 text-indigo-400 font-bold text-lg">
