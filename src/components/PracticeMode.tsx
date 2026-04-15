@@ -403,7 +403,7 @@ export function PracticeMode({ isRunning, studentId, setIsRunning, initialConfig
 
                 {!feedback && (
                     <div className="mt-8 text-sm text-gray-400">
-                        Sessions today: <span className="text-white font-bold">{dailySessions.count} / 5</span>
+                        Practice today: <span className="text-white font-bold">{dailySessions.count} / 5 min</span>
                     </div>
                 )}
 
@@ -445,7 +445,7 @@ export function PracticeMode({ isRunning, studentId, setIsRunning, initialConfig
                 <div className="flex flex-col w-full max-w-md items-center justify-start space-y-5 rounded-3xl border border-white/5 bg-white/5 p-6 sm:p-8 shadow-2xl backdrop-blur-3xl shrink-0 my-4">
                     <div className="flex flex-col items-center space-y-2">
                         <div className="px-4 py-2 rounded-full bg-white/5 border border-white/10 text-sm font-medium text-muted-foreground uppercase tracking-widest flex gap-4">
-                            <span>Goal: <span className="text-white font-bold">{dailySessions.count} / 5</span></span>
+                            <span>Goal: <span className="text-white font-bold">{dailySessions.count} / 5 min</span></span>
                         </div>
                     </div>
 

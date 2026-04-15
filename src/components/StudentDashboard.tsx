@@ -172,7 +172,7 @@ export function StudentDashboard({ studentId, isRunning, setIsRunning }: Student
                     <h2 className="text-2xl font-black text-white mb-2 tracking-widest uppercase">Verified!</h2>
                     <div className="w-full h-px bg-white/20 my-4"></div>
                     <p className="text-emerald-400 font-mono text-sm mb-1">{studentId}</p>
-                    <p className="text-white text-lg font-bold">5/5 Sessions Complete</p>
+                    <p className="text-white text-lg font-bold">5/5 Minutes Complete</p>
                     <p className="text-gray-400 text-xs mt-2">{new Date().toLocaleDateString()}</p>
                     <div className="w-full h-px bg-white/20 my-4"></div>
                     <button 
@@ -234,6 +234,22 @@ export function StudentDashboard({ studentId, isRunning, setIsRunning }: Student
 
     return (
         <div className="flex flex-col items-center w-full max-w-md animate-in fade-in slide-in-from-bottom-4 duration-500">
+            {/* Header / Switch User */}
+            <div className="w-full flex justify-between items-center mb-6 px-2">
+                <div className="flex flex-col">
+                    <span className="text-white/50 text-xs uppercase tracking-widest">Player</span>
+                    <span className="text-white font-bold">{studentId}</span>
+                </div>
+                <button 
+                    onClick={() => {
+                        localStorage.removeItem("chadmath_active_user");
+                        window.location.reload();
+                    }}
+                    className="text-xs font-bold text-white/50 hover:text-white bg-white/5 hover:bg-white/10 px-3 py-1.5 rounded-full transition-all"
+                >
+                    Switch Player
+                </button>
+            </div>
 
             {/* Top Stats Row */}
             <div className="flex w-full gap-4 mb-6">
@@ -256,7 +272,7 @@ export function StudentDashboard({ studentId, isRunning, setIsRunning }: Student
             <div className="w-full bg-white/5 p-6 rounded-3xl border border-white/10 mb-6 flex items-center justify-between">
                 <div className="flex flex-col">
                     <h2 className="text-sm font-bold text-white mb-1">Daily Goal</h2>
-                    <p className="text-xs text-muted-foreground">Complete 5 sessions</p>
+                    <p className="text-xs text-muted-foreground">5 Minutes of Practice</p>
                 </div>
                 <div className="relative w-16 h-16 flex items-center justify-center">
                     <svg className="w-16 h-16 transform -rotate-90">

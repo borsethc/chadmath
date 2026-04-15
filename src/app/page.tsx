@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import { StudentDashboard } from "@/components/StudentDashboard";
 import { cn } from "@/lib/utils";
@@ -12,6 +12,16 @@ export default function Home() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
+  // Auto-login persistence
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const savedUser = localStorage.getItem("chadmath_active_user");
+      if (savedUser) {
+        setStudentId(savedUser);
+        setIsLoggedIn(true);
+      }
+    }
+  }, []);
 
   // Import dynamically manually or just use fetch/server action
   // We need to import the action. Since this is a client component, we can import server actions.
@@ -31,6 +41,9 @@ export default function Home() {
       ]);
 
       if (result.success) {
+        if (typeof window !== "undefined") {
+          localStorage.setItem("chadmath_active_user", studentId.trim());
+        }
         setIsLoggedIn(true);
       } else {
         alert("Login failed: " + (result.message || "Unknown error"));
