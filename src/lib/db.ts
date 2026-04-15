@@ -79,15 +79,32 @@ const initDb = async () => {
 
 // --- DATA ACCESS ---
 
+const sanitizeLegacyScores = (student: Student | null): Student | null => {
+    if (!student) return null;
+    
+    // Dynamically recalculate highest valid typing-assessment score
+    let realHigh = 0;
+    student.sessions?.forEach(session => {
+        if (session.gameType === "assessment" && session.isMultipleChoice !== true) {
+            if (session.score > realHigh) {
+                realHigh = session.score;
+            }
+        }
+    });
+
+    student.allTimeHigh = realHigh > 0 ? realHigh : undefined;
+    return student;
+};
+
 export const getStudent = async (studentId: string): Promise<Student | null> => {
     await initDb(); // Ensure init
 
     if (pool) {
         const res = await pool.query('SELECT data FROM students WHERE id = $1', [studentId]);
-        return res.rows[0]?.data || null;
+        return sanitizeLegacyScores(res.rows[0]?.data || null);
     } else {
         const db = await readDbFile();
-        return db.students[studentId] || null;
+        return sanitizeLegacyScores(db.students[studentId] || null);
     }
 };
 
@@ -159,10 +176,10 @@ export const getAllStudents = async (): Promise<Student[]> => {
 
     if (pool) {
         const res = await pool.query('SELECT data FROM students');
-        return res.rows.map(row => row.data);
+        return res.rows.map(row => sanitizeLegacyScores(row.data)).filter((s): s is Student => s !== null);
     } else {
         const db = await readDbFile();
-        return Object.values(db.students);
+        return Object.values(db.students).map(s => sanitizeLegacyScores(s)).filter((s): s is Student => s !== null);
     }
 };
 
