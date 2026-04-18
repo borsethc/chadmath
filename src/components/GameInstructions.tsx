@@ -33,7 +33,7 @@ export function GameInstructions() {
                                     The 5-Minute Daily Habit
                                 </h3>
                                 <p className="text-white/80 text-sm leading-relaxed">
-                                    <strong>Why only 5 minutes?</strong> Cognitive science proves that <strong>short, frequent bursts</strong> of practice build long-term memory far better than long, exhausting study grinds. Your goal is simply to complete five 1-minute sprints per day to establish automaticity and earn your daily streak!
+                                    <strong>Why only 5 minutes?</strong> Cognitive brain science proves that <strong>short, frequent bursts</strong> of practice build long-term memory far better than long, exhausting study sessions. Your goal is simply to complete five 1-minute sprints per day so you can instantly recognize math facts without having to stop and count!
                                 </p>
                             </div>
 
@@ -59,9 +59,9 @@ export function GameInstructions() {
                                     <div className="space-y-1">
                                         <span className="text-emerald-400 font-bold text-sm">⏱️ Timer Mode</span>
                                         <p className="text-white/70 text-xs leading-relaxed">
-                                            <strong>Off:</strong> Stress-free practice. Focus on accuracy.
+                                            <strong>Off:</strong> Stress-free practice. Focus on accuracy without feeling rushed.
                                             <br />
-                                            <strong>On:</strong> Builds the rapid automaticity needed to free up your working memory for harder math concepts.
+                                            <strong>On:</strong> Builds speed so you don't have to use your <strong>working memory</strong> (your brain's temporary scratchpad) to solve simple facts! This frees up your brain power for much harder math concepts later.
                                         </p>
                                     </div>
                                 </div>
@@ -95,7 +95,7 @@ export function GameInstructions() {
                                             <span className="text-emerald-400 font-bold text-sm">Green (True Mastery)</span>
                                         </div>
                                         <p className="text-white/70 text-xs leading-relaxed">
-                                            To achieve Green status, you MUST correctly answer questions using exactly <strong>Typing input</strong>. This proves you have achieved <strong>automaticity</strong> and committed the math fact to your long-term memory!
+                                            To achieve Green status, you MUST correctly answer questions using exactly <strong>Typing input</strong>. This proves you have truly memorized the math fact into your long-term memory instead of just guessing the right choice!
                                         </p>
                                     </div>
                                 </div>
