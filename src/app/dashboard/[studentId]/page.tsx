@@ -55,8 +55,9 @@ export default async function StudentHistory({ params }: { params: Promise<{ stu
                             </tr>
                         ) : (
                             sortedSessions.map((session) => {
-                                const accuracy = session.total > 0
-                                    ? Math.round((session.score / session.total) * 100)
+                                const displayTotal = Math.max(session.total, session.score + session.wrong);
+                                const accuracy = displayTotal > 0
+                                    ? Math.round((session.score / displayTotal) * 100)
                                     : 0;
 
                                 return (
@@ -78,7 +79,7 @@ export default async function StudentHistory({ params }: { params: Promise<{ stu
                                         </td>
                                         <td className="p-4">
                                             <span className="font-bold text-white">
-                                                {session.score}/{session.total}
+                                                {session.score}/{displayTotal}
                                             </span>
                                             {session.wrong > 0 && (
                                                 <span className="ml-2 text-xs text-rose-400">({session.wrong} wrong)</span>

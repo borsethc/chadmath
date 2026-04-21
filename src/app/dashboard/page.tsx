@@ -32,7 +32,7 @@ export default function Dashboard() {
     const handleExportCSV = () => {
         if (students.length === 0) return;
 
-        const headers = ["Student ID", "Last Seen", "Total Sessions", "Practice Time (min)", "All-Time High", "Red Factors", "Yellow Factors", "Green Factors"];
+        const headers = ["Student ID", "Last Seen", "Total Sessions", "Practice Time (min)", "All-Time High", "Baseline (3rd) Assessment", "Latest Assessment", "Red Factors", "Yellow Factors", "Green Factors"];
 
         const rows = students.map(student => {
             const factMastery = student.factMastery || {};
@@ -52,12 +52,22 @@ export default function Dashboard() {
             // Format date carefully to avoid CSV cell breaking
             const lastSeenStr = new Date(student.lastSeen).toLocaleString("en-US", { timeZone: "America/Chicago" }).replace(/,/g, '');
 
+            // Get Assessments
+            const assessmentsChronological = student.sessions.filter((s: any) => s.gameType === "assessment").sort((a: any, b: any) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
+            const thirdAssessment = assessmentsChronological[2];
+            const thirdAssessmentDisplay = thirdAssessment ? `${thirdAssessment.score}/${thirdAssessment.total} (${new Date(thirdAssessment.timestamp).toLocaleDateString("en-US", { timeZone: "America/Chicago" })})` : "-";
+
+            const latestAssessment = student.sessions.slice().reverse().find((s: any) => s.gameType === "assessment");
+            const latestAssessmentDisplay = latestAssessment ? `${latestAssessment.score}/${latestAssessment.total} (${new Date(latestAssessment.timestamp).toLocaleDateString("en-US", { timeZone: "America/Chicago" })})` : "-";
+
             return [
                 student.id,
                 lastSeenStr,
                 student.sessions.length,
                 student.sessions.length, // total minutes = 1 min per session
                 student.allTimeHigh || "-",
+                `"${thirdAssessmentDisplay}"`,
+                `"${latestAssessmentDisplay}"`,
                 `"${redFactors.join(", ")}"`,
                 `"${yellowFactors.join(", ")}"`,
                 `"${greenFactors.join(", ")}"`
@@ -127,6 +137,8 @@ export default function Dashboard() {
                             <th className="p-4 font-semibold text-gray-300">Total Sessions</th>
                             <th className="p-4 font-semibold text-gray-300">Practice Time</th>
                             <th className="p-4 font-semibold text-purple-400">All-Time High</th>
+                            <th className="p-4 font-semibold text-orange-400">Baseline (3rd) Assessment</th>
+                            <th className="p-4 font-semibold text-indigo-400">Latest Assessment</th>
                             <th className="p-4 font-semibold text-red-400">Red Factors</th>
                             <th className="p-4 font-semibold text-yellow-400">Yellow Factors</th>
                             <th className="p-4 font-semibold text-emerald-400">Green Factors</th>
@@ -145,6 +157,10 @@ export default function Dashboard() {
                                 const averageScore = student.sessions.length > 0
                                     ? (student.sessions.reduce((acc: any, s: any) => acc + s.score, 0) / student.sessions.length).toFixed(1)
                                     : "N/A";
+                                
+                                const assessmentsChronological = student.sessions.filter((s: any) => s.gameType === "assessment").sort((a: any, b: any) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
+                                const thirdAssessment = assessmentsChronological[2];
+                                const latestAssessment = student.sessions.slice().reverse().find((s: any) => s.gameType === "assessment");
 
                                 // Calculate total time (each session is 1 min)
                                 const totalMinutes = student.sessions.length;
@@ -182,6 +198,26 @@ export default function Dashboard() {
                                         </td>
                                         <td className="p-4 text-purple-300 font-bold">
                                             {student.allTimeHigh || "-"}
+                                        </td>
+                                        <td className="p-4 text-orange-300 font-bold">
+                                            {thirdAssessment ? (
+                                                <div className="flex flex-col">
+                                                    <span>{thirdAssessment.score} / {thirdAssessment.total}</span>
+                                                    <span className="text-[10px] text-gray-500 font-normal">
+                                                        {new Date(thirdAssessment.timestamp).toLocaleDateString("en-US", { timeZone: "America/Chicago" })}
+                                                    </span>
+                                                </div>
+                                            ) : "-"}
+                                        </td>
+                                        <td className="p-4 text-indigo-300 font-bold">
+                                            {latestAssessment ? (
+                                                <div className="flex flex-col">
+                                                    <span>{latestAssessment.score} / {latestAssessment.total}</span>
+                                                    <span className="text-[10px] text-gray-500 font-normal">
+                                                        {new Date(latestAssessment.timestamp).toLocaleDateString("en-US", { timeZone: "America/Chicago" })}
+                                                    </span>
+                                                </div>
+                                            ) : "-"}
                                         </td>
                                         <td className="p-4 text-red-300 font-bold tracking-widest">
                                             {redFactors.length > 0 ? redFactors.join(", ") : "-"}

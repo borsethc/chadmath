@@ -444,9 +444,9 @@ export function useGameLogic(
     // Timer Effect (Smart Timer)
     useEffect(() => {
         if (!isRunning) return;
-        if (mode === "assessment") return;
 
         // Smart Timer Logic:
+        // Assessment Mode: 5 seconds -> Auto-fail and move next
         // MC Mode: 3 seconds (Aggressive) -> Triggers Wrong/Reveal -> Retry
         // Typing Mode: 5 seconds -> Just Reveal (Old behavior) OR we can align it.
         // User request: "In multiple choice mode, Change 1: Lower response window to 2–3 seconds"
@@ -455,15 +455,38 @@ export function useGameLogic(
             let delay = 5000;
             if (isMultipleChoice) delay = 3000; // 3 seconds for MC
 
-
-            if (isTimerEnabled) {
+            if (isTimerEnabled || mode === "assessment") {
                 const timerQId = currentQuestion?.id;
                 revealTimerRef.current = setTimeout(() => {
                     // Guard against stale timer firing for a different question
                     if (currentQuestion?.id !== timerQId) return;
 
                     // Timeout Logic
-                    if (isMultipleChoice) {
+                    if (mode === "assessment") {
+                        // Assessment mode timeout: mark wrong, move next
+                        updateMastery(currentQuestion!, false);
+                        setIsWrong(true);
+                        setStreak(0);
+                        setStats((prev) => ({ 
+                            ...prev, 
+                            wrongAttempts: prev.wrongAttempts + 1, 
+                            total: prev.total + 1,
+                            history: [...prev.history, {
+                                question: `${currentQuestion!.factor1} ${currentQuestion!.operator} ${currentQuestion!.factor2}`,
+                                answer: currentQuestion!.answer,
+                                userAnswer: "timeout",
+                                isCorrect: false
+                            }]
+                        }));
+                        
+                        // Show red flash for a moment before moving on
+                        setTimeout(() => {
+                            setIsWrong(false);
+                            setUserInput("");
+                            nextQuestion();
+                        }, 500);
+
+                    } else if (isMultipleChoice) {
                         // Treat validation timeout as WRONG + RETRY
                         updateMastery(currentQuestion!, false);
                         setGameState("revealed");

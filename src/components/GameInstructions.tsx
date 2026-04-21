@@ -145,10 +145,14 @@ export function GameInstructions() {
                                     <MousePointerClick size={20} />
                                     Game Controls
                                 </h3>
+                                <div className="bg-amber-400/10 border border-amber-400/20 rounded-lg p-3 text-sm text-amber-100 mb-2">
+                                    <span className="font-bold">Pro Tip: </span>
+                                    You should start out with an <strong>Assessment</strong> score so you can instantly understand where you are at!
+                                </div>
                                 <ul className="text-white/80 text-sm space-y-1 list-disc list-inside">
+                                    <li><strong>Assessment:</strong> 1-minute speed test. If a problem takes too long, it auto-skips. Do this first!</li>
                                     <li><strong>Typing Mode:</strong> Use your keyboard or the on-screen number pad.</li>
                                     <li><strong>Multiple Choice:</strong> Tap the correct answer from the options.</li>
-                                    <li><strong>Assessment:</strong> 1-minute speed test. No hints, just speed!</li>
                                 </ul>
                             </div>
 

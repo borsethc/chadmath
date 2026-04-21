@@ -74,6 +74,7 @@ export function PracticeMode({ isRunning, studentId, setIsRunning, initialConfig
     const [level, setLevel] = useState(1);
     const [earnedXp, setEarnedXp] = useState(0); // For session summary
     const [showConfetti, setShowConfetti] = useState(false);
+    const [milestoneMessage, setMilestoneMessage] = useState<string | null>(null);
     const [comboScale, setComboScale] = useState(1);
     const [shake, setShake] = useState(0); // Shake intensity
     const [dailyStreak, setDailyStreak] = useState(0);
@@ -251,6 +252,32 @@ export function PracticeMode({ isRunning, studentId, setIsRunning, initialConfig
     useEffect(() => {
         if (gameState === "correct") {
             playCorrect(streak);
+
+            if (mode === "assessment") {
+                if (stats.correct === 10) {
+                    setMilestoneMessage("10 Correct! Your brain is firing up!");
+                    setShowConfetti(true);
+                } else if (stats.correct === 20) {
+                    setMilestoneMessage("20 Correct! You're building solid memory.");
+                    setShowConfetti(true);
+                } else if (stats.correct === 30) {
+                    setMilestoneMessage("30 Correct! Excellent neural links.");
+                    setShowConfetti(true);
+                } else if (stats.correct === 40) {
+                    setMilestoneMessage("40 Correct! You are a math machine.");
+                    setShowConfetti(true);
+                } else if (stats.correct === 50) {
+                    setMilestoneMessage("50 Correct! Absolute mastery achieved!");
+                    setShowConfetti(true);
+                }
+
+                if ([10, 20, 30, 40, 50].includes(stats.correct)) {
+                    setTimeout(() => {
+                        setShowConfetti(false);
+                        setMilestoneMessage(null);
+                    }, 3000);
+                }
+            }
 
             // "Juice": Scale combo text and shake screen slightly on high combos
             // Reduced intensity significantly
@@ -642,6 +669,22 @@ export function PracticeMode({ isRunning, studentId, setIsRunning, initialConfig
     return (
         <div
             className="relative flex min-h-[50vh] w-full max-w-md sm:max-w-2xl flex-col items-center rounded-3xl border border-white/5 bg-white/5 p-6 sm:p-8 shadow-2xl backdrop-blur-3xl mx-4 sm:mx-0 mb-8 overflow-hidden">
+
+            <AnimatePresence>
+                {milestoneMessage && (
+                    <motion.div
+                        initial={{ opacity: 0, y: 50, scale: 0.8 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, y: -50, scale: 0.8 }}
+                        className="absolute inset-x-0 top-1/4 z-50 flex flex-col items-center justify-center pointer-events-none"
+                    >
+                        <div className="bg-indigo-600/95 text-white px-8 py-6 rounded-3xl shadow-[0_0_60px_rgba(79,70,229,0.8)] border-2 border-indigo-300 text-center max-w-sm">
+                            <span className="text-6xl mb-4 block animate-bounce drop-shadow-[0_0_15px_rgba(255,255,255,0.5)]">🔥</span>
+                            <span className="text-2xl font-black tracking-wide leading-tight">{milestoneMessage}</span>
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
 
             {/* Top Center Controls (Timer) */}
             {isTimerEnabled && (
