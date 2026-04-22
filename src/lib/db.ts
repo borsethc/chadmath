@@ -312,6 +312,27 @@ export const updateStudentProgress = async (
     }
 };
 
+export const deleteStudent = async (studentId: string): Promise<boolean> => {
+    await initDb();
+    try {
+        if (pool) {
+            const result = await pool.query('DELETE FROM students WHERE id = $1', [studentId]);
+            return (result.rowCount ?? 0) > 0;
+        } else {
+            const db = await readDbFile();
+            if (db.students[studentId]) {
+                delete db.students[studentId];
+                await writeDbFile(db);
+                return true;
+            }
+            return false;
+        }
+    } catch (e) {
+        console.error("Failed to delete student:", e);
+        return false;
+    }
+};
+
 // --- FILE SYSTEM HELPERS (Private) ---
 const readDbFile = async (): Promise<Database> => {
     try {

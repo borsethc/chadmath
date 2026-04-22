@@ -1,6 +1,6 @@
 'use server';
 
-import { createOrUpdateStudent, addSession, getStudent, getAllStudents, updateStudentProgress } from "@/lib/db";
+import { createOrUpdateStudent, addSession, getStudent, getAllStudents, updateStudentProgress, deleteStudent } from "@/lib/db";
 import { revalidatePath } from "next/cache";
 
 export async function loginAction(studentId: string) {
@@ -166,4 +166,15 @@ export async function getDashboardData() {
     return students.sort((a, b) =>
         new Date(b.lastSeen).getTime() - new Date(a.lastSeen).getTime()
     );
+}
+
+export async function deleteStudentAction(studentId: string) {
+    if (!studentId) return { success: false, message: "Invalid student ID" };
+    
+    const success = await deleteStudent(studentId);
+    if (success) {
+        revalidatePath('/dashboard');
+        return { success: true };
+    }
+    return { success: false, message: "Student not found or could not be deleted" };
 }

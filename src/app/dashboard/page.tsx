@@ -1,6 +1,6 @@
 "use client";
 
-import { getDashboardData } from "../actions";
+import { getDashboardData, deleteStudentAction } from "../actions";
 import Link from 'next/link';
 import { useState } from "react";
 
@@ -9,6 +9,26 @@ export default function Dashboard() {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [students, setStudents] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(false);
+    const [deletingId, setDeletingId] = useState<string | null>(null);
+
+    const handleDelete = async (studentId: string) => {
+        if (window.confirm(`Are you absolutely sure you want to PERMANENTLY DELETE the account for student ${studentId}?\n\nThis action cannot be undone.`)) {
+            setDeletingId(studentId);
+            try {
+                const res = await deleteStudentAction(studentId);
+                if (res.success) {
+                    setStudents(prev => prev.filter(s => s.id !== studentId));
+                } else {
+                    alert(res.message || "Failed to delete student.");
+                }
+            } catch (err) {
+                console.error(err);
+                alert("An error occurred while deleting the student.");
+            } finally {
+                setDeletingId(null);
+            }
+        }
+    };
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -142,12 +162,13 @@ export default function Dashboard() {
                             <th className="p-4 font-semibold text-red-400">Red Factors</th>
                             <th className="p-4 font-semibold text-yellow-400">Yellow Factors</th>
                             <th className="p-4 font-semibold text-emerald-400">Green Factors</th>
+                            <th className="p-4 font-semibold text-red-500 text-center">Action</th>
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-white/5">
                         {students.length === 0 ? (
                             <tr>
-                                <td colSpan={7} className="p-8 text-center text-muted-foreground">
+                                <td colSpan={11} className="p-8 text-center text-muted-foreground">
                                     No student data recorded yet.
                                 </td>
                             </tr>
@@ -227,6 +248,15 @@ export default function Dashboard() {
                                         </td>
                                         <td className="p-4 text-emerald-300 font-bold tracking-widest">
                                             {greenFactors.length > 0 ? greenFactors.join(", ") : "-"}
+                                        </td>
+                                        <td className="p-4 text-center">
+                                            <button 
+                                                onClick={() => handleDelete(student.id)}
+                                                disabled={deletingId === student.id}
+                                                className="text-red-500 hover:text-red-400 text-xs uppercase font-bold tracking-wider opacity-50 hover:opacity-100 transition-all disabled:opacity-20"
+                                            >
+                                                {deletingId === student.id ? "..." : "Delete"}
+                                            </button>
                                         </td>
                                     </tr>
                                 );
