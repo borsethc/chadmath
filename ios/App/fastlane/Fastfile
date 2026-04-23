@@ -14,7 +14,7 @@ platform :ios do
 
     # 2. Build the app using the provisioned profile
     build_app(
-      workspace: "App.xcworkspace",
+      project: "App.xcodeproj",
       scheme: "App",
       clean: true,
       export_method: "app-store",
