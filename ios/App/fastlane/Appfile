@@ -1,0 +1,5 @@
+app_identifier("com.chadborseth.chadmath") # The bundle identifier of your app
+apple_id("chadborseth@example.com") # We don't actually need this because we use the API Key!
+
+itc_team_id("123984164") # App Store Connect Team ID
+team_id("4LLBJ497XB") # Developer Portal Team ID
