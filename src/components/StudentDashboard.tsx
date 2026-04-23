@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { PracticeMode } from "./PracticeMode";
 import { cn } from "@/lib/utils";
-import { Play, Flame, Trophy, TrendingUp, Settings } from "lucide-react";
+import { Play, Flame, Trophy, TrendingUp, Settings, Target } from "lucide-react";
 import { GameMode, SkillLevel } from "@/hooks/useGameLogic";
 
 interface StudentDashboardProps {
@@ -258,6 +258,13 @@ export function StudentDashboard({ studentId, isRunning, setIsRunning }: Student
                     <Trophy className="w-5 h-5 text-yellow-400 mb-2" />
                     <span className="text-[10px] uppercase tracking-widest text-muted-foreground">Level</span>
                     <span className="text-3xl font-black text-white">{level}</span>
+                </div>
+
+                <div className="flex-1 bg-white/5 p-4 rounded-3xl border border-white/10 flex flex-col items-center justify-center relative overflow-hidden group">
+                    <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                    <Target className="w-5 h-5 text-emerald-400 mb-2" />
+                    <span className="text-[10px] uppercase tracking-widest text-muted-foreground text-center leading-tight">High<br/>Score</span>
+                    <span className="text-3xl font-black text-white">{stats?.allTimeHigh || 0}</span>
                 </div>
 
                 <div className="flex-1 bg-white/5 p-4 rounded-3xl border border-white/10 flex flex-col items-center justify-center relative overflow-hidden group">
