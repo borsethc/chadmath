@@ -144,7 +144,7 @@ export function useGameLogic(
             } else if (mode === "tables") {
                 // SR based Tables Mode
                 const activeTables = selectedTables.length > 0 ? selectedTables : [2];
-                const secondFactors = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+                const secondFactors = [2, 3, 4, 5, 6, 7, 8, 9];
                 const [rF1, rF2] = getWeightedRandomFact(activeTables, secondFactors, mastery);
                 f1 = rF1;
                 f2 = rF2;

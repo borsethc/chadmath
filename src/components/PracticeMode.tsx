@@ -789,7 +789,6 @@ export function PracticeMode({ isRunning, studentId, setIsRunning, initialConfig
                                         </motion.button>
                                     ))}
                                 </div>
-                                {!isTimerEnabled && (
                                     <div className="flex justify-center gap-4 w-full max-w-sm mt-2">
                                         <button
                                             onClick={() => {
@@ -800,14 +799,15 @@ export function PracticeMode({ isRunning, studentId, setIsRunning, initialConfig
                                         >
                                             Menu
                                         </button>
-                                        <button
-                                            onClick={() => handleSessionComplete()}
-                                            className="px-6 py-2.5 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 rounded-xl text-sm font-bold uppercase tracking-widest transition-colors flex-1"
-                                        >
-                                            Finish
-                                        </button>
+                                        {!isTimerEnabled && (
+                                            <button
+                                                onClick={() => handleSessionComplete()}
+                                                className="px-6 py-2.5 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 rounded-xl text-sm font-bold uppercase tracking-widest transition-colors flex-1"
+                                            >
+                                                Finish
+                                            </button>
+                                        )}
                                     </div>
-                                )}
                             </div>
                         ) : (
                             <div className="flex flex-col items-center gap-2 w-full">
@@ -862,7 +862,7 @@ export function PracticeMode({ isRunning, studentId, setIsRunning, initialConfig
                                                 {streak > 5 ? "ON FIRE!" : `${streak}x`}
                                             </motion.div>
                                         )}
-                                        {isTimerEnabled && mode !== "assessment" && (
+                                        {isTimerEnabled && (
                                             <motion.button
                                                 whileHover={{ scale: 1.05, backgroundColor: "rgba(16, 185, 129, 0.2)" }}
                                                 whileTap={{ scale: 0.95 }}
