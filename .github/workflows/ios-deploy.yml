@@ -49,6 +49,12 @@ jobs:
           ruby-version: '3.0'
           bundler-cache: true
         
+      - name: Build Web App and Sync Capacitor
+        run: |
+          npm install
+          npm run build
+          npx cap sync ios
+        
       - name: Build and upload to TestFlight using Fastlane
         env:
           APP_STORE_CONNECT_API_KEY_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ISSUER_ID }}
