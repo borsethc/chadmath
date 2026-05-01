@@ -647,10 +647,10 @@ export function PracticeMode({ isRunning, studentId, setIsRunning, initialConfig
 
                     <button
                         onClick={() => setIsRunning(true)}
-                        className="group relative flex items-center justify-center w-24 h-24 rounded-full bg-indigo-600 hover:bg-indigo-500 text-white shadow-[0_0_40px_rgba(79,70,229,0.4)] hover:shadow-[0_0_60px_rgba(79,70,229,0.6)] hover:scale-105 transition-all duration-300"
+                        className="group relative flex items-center justify-center w-32 h-32 sm:w-40 sm:h-40 rounded-full bg-indigo-600 hover:bg-indigo-500 text-white shadow-[0_0_40px_rgba(79,70,229,0.4)] hover:shadow-[0_0_60px_rgba(79,70,229,0.6)] hover:scale-105 transition-all duration-300"
                     >
-                        <Play className="w-10 h-10 ml-1 fill-current" />
-                        <span className="absolute -bottom-6 text-xs font-bold uppercase tracking-widest text-indigo-300 opacity-0 group-hover:opacity-100 transition-opacity">Start</span>
+                        <Play className="w-14 h-14 sm:w-16 sm:h-16 ml-2 fill-current" />
+                        <span className="absolute -bottom-8 text-sm font-bold uppercase tracking-widest text-indigo-300 opacity-0 group-hover:opacity-100 transition-opacity">Start</span>
                     </button>
 
                     <GameInstructions />
@@ -668,7 +668,7 @@ export function PracticeMode({ isRunning, studentId, setIsRunning, initialConfig
 
     return (
         <div
-            className="relative flex min-h-[50vh] w-full max-w-md sm:max-w-2xl flex-col items-center rounded-3xl border border-white/5 bg-white/5 p-6 sm:p-8 shadow-2xl backdrop-blur-3xl mx-4 sm:mx-0 mb-8 overflow-hidden">
+            className="relative flex min-h-[50vh] w-full max-w-lg sm:max-w-2xl flex-col items-center rounded-3xl border border-white/5 bg-white/5 p-6 sm:p-8 shadow-2xl backdrop-blur-3xl mx-4 sm:mx-0 mb-8 overflow-hidden">
 
             <AnimatePresence>
                 {milestoneMessage && (
@@ -690,7 +690,7 @@ export function PracticeMode({ isRunning, studentId, setIsRunning, initialConfig
             {isTimerEnabled && (
                 <div className="w-full flex justify-center items-center gap-4 z-20 mb-4 sm:mb-8 min-h-[32px]">
                     <div className={cn(
-                        "px-4 py-1.5 rounded-full border text-sm font-mono font-bold transition-all",
+                        "px-4 py-1.5 rounded-full border text-sm font-mono font-bold transition-all transform-gpu",
                         timeLeft <= 10 ? "bg-red-500/20 border-red-500 text-red-400 animate-pulse" : "bg-white/5 border-white/10 text-white"
                     )}>
                         {Math.floor(timeLeft / 60)}:{(timeLeft % 60).toString().padStart(2, '0')}
@@ -748,7 +748,7 @@ export function PracticeMode({ isRunning, studentId, setIsRunning, initialConfig
             {(
                 <div className="mb-2 flex flex-col items-center space-y-2">
                     {isRunning && currentQuestion ? (
-                        <div className="flex items-center text-7xl sm:text-9xl font-light tracking-tighter text-white">
+                        <div className="flex items-center text-[20vw] sm:text-9xl font-light tracking-tighter text-white">
                             <span>
                                 {currentQuestion.factor1}
                             </span>
@@ -768,7 +768,7 @@ export function PracticeMode({ isRunning, studentId, setIsRunning, initialConfig
                     gameState === "waiting" || gameState === "correct" ? (
                         isMultipleChoice ? (
                             <div className="flex flex-col items-center gap-4 w-full">
-                                <div className="grid grid-cols-2 gap-4 w-full max-w-sm">
+                                <div className="grid grid-cols-2 gap-4 w-full max-w-sm sm:max-w-md">
                                     {currentQuestion?.options.map((opt) => (
                                         <motion.button
                                             key={opt}
@@ -780,7 +780,7 @@ export function PracticeMode({ isRunning, studentId, setIsRunning, initialConfig
                                             onPointerDown={() => handleOptionClick(opt)}
                                             onMouseEnter={() => playHover()}
                                             className={cn(
-                                                "h-16 rounded-xl border text-xl sm:text-2xl font-bold text-white transition-colors hover:border-indigo-500/50",
+                                                "h-20 sm:h-24 rounded-2xl border text-3xl sm:text-4xl font-bold text-white transition-colors hover:border-indigo-500/50",
                                                 /* Standard styling */
                                                 "border-white/10 bg-white/5"
                                             )}
