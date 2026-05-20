@@ -1,14 +1,94 @@
-'use server';
+// Client-side actions using localStorage instead of a database
 
-import { createOrUpdateStudent, addSession, getStudent, getAllStudents, updateStudentProgress, deleteStudent } from "@/lib/db";
-import { revalidatePath } from "next/cache";
+// Define the Session and Student types matching the old DB types
+export type Session = {
+    id: string;
+    timestamp: string;
+    score: number;
+    wrong: number;
+    total: number;
+    gameType: string;
+    isMultipleChoice: boolean;
+    selectedFactors: string[];
+    assessmentTier?: string;
+};
+
+export type Student = {
+    id: string;
+    lastSeen: string;
+    loginCount: number;
+    sessions: Session[];
+    allTimeHigh?: number;
+    xp: number;
+    level: number;
+    dailyStreak: number;
+    lastStreakUpdate: string; // ISO date string YYYY-MM-DD
+    factMastery: Record<string, number>;
+};
+
+// Helper to get all students from local storage
+const getStudentsDb = (): Record<string, Student> => {
+    if (typeof window === "undefined") return {};
+    const data = localStorage.getItem("chadmath_db");
+    if (!data) return {};
+    try {
+        return JSON.parse(data);
+    } catch {
+        return {};
+    }
+};
+
+const saveStudentsDb = (db: Record<string, Student>) => {
+    if (typeof window === "undefined") return;
+    localStorage.setItem("chadmath_db", JSON.stringify(db));
+};
+
+const getStudent = (studentId: string): Student | null => {
+    const db = getStudentsDb();
+    return db[studentId] || null;
+};
 
 export async function loginAction(studentId: string) {
     if (!studentId || studentId.trim() === "") {
         return { success: false, message: "Invalid Student ID" };
     }
+    
     try {
-        const student = await createOrUpdateStudent(studentId);
+        const db = getStudentsDb();
+        const now = new Date().toISOString();
+        let student = db[studentId];
+
+        if (student) {
+            student.lastSeen = now;
+            student.loginCount = (student.loginCount || student.sessions?.length || 0) + 1;
+        } else {
+            student = {
+                id: studentId,
+                lastSeen: now,
+                loginCount: 1,
+                sessions: [],
+                xp: 0,
+                level: 1,
+                dailyStreak: 0,
+                lastStreakUpdate: "",
+                factMastery: {}
+            };
+        }
+
+        // Sanitize legacy scores just like old code
+        let realHigh = 0;
+        student.sessions?.forEach(session => {
+            if (session.gameType === "assessment" && session.isMultipleChoice !== true) {
+                if (session.score > realHigh) {
+                    realHigh = session.score;
+                }
+            }
+        });
+        student.allTimeHigh = realHigh > 0 ? realHigh : undefined;
+
+        db[studentId] = student;
+        saveStudentsDb(db);
+
         return {
             success: true,
             allTimeHigh: student.allTimeHigh,
@@ -19,13 +99,13 @@ export async function loginAction(studentId: string) {
         };
     } catch (error) {
         console.error("Login failed:", error);
-        return { success: false, message: "System Error: Could not connect to database." };
+        return { success: false, message: "System Error: Could not save to device storage." };
     }
 }
 
 export async function checkDailyStats(studentId: string) {
     if (!studentId) return { count: 0, allowed: true };
-    const student = await getStudent(studentId);
+    const student = getStudent(studentId);
     if (!student) return { count: 0, allowed: true };
 
     const todayOptions: Intl.DateTimeFormatOptions = { timeZone: "America/Chicago" };
@@ -52,7 +132,27 @@ export async function logSessionAction(
     assessmentTier?: string,
     sessionMasteryUpdates?: Record<string, number>
 ) {
-    const session = await addSession(studentId, {
+    const db = getStudentsDb();
+    const now = new Date().toISOString();
+    
+    let student = db[studentId];
+    if (!student) {
+        student = {
+            id: studentId,
+            lastSeen: now,
+            loginCount: 1,
+            sessions: [],
+            xp: 0,
+            level: 1,
+            dailyStreak: 0,
+            lastStreakUpdate: "",
+            factMastery: {}
+        };
+    }
+
+    const newSession: Session = {
+        id: Math.random().toString(36).substring(2, 9),
+        timestamp: now,
         score,
         total,
         gameType,
@@ -60,121 +160,63 @@ export async function logSessionAction(
         isMultipleChoice,
         selectedFactors,
         assessmentTier
-    });
+    };
+
+    student.sessions.push(newSession);
+
+    // Update All Time High
+    if (gameType === "assessment") {
+        const currentHigh = student.allTimeHigh || 0;
+        if (score > currentHigh) {
+            student.allTimeHigh = score;
+        }
+    }
 
     // Calculate XP
-    // 10 XP per point + 50 XP completion bonus
     const sessionXP = (score * 10) + 50;
-
-    const student = await getStudent(studentId);
-    let newLevel = student?.level || 1;
-    let totalXP = (student?.xp || 0) + sessionXP;
-
-    // Simple Level Up Logic: Every 1000 XP is a level
-    // Level 1: 0-999
-    // Level 2: 1000-1999
-    newLevel = Math.floor(totalXP / 1000) + 1;
-
-    // We need to update the student record with new XP/Level
-    // Since addSession only adds a session, we need to explicitly update student data here
-    // But wait, our DB logic is a bit split.
-    // Let's rely on a new updateStudentData function or modify addSession to handle updates?
-    // Actually, createOrUpdateStudent updates lastSeen/loginCount.
-    // Let's manually update here for now since we are in a server action.
-
-    // NOTE: This direct update pattern mirrors how `addSession` works in the DB file (it updates the file/DB).
-    // However, `addSession` in `db.ts` doesn't take arbitrary student updates.
-    // We should probably add a helper in db.ts or just inline the update logic if possible.
-    // But `db.ts` is the abstraction layer. 
-    // Let's modify `addSession` in `db.ts` to accept partial student updates OR add `updateStudent`.
-    // For now, let's assume I can add `updateStudentXP` to db.ts or similar. 
-    // Actually, looking at `db.ts`, `createOrUpdateStudent` does an upsert but resets/increments logic.
-    // Let's add a specialized `updateStudentProgress(studentId, xp, level)` to `db.ts`.
-
-    // Refactoring plan:
-    // 1. I will modify `db.ts` to export `updateStudentProgress`.
-    // 2. I will call it here.
+    student.xp = (student.xp || 0) + sessionXP;
+    student.level = Math.floor(student.xp / 1000) + 1;
 
     // Daily Streak Logic
-    // Goal: 5 sessions per day
     const todayOptions: Intl.DateTimeFormatOptions = { timeZone: "America/Chicago" };
-    const todayDate = new Date().toLocaleDateString("en-CA", todayOptions); // YYYY-MM-DD format ideally, but en-CA does that.
-
-    // Calculate sessions completed TODAY
-    // We can reuse checkDailyStats logic or filter manually. Since checkDailyStats uses "en-US", let's be consistent or robust.
-    const todaySessionsCount = student?.sessions.filter(s => {
-        // Simple check: match date string
-        return new Date(s.timestamp).toLocaleDateString("en-CA", todayOptions) === todayDate;
-    }).length || 0; // Note: this includes the one we JUST added? actually addSession returns void/promise but we awaited it.
-    // Wait, addSession reads from DB/File. If we just called addSession, and now we call getStudent, it *should* have it.
-    // Let's assume student variable (line 61) has the latest session.
-
-    // Actually, getStudent on 61 fetches fresh. So it includes the session we just added.
-
-    let currentStreak = student?.dailyStreak || 0;
-    let lastUpdate = student?.lastStreakUpdate || "";
-    let streakUpdated = false;
-
-    // Standardize yesterday comparison
+    const todayDate = new Date().toLocaleDateString("en-CA", todayOptions);
     const yesterdayDate = new Date(Date.now() - 86400000).toLocaleDateString("en-CA", todayOptions);
 
+    const todaySessionsCount = student.sessions.filter(s => {
+        return new Date(s.timestamp).toLocaleDateString("en-CA", todayOptions) === todayDate;
+    }).length;
+
+    let streakUpdated = false;
+
     if (todaySessionsCount >= 5) {
-        if (lastUpdate === todayDate) {
-            // Already credited for today
-        } else if (lastUpdate === yesterdayDate) {
-            // Continued streak!
-            currentStreak += 1;
-            lastUpdate = todayDate;
+        if (student.lastStreakUpdate === todayDate) {
+            // Already credited
+        } else if (student.lastStreakUpdate === yesterdayDate) {
+            student.dailyStreak += 1;
+            student.lastStreakUpdate = todayDate;
             streakUpdated = true;
         } else {
-            // Missed a day (or first time), reset to 1
-            // Even if streak was > 0, if last update wasn't Yesterday or Today, it's broken.
-            // Wait, if lastUpdate was empty (new user), and they hit 5, streak becomes 1.
-            currentStreak = 1;
-            lastUpdate = todayDate;
+            student.dailyStreak = 1;
+            student.lastStreakUpdate = todayDate;
             streakUpdated = true;
         }
-    } else {
-        // Hasn't hit 5 yet today. Streak remains as is (could be 0 or N from yesterday).
-        // We don't reset until they try to update continuously and fail? 
-        // Actually, if they log in tomorrow and didn't hit 5 today, the streak breaks THEN? 
-        // Or does it verify on login? 
-        // Simple Approach: We only update streak when they HIT the goal.
-        // If they play tomorrow and hit 5, and lastUpdate is 2 days ago, it resets to 1.
-        // This logic (above `else`) handles the reset correctly upon *success*.
-        // Issue: Displaying "Streak: 5" when you haven't played in a week is misleading?
-        // Maybe loginAction should handle the "display breakdown"?
-        // For now, let's Stick to: Logic updates when you HIT the goal.
     }
 
-    await updateStudentProgress(studentId, totalXP, newLevel, streakUpdated ? currentStreak : undefined, streakUpdated ? lastUpdate : undefined, sessionMasteryUpdates);
+    // Update Fact Mastery
+    if (sessionMasteryUpdates) {
+        student.factMastery = { ...(student.factMastery || {}), ...sessionMasteryUpdates };
+    }
 
-    revalidatePath('/dashboard');
+    student.lastSeen = now;
+    db[studentId] = student;
+    saveStudentsDb(db);
+
     return {
         success: true,
-        allTimeHigh: student?.allTimeHigh,
+        allTimeHigh: student.allTimeHigh,
         xpCaughtUp: sessionXP,
-        currentLevel: newLevel,
-        dailyStreak: currentStreak,
+        currentLevel: student.level,
+        dailyStreak: student.dailyStreak,
         streakUpdated
     };
-}
-
-export async function getDashboardData() {
-    const students = await getAllStudents();
-    // Convert to array and sort by last seen (descending)
-    return students.sort((a, b) =>
-        new Date(b.lastSeen).getTime() - new Date(a.lastSeen).getTime()
-    );
-}
-
-export async function deleteStudentAction(studentId: string) {
-    if (!studentId) return { success: false, message: "Invalid student ID" };
-    
-    const success = await deleteStudent(studentId);
-    if (success) {
-        revalidatePath('/dashboard');
-        return { success: true };
-    }
-    return { success: false, message: "Student not found or could not be deleted" };
 }

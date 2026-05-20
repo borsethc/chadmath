@@ -1,6 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  output: process.env.NEXT_PUBLIC_EXPORT ? "export" : undefined,
   /* config options here */
   experimental: {
     // serverActions: {
