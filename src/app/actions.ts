@@ -245,3 +245,12 @@ export async function getStudentAction(studentId: string) {
         return fetchApi('getStudentAction', { studentId });
     }
 }
+
+export async function checkConnectionAction() {
+    if (isOffline) {
+        return { status: 'n/a', mode: 'filesystem', message: 'Local storage mode (App Store App)' };
+    } else {
+        return fetchApi('checkConnection', {});
+    }
+}
+

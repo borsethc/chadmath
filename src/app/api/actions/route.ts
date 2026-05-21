@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { createOrUpdateStudent, addSession, getStudent, getAllStudents, updateStudentProgress, deleteStudent } from "@/lib/db";
+import { createOrUpdateStudent, addSession, getStudent, getAllStudents, updateStudentProgress, deleteStudent, checkConnection } from "@/lib/db";
 import { revalidatePath } from "next/cache";
 
 export async function POST(request: Request) {
@@ -116,6 +116,11 @@ export async function POST(request: Request) {
             if (!studentId) return NextResponse.json({ success: false, message: "Invalid student ID" });
             const student = await getStudent(studentId);
             return NextResponse.json({ success: !!student, student });
+        }
+
+        if (action === 'checkConnection') {
+            const health = await checkConnection();
+            return NextResponse.json(health);
         }
 
         return NextResponse.json({ success: false, message: "Unknown action" }, { status: 400 });

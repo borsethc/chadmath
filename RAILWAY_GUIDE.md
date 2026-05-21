@@ -1,4 +1,4 @@
-cre# Railway Deployment Guide
+# Railway Deployment Guide
 
 This guide will help you deploy your Math Mastery app to **Railway.app** with a persistent database.
 
@@ -38,6 +38,19 @@ This guide will help you deploy your Math Mastery app to **Railway.app** with a 
 1.  The app will rebuild automatically when variables change.
 2.  Check the **"Deployments"** tab to see the progress.
 3.  Once green, click the generated URL (e.g., `xxx.up.railway.app`) to open your app!
+
+## Restoring/Syncing Local Data to Postgres
+
+If you have student history in a local `data.json` file that you want to upload to the Railway database:
+
+1. Go to your **PostgreSQL** database service card in the Railway dashboard.
+2. Go to the **"Connect"** tab or **"Variables"** tab.
+3. Copy the **"External Connection URL"** (it starts with `postgresql://`).
+4. In your computer's terminal, run the restoration script with that URL:
+   ```bash
+   DATABASE_URL="your_copied_database_url_here" node scripts/restore-db.js
+   ```
+5. The script will securely verify the schema and perform an upsert for all student logs without duplicating existing entries.
 
 ## Troubleshooting
 - **"Application Error"**: Check the "Logs" tab in your web service.
