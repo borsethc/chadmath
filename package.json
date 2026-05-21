@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "build:ios": "NEXT_PUBLIC_EXPORT=true next build",
+    "build:ios": "NEXT_PUBLIC_IS_OFFLINE=true NEXT_PUBLIC_EXPORT=true next build",
     "start": "next start",
     "lint": "eslint"
   },
