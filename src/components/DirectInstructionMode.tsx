@@ -914,35 +914,55 @@ export function DirectInstructionMode({
     }, [currentExpr, selectedTable]);
 
     return (
-        <div className="w-full max-w-2xl mx-auto flex flex-col items-center px-2 sm:px-4 pb-10">
-            <Confetti active={showConfetti} />
+        <div
+            data-testid="direct-instruction-container"
+            className="fixed inset-0 z-50 bg-[#0a0914] overflow-y-auto overscroll-y-contain touch-pan-y flex flex-col items-center px-2.5 sm:px-4"
+            style={{
+                paddingTop: "max(12px, env(safe-area-inset-top, 20px))",
+                paddingBottom: "max(52px, env(safe-area-inset-bottom, 34px))",
+            }}
+        >
+            {/* Background Ambience */}
+            <div className="fixed inset-0 bg-[linear-gradient(to_right,#4f4f4f14_1px,transparent_1px),linear-gradient(to_bottom,#4f4f4f14_1px,transparent_1px)] bg-[size:14px_24px] pointer-events-none -z-10" />
 
-            {/* Top Navigation & Skill Level / Mode Switcher */}
-            <div className="w-full flex flex-wrap items-center justify-between gap-2 mb-3">
-                <button
-                    onClick={onClose}
-                    className="px-3.5 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-bold uppercase tracking-widest text-white/70 hover:text-white transition-all"
-                >
-                    ← Skill Level Menu
-                </button>
+            <div className="w-full max-w-2xl mx-auto flex flex-col items-center pb-12 relative z-10">
+                <Confetti active={showConfetti} />
 
-                {onSwitchToSkillLevel && (
-                    <div className="flex items-center gap-1 bg-black/50 border border-white/10 p-1 rounded-xl">
-                        <span className="px-2.5 py-1 rounded-lg bg-indigo-600 text-white text-[11px] font-bold">
-                            Direct Instruction Mode
+                {/* Top Navigation & Skill Level / Mode Switcher */}
+                <div className="w-full flex flex-wrap items-center justify-between gap-2 mb-2 sm:mb-3">
+                    <button
+                        onClick={onClose}
+                        className="px-3 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-[11px] sm:text-xs font-bold uppercase tracking-widest text-white/70 hover:text-white transition-all cursor-pointer"
+                    >
+                        ← Skill Level Menu
+                    </button>
+
+                    <div className="flex items-center gap-1.5">
+                        <span className="font-black text-sm sm:text-base tracking-tighter text-transparent bg-clip-text bg-gradient-to-br from-white to-white/60">
+                            ChadMath
                         </span>
-                        {(["Level 1", "Level 2", "Level 3"] as const).map((lvl) => (
-                            <button
-                                key={lvl}
-                                onClick={() => onSwitchToSkillLevel(lvl)}
-                                className="px-2 py-1 rounded-lg text-[11px] font-bold text-gray-400 hover:text-white hover:bg-white/5 transition-all"
-                            >
-                                {lvl}
-                            </button>
-                        ))}
+                        <span className="text-[10px] uppercase font-mono tracking-widest text-indigo-400/80 hidden sm:inline">
+                            • Direct Instruction
+                        </span>
                     </div>
-                )}
-            </div>
+
+                    {onSwitchToSkillLevel && (
+                        <div className="flex items-center gap-1 bg-black/50 border border-white/10 p-1 rounded-xl">
+                            <span className="px-2 py-0.5 rounded-lg bg-indigo-600 text-white text-[10px] sm:text-[11px] font-bold">
+                                Direct Instruction
+                            </span>
+                            {(["Level 1", "Level 2", "Level 3"] as const).map((lvl) => (
+                                <button
+                                    key={lvl}
+                                    onClick={() => onSwitchToSkillLevel(lvl)}
+                                    className="px-1.5 py-0.5 rounded-lg text-[10px] sm:text-[11px] font-bold text-gray-400 hover:text-white hover:bg-white/5 transition-all cursor-pointer"
+                                >
+                                    {lvl}
+                                </button>
+                            ))}
+                        </div>
+                    )}
+                </div>
 
             {/* Table / Group Selector (Multi-select 2 through 9) + Shuffle Option */}
             <div
@@ -1014,10 +1034,10 @@ export function DirectInstructionMode({
             </div>
 
             {/* Main Classic Theme Card */}
-            <div className="w-full rounded-[28px] border border-white/10 bg-[#121216] p-5 sm:p-8 shadow-2xl relative overflow-hidden">
+            <div className="w-full rounded-[24px] sm:rounded-[28px] border border-white/10 bg-[#121216] p-4 sm:p-7 shadow-2xl relative overflow-hidden">
                 {/* PHASE 1: WORKED EXAMPLE */}
                 {phase === "worked-example" && (
-                    <div data-testid="worked-example-card" className="flex flex-col items-center space-y-6">
+                    <div data-testid="worked-example-card" className="flex flex-col items-center space-y-3.5 sm:space-y-6">
                         <div className="w-full flex flex-wrap items-center justify-between gap-2">
                             <span className="px-3 py-1 rounded-full text-[11px] sm:text-xs font-bold uppercase tracking-wider bg-indigo-950/80 border border-indigo-500/40 text-indigo-200">
                                 {selectedTablesLabel} • WORKED EXAMPLE
@@ -1027,17 +1047,17 @@ export function DirectInstructionMode({
                             </span>
                         </div>
 
-                        <div className="text-center space-y-1.5">
-                            <h2 className="text-2xl sm:text-3xl font-black text-white">
+                        <div className="text-center space-y-1">
+                            <h2 className="text-xl sm:text-3xl font-black text-white">
                                 How to Read Coin Groups
                             </h2>
-                            <p className="text-sm text-gray-400">
+                            <p className="text-xs sm:text-sm text-gray-400 max-w-md">
                                 Watch how we count the groups first, then the coins in one group, and write the expression in that order.
                             </p>
                         </div>
 
                         {/* Worked Example Picture */}
-                        <div className="py-3 w-full flex flex-col items-center">
+                        <div className="py-1.5 sm:py-3 w-full flex flex-col items-center">
                             <CoinGroupPicture
                                 groups={workedExampleExpr.factor1}
                                 coinsPerGroup={workedExampleExpr.factor2}
@@ -1053,23 +1073,23 @@ export function DirectInstructionMode({
                         </div>
 
                         {/* 3-Step Modeled Breakdown */}
-                        <div className="w-full grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <div className="w-full grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-3">
                             <div
                                 onClick={() => setWorkedExampleStep(1)}
                                 className={cn(
-                                    "p-3.5 rounded-2xl border text-left cursor-pointer transition-all",
+                                    "p-2.5 sm:p-3.5 rounded-xl sm:rounded-2xl border text-left cursor-pointer transition-all",
                                     workedExampleStep >= 1
                                         ? "bg-indigo-950/40 border-indigo-500/50 text-white"
                                         : "bg-white/5 border-white/10 text-gray-400"
                                 )}
                             >
-                                <div className="text-[10px] font-bold uppercase tracking-widest text-indigo-300 mb-1">
+                                <div className="text-[9px] sm:text-[10px] font-bold uppercase tracking-widest text-indigo-300 mb-0.5">
                                     1. Count the groups
                                 </div>
-                                <div className="text-base font-extrabold text-white">
+                                <div className="text-sm sm:text-base font-extrabold text-white">
                                     {workedExampleExpr.factor1} groups
                                 </div>
-                                <p className="text-xs text-gray-300 mt-1">
+                                <p className="text-[11px] sm:text-xs text-gray-300 mt-0.5">
                                     There are {workedExampleExpr.factor1} purple boxes.
                                 </p>
                             </div>
@@ -1077,19 +1097,19 @@ export function DirectInstructionMode({
                             <div
                                 onClick={() => setWorkedExampleStep(2)}
                                 className={cn(
-                                    "p-3.5 rounded-2xl border text-left cursor-pointer transition-all",
+                                    "p-2.5 sm:p-3.5 rounded-xl sm:rounded-2xl border text-left cursor-pointer transition-all",
                                     workedExampleStep >= 2
                                         ? "bg-indigo-950/40 border-indigo-500/50 text-white"
                                         : "bg-white/5 border-white/10 text-gray-400"
                                 )}
                             >
-                                <div className="text-[10px] font-bold uppercase tracking-widest text-indigo-300 mb-1">
+                                <div className="text-[9px] sm:text-[10px] font-bold uppercase tracking-widest text-indigo-300 mb-0.5">
                                     2. Coins in one group
                                 </div>
-                                <div className="text-base font-extrabold text-white">
+                                <div className="text-sm sm:text-base font-extrabold text-white">
                                     {workedExampleExpr.factor2} coins in each group
                                 </div>
-                                <p className="text-xs text-gray-300 mt-1">
+                                <p className="text-[11px] sm:text-xs text-gray-300 mt-0.5">
                                     Each box holds {workedExampleExpr.factor2} gold coins.
                                 </p>
                             </div>
@@ -1097,19 +1117,19 @@ export function DirectInstructionMode({
                             <div
                                 onClick={() => setWorkedExampleStep(3)}
                                 className={cn(
-                                    "p-3.5 rounded-2xl border text-left cursor-pointer transition-all",
+                                    "p-2.5 sm:p-3.5 rounded-xl sm:rounded-2xl border text-left cursor-pointer transition-all",
                                     workedExampleStep >= 3
                                         ? "bg-emerald-950/40 border-emerald-500/50 text-white"
                                         : "bg-white/5 border-white/10 text-gray-400"
                                 )}
                             >
-                                <div className="text-[10px] font-bold uppercase tracking-widest text-emerald-300 mb-1">
+                                <div className="text-[9px] sm:text-[10px] font-bold uppercase tracking-widest text-emerald-300 mb-0.5">
                                     3. Write the expression
                                 </div>
-                                <div className="text-base font-extrabold text-white">
+                                <div className="text-sm sm:text-base font-extrabold text-white">
                                     {workedExampleExpr.factor1} × {workedExampleExpr.factor2} = {workedExampleExpr.product}
                                 </div>
-                                <p className="text-xs text-gray-300 mt-1">
+                                <p className="text-[11px] sm:text-xs text-gray-300 mt-0.5">
                                     Groups × coins in each group.
                                 </p>
                             </div>
@@ -1796,6 +1816,7 @@ export function DirectInstructionMode({
                 )}
             </div>
         </div>
+    </div>
     );
 }
 
