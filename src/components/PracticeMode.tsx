@@ -6,11 +6,12 @@ import { GameInstructions } from "./GameInstructions";
 import { useGameLogic, GameMode } from "@/hooks/useGameLogic";
 import { useSoundEffects } from "@/hooks/useSoundEffects";
 import { cn } from "@/lib/utils";
-import { Play, Loader2, ToggleLeft, ToggleRight, Delete } from "lucide-react";
+import { Play, Loader2, ToggleLeft, ToggleRight, Delete, Shuffle } from "lucide-react";
 
 
 import { Confetti } from "./Confetti";
 import { getFeedback } from "@/lib/assessment";
+import { DirectInstructionMode } from "./DirectInstructionMode";
 
 import { PracticeConfig } from "./StudentDashboard";
 
@@ -26,6 +27,9 @@ export function PracticeMode({ isRunning, studentId, setIsRunning, initialConfig
     const [mode, setMode] = useState<GameMode>(initialConfig?.mode ?? "multiplication");
     const [isTimerEnabled, setIsTimerEnabled] = useState(initialConfig?.isTimerEnabled ?? true);
     const [isMultipleChoice, setIsMultipleChoice] = useState(initialConfig?.isMultipleChoice ?? false);
+    const [isDirectInstruction, setIsDirectInstruction] = useState(false);
+    const [directInstructionTables, setDirectInstructionTables] = useState<number[]>([2]);
+    const [directInstructionShuffle, setDirectInstructionShuffle] = useState<boolean>(false);
 
     // We lift factMastery state up slightly to pass it down, but useGameLogic manages its internal copy
     // We need a ref to hold initial mastery because we don't want to reset logic on state update?
@@ -155,7 +159,7 @@ export function PracticeMode({ isRunning, studentId, setIsRunning, initialConfig
     }, [mode]);
 
     useEffect(() => {
-        if (!isRunning || sessionComplete || !isTimerEnabled) return;
+        if (!isRunning || sessionComplete || !isTimerEnabled || isDirectInstruction) return;
 
         const timer = setInterval(() => {
             setTimeLeft((prev) => {
@@ -168,19 +172,19 @@ export function PracticeMode({ isRunning, studentId, setIsRunning, initialConfig
         }, 1000);
 
         return () => clearInterval(timer);
-    }, [isRunning, sessionComplete, isTimerEnabled]);
+    }, [isRunning, sessionComplete, isTimerEnabled, isDirectInstruction]);
 
 
     // Trigger completion when time hits 0 or question limit reached in assessment
     useEffect(() => {
-        if (!isRunning || sessionComplete) return;
+        if (!isRunning || sessionComplete || isDirectInstruction) return;
 
         if (isTimerEnabled && timeLeft === 0) {
             handleSessionComplete();
         } else if (mode === "assessment" && stats.total >= 60) {
             handleSessionComplete();
         }
-    }, [timeLeft, sessionComplete, isRunning, mode, stats.total, isTimerEnabled]);
+    }, [timeLeft, sessionComplete, isRunning, mode, stats.total, isTimerEnabled, isDirectInstruction]);
 
     const handleSessionComplete = async () => {
         setIsRunning(false); // Stop running
@@ -465,6 +469,22 @@ export function PracticeMode({ isRunning, studentId, setIsRunning, initialConfig
         );
     }
 
+    if (isRunning && isDirectInstruction && mode !== "assessment" && mode !== "tables") {
+        return (
+            <DirectInstructionMode
+                initialTables={directInstructionTables}
+                initialShuffle={directInstructionShuffle}
+                studentId={studentId}
+                onClose={() => setIsRunning(false)}
+                onSwitchToSkillLevel={(lvl) => {
+                    setIsDirectInstruction(false);
+                    selectLevel(lvl);
+                    setIsRunning(false);
+                }}
+            />
+        );
+    }
+
     if (!currentQuestion || !isRunning) {
         // Show Start Button if not running (and allowed)
         if (!isRunning) {
@@ -477,7 +497,7 @@ export function PracticeMode({ isRunning, studentId, setIsRunning, initialConfig
                     </div>
 
                     {/* Input Mode Toggle */}
-                    {mode !== "assessment" && (
+                    {mode !== "assessment" && !isDirectInstruction && (
                         <div className="flex gap-2 w-full max-w-xs">
                             <div className="flex flex-col items-center gap-2 flex-1 cursor-pointer hover:opacity-80 transition-opacity p-3 rounded-xl bg-white/5 border border-white/5" onClick={() => setIsMultipleChoice(!isMultipleChoice)}>
                                 <span className="text-[10px] sm:text-xs font-medium uppercase tracking-widest text-muted-foreground whitespace-nowrap">
@@ -504,7 +524,10 @@ export function PracticeMode({ isRunning, studentId, setIsRunning, initialConfig
                     {/* Top Level Mode Toggle */}
                     <div className="grid grid-cols-3 gap-1 w-full max-w-sm bg-black/40 p-1 rounded-xl mb-4">
                         <button
-                            onClick={() => setMode("tables")}
+                            onClick={() => {
+                                setIsDirectInstruction(false);
+                                setMode("tables");
+                            }}
                             className={cn(
                                 "flex items-center justify-center py-2 px-2 rounded-lg text-xs font-bold transition-all",
                                 mode === "tables" ? "bg-indigo-600 text-white shadow-lg" : "text-gray-400 hover:text-white"
@@ -524,7 +547,10 @@ export function PracticeMode({ isRunning, studentId, setIsRunning, initialConfig
                             Skill Level
                         </button>
                         <button
-                            onClick={() => setMode("assessment")}
+                            onClick={() => {
+                                setIsDirectInstruction(false);
+                                setMode("assessment");
+                            }}
                             className={cn(
                                 "flex items-center justify-center py-2 px-2 rounded-lg text-xs font-bold transition-all",
                                 mode === "assessment" ? "bg-indigo-600 text-white shadow-lg" : "text-gray-400 hover:text-white"
@@ -534,8 +560,8 @@ export function PracticeMode({ isRunning, studentId, setIsRunning, initialConfig
                         </button>
                     </div>
 
-                    {/* Operator Toggle (Only for Practice Mode) */}
-                    {(mode === "multiplication" || mode === "division") && (
+                    {/* Operator Toggle (Only for Practice Mode when not in Direct Instruction) */}
+                    {(mode === "multiplication" || mode === "division") && !isDirectInstruction && (
                         <div className="flex flex-col items-center gap-2 w-full max-w-xs mb-4">
                             <span className="text-[10px] sm:text-xs font-medium uppercase tracking-widest text-muted-foreground">
                                 Operation
@@ -570,6 +596,29 @@ export function PracticeMode({ isRunning, studentId, setIsRunning, initialConfig
                                 Select Skill Level
                             </span>
                             <div className="flex flex-col gap-2 w-full">
+                                {/* Direct Instruction Mode selectable tab above Level 1, Level 2, and Level 3 */}
+                                <button
+                                    type="button"
+                                    role="tab"
+                                    aria-selected={isDirectInstruction}
+                                    data-testid="direct-instruction-mode-tab"
+                                    onClick={() => {
+                                        setMode("multiplication");
+                                        setIsDirectInstruction(true);
+                                    }}
+                                    className={cn(
+                                        "px-4 py-3 rounded-lg text-sm font-bold transition-all border w-full flex flex-col items-center justify-center cursor-pointer",
+                                        isDirectInstruction
+                                            ? "bg-indigo-500/20 border-indigo-500 text-indigo-300 shadow-[0_0_20px_rgba(99,102,241,0.25)]"
+                                            : "bg-white/5 border-white/10 text-muted-foreground hover:bg-white/10 hover:text-white"
+                                    )}
+                                >
+                                    <span>Direct Instruction Mode</span>
+                                    <span className="text-[10px] font-normal opacity-70 mt-1">
+                                        Guided visual coin groups & step-by-step tables (2–9)
+                                    </span>
+                                </button>
+
                                 {(["Level 1", "Level 2", "Level 3"] as const).map(level => {
                                     // Set tooltips based on level
                                     let tooltip = "";
@@ -580,10 +629,16 @@ export function PracticeMode({ isRunning, studentId, setIsRunning, initialConfig
                                     return (
                                         <button
                                             key={level}
-                                            onClick={() => selectLevel(level)}
+                                            type="button"
+                                            role="tab"
+                                            aria-selected={!isDirectInstruction && selectedLevel === level}
+                                            onClick={() => {
+                                                setIsDirectInstruction(false);
+                                                selectLevel(level);
+                                            }}
                                             className={cn(
-                                                "px-4 py-3 rounded-lg text-sm font-bold transition-all border w-full flex flex-col items-center justify-center",
-                                                selectedLevel === level
+                                                "px-4 py-3 rounded-lg text-sm font-bold transition-all border w-full flex flex-col items-center justify-center cursor-pointer",
+                                                !isDirectInstruction && selectedLevel === level
                                                     ? "bg-indigo-500/20 border-indigo-500 text-indigo-300"
                                                     : "bg-white/5 border-white/10 text-muted-foreground hover:bg-white/10"
                                             )}
@@ -594,6 +649,95 @@ export function PracticeMode({ isRunning, studentId, setIsRunning, initialConfig
                                     );
                                 })}
                             </div>
+
+                            {/* Table Selector when Direct Instruction Mode is selected (multi-select) */}
+                            {isDirectInstruction && (
+                                <div className="flex flex-col items-center gap-2 w-full pt-2">
+                                    <div className="flex justify-between items-center w-full">
+                                        <span className="text-[10px] sm:text-xs font-medium uppercase tracking-widest text-indigo-300">
+                                            Select Groups / Tables (2–9)
+                                        </span>
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                if (directInstructionTables.length === 8) {
+                                                    setDirectInstructionTables([2]);
+                                                } else {
+                                                    setDirectInstructionTables([2, 3, 4, 5, 6, 7, 8, 9]);
+                                                }
+                                            }}
+                                            className="text-[10px] text-indigo-400 hover:text-indigo-300 cursor-pointer"
+                                        >
+                                            {directInstructionTables.length === 8 ? "Reset (2s)" : "Select All"}
+                                        </button>
+                                    </div>
+                                    <div className="grid grid-cols-4 gap-2 w-full">
+                                        {[2, 3, 4, 5, 6, 7, 8, 9].map((num) => {
+                                            const isSelected = directInstructionTables.includes(num);
+                                            return (
+                                                <button
+                                                    key={num}
+                                                    type="button"
+                                                    data-testid={`setup-table-${num}`}
+                                                    onClick={() => {
+                                                        setDirectInstructionTables((prev) => {
+                                                            if (prev.includes(num)) {
+                                                                if (prev.length === 1) return prev;
+                                                                return prev.filter((n) => n !== num);
+                                                            }
+                                                            return [...prev, num].sort((a, b) => a - b);
+                                                        });
+                                                    }}
+                                                    className={cn(
+                                                        "py-2.5 rounded-xl text-sm font-bold transition-all border flex items-center justify-center cursor-pointer",
+                                                        isSelected
+                                                            ? "bg-indigo-500/30 border-indigo-400 text-indigo-200 shadow-[0_0_15px_rgba(99,102,241,0.3)]"
+                                                            : "bg-white/5 border-white/10 text-muted-foreground hover:bg-white/10 hover:text-white"
+                                                    )}
+                                                >
+                                                    {num}s
+                                                </button>
+                                            );
+                                        })}
+                                    </div>
+                                    <span className="text-[11px] text-gray-400">
+                                        Selected: {directInstructionTables.map((t) => `${t}s`).join(", ")}
+                                    </span>
+
+                                    {/* Shuffle Facts Order Option */}
+                                    <button
+                                        type="button"
+                                        data-testid="setup-direct-instruction-shuffle"
+                                        onClick={() => setDirectInstructionShuffle(!directInstructionShuffle)}
+                                        className={cn(
+                                            "flex items-center justify-between w-full p-2.5 rounded-xl border mt-1 cursor-pointer transition-all",
+                                            directInstructionShuffle
+                                                ? "bg-indigo-500/20 border-indigo-400/80 text-white shadow-[0_0_15px_rgba(99,102,241,0.25)]"
+                                                : "bg-white/5 border-white/10 text-gray-300 hover:bg-white/10"
+                                        )}
+                                    >
+                                        <div className="flex items-center gap-2">
+                                            <Shuffle className={cn("w-4 h-4", directInstructionShuffle ? "text-indigo-400" : "text-gray-400")} />
+                                            <div className="flex flex-col text-left">
+                                                <span className="text-xs font-bold">Shuffle Facts Order</span>
+                                                <span className="text-[10px] text-gray-400">
+                                                    {directInstructionShuffle ? "Randomized fact sequence" : "Standard sequence order"}
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <div className="flex items-center gap-1.5">
+                                            <span className={cn("text-[11px] font-bold", directInstructionShuffle ? "text-indigo-300" : "text-gray-500")}>
+                                                {directInstructionShuffle ? "ON" : "OFF"}
+                                            </span>
+                                            {directInstructionShuffle ? (
+                                                <ToggleRight className="w-5 h-5 text-indigo-400" />
+                                            ) : (
+                                                <ToggleLeft className="w-5 h-5 text-gray-500" />
+                                            )}
+                                        </div>
+                                    </button>
+                                </div>
+                            )}
                         </div>
                     )}
 
