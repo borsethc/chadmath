@@ -999,15 +999,16 @@ export function DirectInstructionMode({
                             resetLessonProgress();
                         }}
                         className={cn(
-                            "px-2.5 py-1 rounded-lg text-xs font-bold border flex items-center gap-1.5 transition-all cursor-pointer",
+                            "px-3 py-1.5 rounded-xl text-xs font-black tracking-wide border-2 flex items-center gap-2 transition-all cursor-pointer shadow-md",
                             isShuffled
-                                ? "bg-indigo-600/30 border-indigo-400 text-indigo-200 shadow-[0_0_12px_rgba(99,102,241,0.35)]"
-                                : "bg-white/5 border-white/10 text-gray-400 hover:text-white hover:bg-white/10"
+                                ? "bg-emerald-950/80 border-emerald-400 text-emerald-100 shadow-[0_0_16px_rgba(16,185,129,0.4)] hover:bg-emerald-900/90 hover:border-emerald-300"
+                                : "bg-rose-950/80 border-rose-500 text-rose-100 shadow-[0_0_14px_rgba(244,63,94,0.35)] hover:bg-rose-900/90 hover:border-rose-400"
                         )}
-                        title={isShuffled ? "Facts are shuffled (click to switch to standard order)" : "Click to shuffle facts"}
+                        title={isShuffled ? "Shuffle is ON (random fact sequence). Click to turn OFF." : "Shuffle is OFF (standard fact sequence). Click to turn ON."}
                     >
-                        <Shuffle className="w-3.5 h-3.5" />
-                        <span>{isShuffled ? "Shuffled Order" : "Shuffle Facts"}</span>
+                        <Shuffle className={cn("w-3.5 h-3.5", isShuffled ? "text-emerald-300" : "text-rose-300")} />
+                        <span className={cn("w-2 h-2 rounded-full", isShuffled ? "bg-emerald-400 shadow-[0_0_6px_#34d399]" : "bg-rose-500 shadow-[0_0_6px_#f43f5e]")} />
+                        <span>{isShuffled ? "Shuffle: ON" : "Shuffle: OFF"}</span>
                     </button>
                 </div>
 

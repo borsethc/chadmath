@@ -6,7 +6,7 @@ import { GameInstructions } from "./GameInstructions";
 import { useGameLogic, GameMode } from "@/hooks/useGameLogic";
 import { useSoundEffects } from "@/hooks/useSoundEffects";
 import { cn } from "@/lib/utils";
-import { Play, Loader2, ToggleLeft, ToggleRight, Delete, Shuffle } from "lucide-react";
+import { Play, Loader2, ToggleLeft, ToggleRight, Delete } from "lucide-react";
 
 
 import { Confetti } from "./Confetti";
@@ -29,7 +29,6 @@ export function PracticeMode({ isRunning, studentId, setIsRunning, initialConfig
     const [isMultipleChoice, setIsMultipleChoice] = useState(initialConfig?.isMultipleChoice ?? false);
     const [isDirectInstruction, setIsDirectInstruction] = useState(false);
     const [directInstructionTables, setDirectInstructionTables] = useState<number[]>([2]);
-    const [directInstructionShuffle, setDirectInstructionShuffle] = useState<boolean>(false);
 
     // We lift factMastery state up slightly to pass it down, but useGameLogic manages its internal copy
     // We need a ref to hold initial mastery because we don't want to reset logic on state update?
@@ -473,7 +472,6 @@ export function PracticeMode({ isRunning, studentId, setIsRunning, initialConfig
         return (
             <DirectInstructionMode
                 initialTables={directInstructionTables}
-                initialShuffle={directInstructionShuffle}
                 studentId={studentId}
                 onClose={() => setIsRunning(false)}
                 onSwitchToSkillLevel={(lvl) => {
@@ -672,39 +670,6 @@ export function PracticeMode({ isRunning, studentId, setIsRunning, initialConfig
                                         <span className="text-[11px] text-gray-400">
                                             Selected: {directInstructionTables.map((t) => `${t}s`).join(", ")}
                                         </span>
-
-                                        {/* Shuffle Facts Order Option */}
-                                        <button
-                                            type="button"
-                                            data-testid="setup-direct-instruction-shuffle"
-                                            onClick={() => setDirectInstructionShuffle(!directInstructionShuffle)}
-                                            className={cn(
-                                                "flex items-center justify-between w-full p-2.5 rounded-xl border mt-1 cursor-pointer transition-all",
-                                                directInstructionShuffle
-                                                    ? "bg-indigo-500/20 border-indigo-400/80 text-white shadow-[0_0_15px_rgba(99,102,241,0.25)]"
-                                                    : "bg-white/5 border-white/10 text-gray-300 hover:bg-white/10"
-                                            )}
-                                        >
-                                            <div className="flex items-center gap-2">
-                                                <Shuffle className={cn("w-4 h-4", directInstructionShuffle ? "text-indigo-400" : "text-gray-400")} />
-                                                <div className="flex flex-col text-left">
-                                                    <span className="text-xs font-bold">Shuffle Facts Order</span>
-                                                    <span className="text-[10px] text-gray-400">
-                                                        {directInstructionShuffle ? "Randomized fact sequence" : "Standard sequence order"}
-                                                    </span>
-                                                </div>
-                                            </div>
-                                            <div className="flex items-center gap-1.5">
-                                                <span className={cn("text-[11px] font-bold", directInstructionShuffle ? "text-indigo-300" : "text-gray-500")}>
-                                                    {directInstructionShuffle ? "ON" : "OFF"}
-                                                </span>
-                                                {directInstructionShuffle ? (
-                                                    <ToggleRight className="w-5 h-5 text-indigo-400" />
-                                                ) : (
-                                                    <ToggleLeft className="w-5 h-5 text-gray-500" />
-                                                )}
-                                            </div>
-                                        </button>
                                     </div>
                                 )}
 
