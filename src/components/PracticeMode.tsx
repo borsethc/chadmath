@@ -619,6 +619,95 @@ export function PracticeMode({ isRunning, studentId, setIsRunning, initialConfig
                                     </span>
                                 </button>
 
+                                {/* Table Selector & Shuffle when Direct Instruction Mode is selected (nested before Level 1, 2, 3) */}
+                                {isDirectInstruction && (
+                                    <div className="flex flex-col items-center gap-2 w-full py-1">
+                                        <div className="flex justify-between items-center w-full">
+                                            <span className="text-[10px] sm:text-xs font-medium uppercase tracking-widest text-indigo-300">
+                                                Select Groups / Tables (2–9)
+                                            </span>
+                                            <button
+                                                type="button"
+                                                onClick={() => {
+                                                    if (directInstructionTables.length === 8) {
+                                                        setDirectInstructionTables([2]);
+                                                    } else {
+                                                        setDirectInstructionTables([2, 3, 4, 5, 6, 7, 8, 9]);
+                                                    }
+                                                }}
+                                                className="text-[10px] text-indigo-400 hover:text-indigo-300 cursor-pointer"
+                                            >
+                                                {directInstructionTables.length === 8 ? "Reset (2s)" : "Select All"}
+                                            </button>
+                                        </div>
+                                        <div className="grid grid-cols-4 gap-2 w-full">
+                                            {[2, 3, 4, 5, 6, 7, 8, 9].map((num) => {
+                                                const isSelected = directInstructionTables.includes(num);
+                                                return (
+                                                    <button
+                                                        key={num}
+                                                        type="button"
+                                                        data-testid={`setup-table-${num}`}
+                                                        onClick={() => {
+                                                            setDirectInstructionTables((prev) => {
+                                                                if (prev.includes(num)) {
+                                                                    if (prev.length === 1) return prev;
+                                                                    return prev.filter((n) => n !== num);
+                                                                }
+                                                                return [...prev, num].sort((a, b) => a - b);
+                                                            });
+                                                        }}
+                                                        className={cn(
+                                                            "py-2.5 rounded-xl text-sm font-bold transition-all border flex items-center justify-center cursor-pointer",
+                                                            isSelected
+                                                                ? "bg-indigo-500/30 border-indigo-400 text-indigo-200 shadow-[0_0_15px_rgba(99,102,241,0.3)]"
+                                                                : "bg-white/5 border-white/10 text-muted-foreground hover:bg-white/10 hover:text-white"
+                                                        )}
+                                                    >
+                                                        {num}s
+                                                    </button>
+                                                );
+                                            })}
+                                        </div>
+                                        <span className="text-[11px] text-gray-400">
+                                            Selected: {directInstructionTables.map((t) => `${t}s`).join(", ")}
+                                        </span>
+
+                                        {/* Shuffle Facts Order Option */}
+                                        <button
+                                            type="button"
+                                            data-testid="setup-direct-instruction-shuffle"
+                                            onClick={() => setDirectInstructionShuffle(!directInstructionShuffle)}
+                                            className={cn(
+                                                "flex items-center justify-between w-full p-2.5 rounded-xl border mt-1 cursor-pointer transition-all",
+                                                directInstructionShuffle
+                                                    ? "bg-indigo-500/20 border-indigo-400/80 text-white shadow-[0_0_15px_rgba(99,102,241,0.25)]"
+                                                    : "bg-white/5 border-white/10 text-gray-300 hover:bg-white/10"
+                                            )}
+                                        >
+                                            <div className="flex items-center gap-2">
+                                                <Shuffle className={cn("w-4 h-4", directInstructionShuffle ? "text-indigo-400" : "text-gray-400")} />
+                                                <div className="flex flex-col text-left">
+                                                    <span className="text-xs font-bold">Shuffle Facts Order</span>
+                                                    <span className="text-[10px] text-gray-400">
+                                                        {directInstructionShuffle ? "Randomized fact sequence" : "Standard sequence order"}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            <div className="flex items-center gap-1.5">
+                                                <span className={cn("text-[11px] font-bold", directInstructionShuffle ? "text-indigo-300" : "text-gray-500")}>
+                                                    {directInstructionShuffle ? "ON" : "OFF"}
+                                                </span>
+                                                {directInstructionShuffle ? (
+                                                    <ToggleRight className="w-5 h-5 text-indigo-400" />
+                                                ) : (
+                                                    <ToggleLeft className="w-5 h-5 text-gray-500" />
+                                                )}
+                                            </div>
+                                        </button>
+                                    </div>
+                                )}
+
                                 {(["Level 1", "Level 2", "Level 3"] as const).map(level => {
                                     // Set tooltips based on level
                                     let tooltip = "";
@@ -649,95 +738,6 @@ export function PracticeMode({ isRunning, studentId, setIsRunning, initialConfig
                                     );
                                 })}
                             </div>
-
-                            {/* Table Selector when Direct Instruction Mode is selected (multi-select) */}
-                            {isDirectInstruction && (
-                                <div className="flex flex-col items-center gap-2 w-full pt-2">
-                                    <div className="flex justify-between items-center w-full">
-                                        <span className="text-[10px] sm:text-xs font-medium uppercase tracking-widest text-indigo-300">
-                                            Select Groups / Tables (2–9)
-                                        </span>
-                                        <button
-                                            type="button"
-                                            onClick={() => {
-                                                if (directInstructionTables.length === 8) {
-                                                    setDirectInstructionTables([2]);
-                                                } else {
-                                                    setDirectInstructionTables([2, 3, 4, 5, 6, 7, 8, 9]);
-                                                }
-                                            }}
-                                            className="text-[10px] text-indigo-400 hover:text-indigo-300 cursor-pointer"
-                                        >
-                                            {directInstructionTables.length === 8 ? "Reset (2s)" : "Select All"}
-                                        </button>
-                                    </div>
-                                    <div className="grid grid-cols-4 gap-2 w-full">
-                                        {[2, 3, 4, 5, 6, 7, 8, 9].map((num) => {
-                                            const isSelected = directInstructionTables.includes(num);
-                                            return (
-                                                <button
-                                                    key={num}
-                                                    type="button"
-                                                    data-testid={`setup-table-${num}`}
-                                                    onClick={() => {
-                                                        setDirectInstructionTables((prev) => {
-                                                            if (prev.includes(num)) {
-                                                                if (prev.length === 1) return prev;
-                                                                return prev.filter((n) => n !== num);
-                                                            }
-                                                            return [...prev, num].sort((a, b) => a - b);
-                                                        });
-                                                    }}
-                                                    className={cn(
-                                                        "py-2.5 rounded-xl text-sm font-bold transition-all border flex items-center justify-center cursor-pointer",
-                                                        isSelected
-                                                            ? "bg-indigo-500/30 border-indigo-400 text-indigo-200 shadow-[0_0_15px_rgba(99,102,241,0.3)]"
-                                                            : "bg-white/5 border-white/10 text-muted-foreground hover:bg-white/10 hover:text-white"
-                                                    )}
-                                                >
-                                                    {num}s
-                                                </button>
-                                            );
-                                        })}
-                                    </div>
-                                    <span className="text-[11px] text-gray-400">
-                                        Selected: {directInstructionTables.map((t) => `${t}s`).join(", ")}
-                                    </span>
-
-                                    {/* Shuffle Facts Order Option */}
-                                    <button
-                                        type="button"
-                                        data-testid="setup-direct-instruction-shuffle"
-                                        onClick={() => setDirectInstructionShuffle(!directInstructionShuffle)}
-                                        className={cn(
-                                            "flex items-center justify-between w-full p-2.5 rounded-xl border mt-1 cursor-pointer transition-all",
-                                            directInstructionShuffle
-                                                ? "bg-indigo-500/20 border-indigo-400/80 text-white shadow-[0_0_15px_rgba(99,102,241,0.25)]"
-                                                : "bg-white/5 border-white/10 text-gray-300 hover:bg-white/10"
-                                        )}
-                                    >
-                                        <div className="flex items-center gap-2">
-                                            <Shuffle className={cn("w-4 h-4", directInstructionShuffle ? "text-indigo-400" : "text-gray-400")} />
-                                            <div className="flex flex-col text-left">
-                                                <span className="text-xs font-bold">Shuffle Facts Order</span>
-                                                <span className="text-[10px] text-gray-400">
-                                                    {directInstructionShuffle ? "Randomized fact sequence" : "Standard sequence order"}
-                                                </span>
-                                            </div>
-                                        </div>
-                                        <div className="flex items-center gap-1.5">
-                                            <span className={cn("text-[11px] font-bold", directInstructionShuffle ? "text-indigo-300" : "text-gray-500")}>
-                                                {directInstructionShuffle ? "ON" : "OFF"}
-                                            </span>
-                                            {directInstructionShuffle ? (
-                                                <ToggleRight className="w-5 h-5 text-indigo-400" />
-                                            ) : (
-                                                <ToggleLeft className="w-5 h-5 text-gray-500" />
-                                            )}
-                                        </div>
-                                    </button>
-                                </div>
-                            )}
                         </div>
                     )}
 
